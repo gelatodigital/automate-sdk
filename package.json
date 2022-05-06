@@ -1,0 +1,42 @@
+{
+  "name": "@gelatonetwork/ops-sdk",
+  "version": "0.0.1",
+  "description": "SDK to create Gelato Ops tasks",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "yarn generate-contracts-typings && tsc --project tsconfig.prod.json && yarn copy-contracts-types",
+    "copy-contracts-types": "cp ./src/contracts/types/*.ts ./dist/contracts/types",
+    "format": "prettier --write '*/**/*.{js,json,md,ts}'",
+    "format:check": "prettier --check '*/**/*.{js,json,md,ts}'",
+    "generate-contracts-typings": "npx typechain --target=ethers-v5 --out-dir src/contracts/types ./src/**/abis/*.json",
+    "lint": "eslint --cache .",
+    "prepare": "yarn build && yarn format && yarn lint",
+    "test": "ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.1",
+    "@typechain/ethers-v5": "^10.0.0",
+    "@types/node": "^16.11.12",
+    "@typescript-eslint/eslint-plugin": "^5.6.0",
+    "@typescript-eslint/parser": "^5.6.0",
+    "eslint": "^8.4.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-prettier": "^4.0.0",
+    "lint-staged": "^11.1.2",
+    "prettier": "^2.3.2",
+    "ts-generator": "^0.1.1",
+    "typechain": "^8.0.0",
+    "typescript": "^4.5.3"
+  },
+  "dependencies": {
+    "axios": "^0.24.0",
+    "ethers": "^5.5.2"
+  }
+}
