@@ -1,10 +1,15 @@
 import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
-import { GELATO_OPS_ADDRESSES, OPS_TASKS_API } from "../constants";
-import { Ops, Ops__factory } from "../contracts/types";
+import { GELATO_ADDRESSES, OPS_TASKS_API, ETH } from "../constants";
+import {
+  Ops,
+  Ops__factory,
+  Forwarder,
+  Forwarder__factory,
+} from "../contracts/types";
 import { ContractTransaction } from "ethers";
-import { Task, TaskApiParams, TaskReceipt } from "../types";
+import { CreateTaskOptions, Task, TaskApiParams, TaskReceipt } from "../types";
 import axios from "axios";
 import { isGelatoOpsSupported } from "../utils";
 
@@ -12,6 +17,7 @@ export class GelatoOpsSDK {
   private _chainId: number;
   private _signer: Signer;
   private _ops: Ops;
+  private _forwarder: Forwarder;
 
   constructor(chainId: number, signer: Signer) {
     if (!isGelatoOpsSupported(chainId)) {
@@ -24,7 +30,11 @@ export class GelatoOpsSDK {
     this._chainId = chainId;
     this._signer = signer;
     this._ops = Ops__factory.connect(
-      GELATO_OPS_ADDRESSES[this._chainId],
+      GELATO_ADDRESSES[this._chainId].ops,
+      this._signer
+    );
+    this._forwarder = Forwarder__factory.connect(
+      GELATO_ADDRESSES[this._chainId].forwarder,
       this._signer
     );
   }
@@ -39,7 +49,6 @@ export class GelatoOpsSDK {
     const tasksNames = await this._postTaskApi<Task[]>(path, {
       taskIds,
     });
-    console.log(tasksNames);
 
     // Build results
     const tasks: Task[] = [];
@@ -53,22 +62,55 @@ export class GelatoOpsSDK {
     return tasks;
   }
 
-  public async createTask(
-    executorAddress: string,
-    executorSelector: string,
-    resolverAddress: string,
-    resolverData: string,
-    name?: string
-  ): Promise<TaskReceipt> {
-    // Create task on chain
-    const tx: ContractTransaction = await this._ops.createTask(
-      executorAddress,
-      executorSelector,
-      resolverAddress,
-      resolverData
-    );
-    const taskReceipt: TaskReceipt = await tx.wait();
+  public async createTask(args: CreateTaskOptions): Promise<TaskReceipt> {
+    // Set default options
+    if (args.startTime === undefined) args.startTime = 0;
+    if (args.useTreasury === undefined) args.useTreasury = true;
+    if (args.feeToken === undefined) args.feeToken = ETH;
+    if (!args.resolverAddress) args.resolverAddress = this._forwarder.address;
+    if (!args.resolverData)
+      args.resolverData = this._forwarder.interface.encodeFunctionData(
+        "checker",
+        [args.execData ?? []]
+      );
 
+    // Create task using appropriate contract method
+    let tx: ContractTransaction;
+    if (args.interval) {
+      tx = await this._ops.createTimedTask(
+        args.startTime,
+        args.interval,
+        args.execAddress,
+        args.execSelector,
+        args.resolverAddress,
+        args.resolverData,
+        args.feeToken,
+        args.useTreasury
+      );
+    } else if (!args.useTreasury) {
+      tx = await this._ops.createTaskNoPrepayment(
+        args.execAddress,
+        args.execSelector,
+        args.resolverAddress,
+        args.resolverData,
+        args.feeToken
+      );
+    } else {
+      tx = await this._ops.createTask(
+        args.execAddress,
+        args.execSelector,
+        args.resolverAddress,
+        args.resolverData
+      );
+    }
+    const taskReceipt: TaskReceipt = await tx.wait();
+    return this._finalizeTaskCreation(taskReceipt, args);
+  }
+
+  private async _finalizeTaskCreation(
+    taskReceipt: TaskReceipt,
+    args: CreateTaskOptions
+  ): Promise<TaskReceipt> {
     // Retrieve taskId from TaskCreated event
     const taskCreated = taskReceipt.events?.find(
       (e) => e.event === "TaskCreated"
@@ -76,10 +118,22 @@ export class GelatoOpsSDK {
     if (taskCreated && taskCreated.args?.taskId) {
       const taskId = taskCreated.args.taskId;
       taskReceipt.taskId = taskId;
-      // And post task name to tasks API
-      await this._createTaskName(taskId, name ?? taskId);
+      // Post task name & contracts ABI to tasks API
+      const { name, execAddress, execAbi, resolverAddress, resolverAbi } = args;
+      const promises = [];
+      promises.push(this._setTaskName(taskId, name ?? taskId));
+      if (execAbi) {
+        promises.push(
+          this._setContractAbi(taskId, false, execAddress, execAbi)
+        );
+      }
+      if (resolverAddress && resolverAbi) {
+        promises.push(
+          this._setContractAbi(taskId, true, resolverAddress, resolverAbi)
+        );
+      }
+      await Promise.all(promises);
     }
-
     return taskReceipt;
   }
 
@@ -90,7 +144,7 @@ export class GelatoOpsSDK {
     return taskReceipt;
   }
 
-  private async _createTaskName(taskId: string, name: string): Promise<void> {
+  private async _setTaskName(taskId: string, name: string): Promise<void> {
     const path = `/tasks/${this._chainId}`;
     await this._postTaskApi(path, { taskId, name, chainId: this._chainId });
   }
@@ -98,6 +152,22 @@ export class GelatoOpsSDK {
   public async renameTask(taskId: string, name: string): Promise<void> {
     const path = `/tasks/${this._chainId}/${taskId}`;
     await this._postTaskApi(path, { name });
+  }
+
+  private async _setContractAbi(
+    taskId: string,
+    isResolver: boolean,
+    address: string,
+    abi: string
+  ): Promise<void> {
+    const path = `/contracts/${this._chainId}/`;
+    await this._postTaskApi(path, {
+      chainId: this._chainId,
+      taskId,
+      address,
+      resolver: isResolver,
+      ABI: abi,
+    });
   }
 
   private async _postTaskApi<Response>(
