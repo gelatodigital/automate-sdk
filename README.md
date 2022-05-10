@@ -40,14 +40,33 @@ const gelatoOps = new GelatoOpsSDK(chainId, signer);
 4. Create an automation task:
 
 ```typescript
-  const res: TaskReceipt = await gelatoOps.createTask(
-    executionAddress, // Address of your smart contract
-    executionSelector, // Function Selector to execute on your contract
-    resolverAddress, // Use a resolver contract address for dynamic input
-    resolverData, // Function Selector to call on your resolver contract
-    "New Gelato task"
-  );
-  console.log(`Task created, taskId: ${res.taskId} (tx hash: ${res.transactionHash})`);
+interface CreateTaskOptions {
+  name: string;             // your task name
+
+  // Function to execute
+  execAddress: string;      // address of your smart contract
+  execSelector: string;     // function selector to execute on your contract
+  execAbi?: string;         // your executor contract ABI 
+
+  // Pre-defined inputs
+  execData?: string;        // exec call data 
+  
+  // Dynamic input (using a resolver)
+  resolverAddress?: string; // resolver contract address
+  resolverData?: string;    // resolver call data
+  resolverAbi?: string;     // your resolver contract ABI
+
+  // Time based task params
+  interval?: number;        // execution interval in seconds
+  startTime?: number;       // start timestamp in seconds or 0 to start immediately (default: 0)
+
+  // Payment params
+  useTreasury?: boolean;    // use false if your task is self-paying (default: true)
+  feeToken?: string;        // specify a payment token address or ETH address for native token (default: ETH)  
+}
+
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const res: TaskReceipt = await gelatoOps.createTask(params);
 ```
 
 5. Retrieve all your tasks:
