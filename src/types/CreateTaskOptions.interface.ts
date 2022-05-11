@@ -10,5 +10,4 @@ export interface CreateTaskOptions {
   startTime?: number;
   interval?: number;
   useTreasury?: boolean;
-  feeToken?: string;
 }
