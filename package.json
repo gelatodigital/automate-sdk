@@ -2,6 +2,7 @@
   "name": "@gelatonetwork/ops-sdk",
   "version": "0.0.1",
   "description": "SDK to create Gelato Ops tasks",
+  "url": "https://github.com/gelatodigital/ops-sdk",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
