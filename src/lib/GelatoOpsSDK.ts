@@ -8,7 +8,7 @@ import {
   Forwarder,
   Forwarder__factory,
 } from "../contracts/types";
-import { ContractTransaction } from "ethers";
+import { ContractTransaction, Overrides } from "ethers";
 import { CreateTaskOptions, Task, TaskApiParams, TaskReceipt } from "../types";
 import axios from "axios";
 import { isGelatoOpsSupported } from "../utils";
@@ -62,11 +62,13 @@ export class GelatoOpsSDK {
     return tasks;
   }
 
-  public async createTask(args: CreateTaskOptions): Promise<TaskReceipt> {
+  public async createTask(
+    args: CreateTaskOptions,
+    overrides: Overrides = {}
+  ): Promise<TaskReceipt> {
     // Set default options
     if (args.startTime === undefined) args.startTime = 0;
     if (args.useTreasury === undefined) args.useTreasury = true;
-    if (args.feeToken === undefined) args.feeToken = ETH;
     if (!args.resolverAddress) args.resolverAddress = this._forwarder.address;
     if (!args.resolverData)
       args.resolverData = this._forwarder.interface.encodeFunctionData(
@@ -84,8 +86,9 @@ export class GelatoOpsSDK {
         args.execSelector,
         args.resolverAddress,
         args.resolverData,
-        args.feeToken,
-        args.useTreasury
+        ETH,
+        args.useTreasury,
+        overrides
       );
     } else if (!args.useTreasury) {
       tx = await this._ops.createTaskNoPrepayment(
@@ -93,14 +96,16 @@ export class GelatoOpsSDK {
         args.execSelector,
         args.resolverAddress,
         args.resolverData,
-        args.feeToken
+        ETH,
+        overrides
       );
     } else {
       tx = await this._ops.createTask(
         args.execAddress,
         args.execSelector,
         args.resolverAddress,
-        args.resolverData
+        args.resolverData,
+        overrides
       );
     }
     const taskReceipt: TaskReceipt = await tx.wait();
@@ -137,8 +142,11 @@ export class GelatoOpsSDK {
     return taskReceipt;
   }
 
-  public async cancelTask(taskId: string): Promise<TaskReceipt> {
-    const tx = await this._ops.cancelTask(taskId);
+  public async cancelTask(
+    taskId: string,
+    overrides: Overrides = {}
+  ): Promise<TaskReceipt> {
+    const tx = await this._ops.cancelTask(taskId, overrides);
     const taskReceipt: TaskReceipt = await tx.wait();
     taskReceipt.taskId = taskId;
     return taskReceipt;
