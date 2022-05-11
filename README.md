@@ -1,6 +1,10 @@
-# Gelato Ops SDK
+# Gelato Ops SDK <!-- omit in toc -->
 
 Automate your smart contracts using Gelato Ops SDK
+
+- [Installation](#installation)
+- [How to use?](#how-to-use)
+- [Examples](#examples)
 
 ## Installation
 
@@ -40,14 +44,32 @@ const gelatoOps = new GelatoOpsSDK(chainId, signer);
 4. Create an automation task:
 
 ```typescript
-  const res: TaskReceipt = await gelatoOps.createTask(
-    executionAddress, // Address of your smart contract
-    executionSelector, // Function Selector to execute on your contract
-    resolverAddress, // Use a resolver contract address for dynamic input
-    resolverData, // Function Selector to call on your resolver contract
-    "New Gelato task"
-  );
-  console.log(`Task created, taskId: ${res.taskId} (tx hash: ${res.transactionHash})`);
+interface CreateTaskOptions {
+  name: string;             // your task name
+
+  // Function to execute
+  execAddress: string;      // address of your smart contract
+  execSelector: string;     // function selector to execute on your contract
+  execAbi?: string;         // your executor contract ABI 
+
+  // Pre-defined inputs
+  execData?: string;        // exec call data 
+  
+  // Dynamic input (using a resolver)
+  resolverAddress?: string; // resolver contract address
+  resolverData?: string;    // resolver call data
+  resolverAbi?: string;     // your resolver contract ABI
+
+  // Time based task params
+  interval?: number;        // execution interval in seconds
+  startTime?: number;       // start timestamp in seconds or 0 to start immediately (default: 0)
+
+  // Payment params
+  useTreasury?: boolean;    // use false if your task is self-paying (default: true)
+}
+
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const res: TaskReceipt = await gelatoOps.createTask(params);
 ```
 
 5. Retrieve all your tasks:
@@ -72,3 +94,17 @@ const res: TaskReceipt = await gelatoOps.cancelTask(taskId);
 console.log(`Task canceled, taskId: ${res.taskId} (tx hash: ${res.transactionHash})`);
 ```
 
+8. Overriding gas settings:
+
+If you need to override gas settings, you can pass an additional `Overrides` object to `createTask` & `cancelTask` methods:
+
+```typescript
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const overrides: Overrides = { gasLimit: 2000000 };
+const res: TaskReceipt = await gelatoOps.createTask(params, overrides);
+```
+
+
+## Examples
+
+Check out our tutorial repository [ops-sdk-hello-world](https://github.com/gelatodigital/ops-sdk-hello-world) for more in-depth examples.

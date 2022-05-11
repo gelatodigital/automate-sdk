@@ -3,4 +3,7 @@ export interface TaskApiParams {
   taskId?: string;
   chainId?: number | string;
   name?: string;
+  resolver?: boolean;
+  address?: string;
+  ABI?: string; // eslint-disable-line @typescript-eslint/naming-convention
 }
