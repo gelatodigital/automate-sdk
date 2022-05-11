@@ -1,6 +1,10 @@
-# Gelato Ops SDK
+# Gelato Ops SDK <!-- omit in toc -->
 
 Automate your smart contracts using Gelato Ops SDK
+
+- [Installation](#installation)
+- [How to use?](#how-to-use)
+- [Examples](#examples)
 
 ## Installation
 
@@ -62,7 +66,6 @@ interface CreateTaskOptions {
 
   // Payment params
   useTreasury?: boolean;    // use false if your task is self-paying (default: true)
-  feeToken?: string;        // specify a payment token address or ETH address for native token (default: ETH)  
 }
 
 const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
@@ -91,3 +94,17 @@ const res: TaskReceipt = await gelatoOps.cancelTask(taskId);
 console.log(`Task canceled, taskId: ${res.taskId} (tx hash: ${res.transactionHash})`);
 ```
 
+8. Overriding gas settings:
+
+If you need to override gas settings, you can pass an additional `Overrides` object to `createTask` & `cancelTask` methods:
+
+```typescript
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const overrides: Overrides = { gasLimit: 2000000 };
+const res: TaskReceipt = await gelatoOps.createTask(params, overrides);
+```
+
+
+## Examples
+
+Check out our tutorial repository [ops-sdk-hello-world](https://github.com/gelatodigital/ops-sdk-hello-world) for more in-depth examples.
