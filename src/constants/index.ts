@@ -1,4 +1,4 @@
-import { GelatoAddressBook } from "../types/GelatoAddressBook.interface";
+import { GelatoAddressBook } from "../types";
 
 export const OPS_TASKS_API =
   "https://ops-task.fra.gelato.digital/1514007e8336fa99e6fe/api";
