@@ -10,6 +10,7 @@ export const CHAIN_ID = {
   ROPSTEN: 3,
   RINKEBY: 4,
   GOERLI: 5,
+  OPTIMISM: 10,
   BSC: 56,
   MATIC: 137,
   GNOSIS: 100,
@@ -63,5 +64,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.GNOSIS]: {
     ops: "0x8aB6aDbC1fec4F18617C9B889F5cE7F28401B8dB",
     forwarder: "0xB3f5503f93d5Ef84b06993a1975B9D21B962892F",
+  },
+  [CHAIN_ID.OPTIMISM]: {
+    ops: "0x340759c8346A1E6Ed92035FB8B6ec57cE1D82c2c",
+    forwarder: "0x95f4538C3950CE0EF5821f2049aE2aC5cCade68D",
   },
 };
