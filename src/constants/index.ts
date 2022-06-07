@@ -11,6 +11,7 @@ export const CHAIN_ID = {
   RINKEBY: 4,
   GOERLI: 5,
   OPTIMISM: 10,
+  CRONOS: 25,
   KOVAN: 42,
   BSC: 56,
   GNOSIS: 100,
@@ -78,5 +79,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.MOONBEAM]: {
     ops: "0x6c3224f9b3feE000A444681d5D45e4532D5BA531",
     forwarder: "0x340759c8346A1E6Ed92035FB8B6ec57cE1D82c2c",
+  },
+  [CHAIN_ID.CRONOS]: {
+    ops: "0x86B7e611194978F556007ac1F52D09d114D8f160",
+    forwarder: "0xE196330228CdE3Bb6b29413f32A95C45ACcF4952",
   },
 };
