@@ -14,12 +14,14 @@ import axios from "axios";
 import { isGelatoOpsSupported } from "../utils";
 
 export class GelatoOpsSDK {
-  private _chainId: number;
-  private _signer: Signer;
+  private readonly _chainId: number;
+  private readonly _signer: Signer;
   private _ops: Ops;
   private _forwarder: Forwarder;
+  private _signature!: string;
+  private readonly _signatureMessage: string;
 
-  constructor(chainId: number, signer: Signer) {
+  constructor(chainId: number, signer: Signer, signatureMessage?: string) {
     if (!isGelatoOpsSupported(chainId)) {
       throw new Error(`Gelato Ops is not available on chainId:${chainId}`);
     }
@@ -27,6 +29,7 @@ export class GelatoOpsSDK {
       throw new Error(`Invalid Gelato Ops signer`);
     }
 
+    this._signatureMessage = signatureMessage ?? "Gelato Ops Task";
     this._chainId = chainId;
     this._signer = signer;
     this._ops = Ops__factory.connect(
@@ -46,9 +49,13 @@ export class GelatoOpsSDK {
 
     // Retrieve task names
     const path = `/tasks/${this._chainId}/getTasksByTaskIds`;
-    const tasksNames = await this._postTaskApi<Task[]>(path, {
-      taskIds,
-    });
+    const tasksNames = await this._postTaskApi<Task[]>(
+      path,
+      {
+        taskIds,
+      },
+      true // used to skip signature
+    );
 
     // Build results
     const tasks: Task[] = [];
@@ -75,6 +82,9 @@ export class GelatoOpsSDK {
         "checker",
         [args.execData ?? []]
       );
+
+    // Ask for signature
+    if (!this._signature) await this._requestAndStoreSignature();
 
     // Create task using appropriate contract method
     let tx: ContractTransaction;
@@ -152,6 +162,19 @@ export class GelatoOpsSDK {
     return taskReceipt;
   }
 
+  private async _requestAndStoreSignature() {
+    this._signature = await this._signer.signMessage(this._signatureMessage);
+    const token = Buffer.from(
+      JSON.stringify({
+        signature: this._signature,
+        message: this._signatureMessage,
+      })
+    ).toString("base64");
+
+    // Set Axios headers
+    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  }
+
   private async _setTaskName(taskId: string, name: string): Promise<void> {
     const path = `/tasks/${this._chainId}`;
     await this._postTaskApi(path, { taskId, name, chainId: this._chainId });
@@ -180,20 +203,14 @@ export class GelatoOpsSDK {
 
   private async _postTaskApi<Response>(
     path: string,
-    data: TaskApiParams
+    data: TaskApiParams,
+    skipSignature = false
   ): Promise<Response | undefined> {
+    if (!skipSignature && !this._signature) {
+      await this._requestAndStoreSignature();
+    }
     try {
-      const message = "Gelato Ops Task";
-      const signature = await this._signer.signMessage(message);
-      const token = Buffer.from(
-        JSON.stringify({ signature, message })
-      ).toString("base64");
-
-      const response = await axios.post(`${OPS_TASKS_API}${path}`, data, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(`${OPS_TASKS_API}${path}`, data);
       return response.data as Response;
     } catch (error) {
       this._logTaskApiError(error);
