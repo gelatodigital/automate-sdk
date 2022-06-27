@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 import { GelatoAddressBook } from "../types";
 
 export const OPS_TASKS_API =
@@ -13,6 +14,7 @@ export const CHAIN_ID = {
   OPTIMISM: 10,
   CRONOS: 25,
   KOVAN: 42,
+  OPTIMISTIC_KOVAN: 69,
   BSC: 56,
   GNOSIS: 100,
   MATIC: 137,
@@ -44,6 +46,10 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.KOVAN]: {
     ops: "0x6c3224f9b3feE000A444681d5D45e4532D5BA531",
     forwarder: "0x4055cb250Ec8d539C5222EAa71fa7e30Fe94f8e9",
+  },
+  [CHAIN_ID.OPTIMISTIC_KOVAN]: {
+    ops: "0xB3f5503f93d5Ef84b06993a1975B9D21B962892F",
+    forwarder: "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41",
   },
   [CHAIN_ID.MATIC]: {
     ops: "0x527a819db1eb0e34426297b03bae11F2f8B3A19E",
