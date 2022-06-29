@@ -69,7 +69,9 @@ interface CreateTaskOptions {
 }
 
 const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
-const res: TaskReceipt = await gelatoOps.createTask(params);
+const { taskId, tx }: TaskTransaction = await gelatoOps.createTask(params);
+await tx.wait(); // Optionally wait for tx confirmation
+console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
 ```
 
 5. Retrieve all your tasks:
@@ -90,8 +92,9 @@ await gelatoOps.renameTask(taskId, "Another Gelato name");
 7. Cancel a task:
 
 ```typescript
-const res: TaskReceipt = await gelatoOps.cancelTask(taskId);
-console.log(`Task canceled, taskId: ${res.taskId} (tx hash: ${res.transactionHash})`);
+const { taskId, tx }: TaskTransaction = await gelatoOps.cancelTask(taskId);
+await tx.wait(); // Optionally wait for tx confirmation
+console.log(`Task canceled, taskId: ${taskId} (tx hash: ${tx.hash})`);
 ```
 
 8. Overriding gas settings:
@@ -101,7 +104,7 @@ If you need to override gas settings, you can pass an additional `Overrides` obj
 ```typescript
 const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
 const overrides: Overrides = { gasLimit: 2000000 };
-const res: TaskReceipt = await gelatoOps.createTask(params, overrides);
+const tx: TaskTransaction = await gelatoOps.createTask(params, overrides);
 ```
 
 
