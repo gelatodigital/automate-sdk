@@ -11,3 +11,10 @@ export interface CreateTaskOptions {
   interval?: number;
   useTreasury?: boolean;
 }
+
+export interface CreateTaskOptionsWithDefaults extends CreateTaskOptions {
+  resolverAddress: string;
+  resolverData: string;
+  startTime: number;
+  useTreasury: boolean;
+}
