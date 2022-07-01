@@ -8,10 +8,16 @@ import {
   Forwarder,
   Forwarder__factory,
 } from "../contracts/types";
-import { ContractTransaction, Overrides } from "ethers";
-import { CreateTaskOptions, Task, TaskApiParams, TaskReceipt } from "../types";
+import { ContractTransaction, ethers, Overrides } from "ethers";
+import {
+  CreateTaskOptions,
+  CreateTaskOptionsWithDefaults,
+  Task,
+  TaskApiParams,
+} from "../types";
 import axios from "axios";
 import { isGelatoOpsSupported } from "../utils";
+import { TaskTransaction } from "../types/TaskTransaction.interface";
 
 export class GelatoOpsSDK {
   private readonly _chainId: number;
@@ -69,19 +75,43 @@ export class GelatoOpsSDK {
     return tasks;
   }
 
+  public async getTaskId(_args: CreateTaskOptions): Promise<string> {
+    return this._getTaskId(this._addDefaultOptions(_args));
+  }
+
+  protected async _getTaskId(
+    args: CreateTaskOptionsWithDefaults
+  ): Promise<string> {
+    const address = await this._signer.getAddress();
+
+    const resolverHash = ethers.utils.keccak256(
+      new ethers.utils.AbiCoder().encode(
+        ["address", "bytes"],
+        [args.resolverAddress, args.resolverData]
+      )
+    );
+
+    const taskId = ethers.utils.keccak256(
+      new ethers.utils.AbiCoder().encode(
+        ["address", "address", "bytes4", "bool", "address", "bytes32"],
+        [
+          address,
+          args.execAddress,
+          args.execSelector,
+          args.useTreasury,
+          args.useTreasury ? ethers.constants.AddressZero : ETH,
+          resolverHash,
+        ]
+      )
+    );
+    return taskId;
+  }
+
   public async createTask(
-    args: CreateTaskOptions,
+    _args: CreateTaskOptions,
     overrides: Overrides = {}
-  ): Promise<TaskReceipt> {
-    // Set default options
-    if (args.startTime === undefined) args.startTime = 0;
-    if (args.useTreasury === undefined) args.useTreasury = true;
-    if (!args.resolverAddress) args.resolverAddress = this._forwarder.address;
-    if (!args.resolverData)
-      args.resolverData = this._forwarder.interface.encodeFunctionData(
-        "checker",
-        [args.execData ?? []]
-      );
+  ): Promise<TaskTransaction> {
+    const args = this._addDefaultOptions(_args);
 
     // Ask for signature
     if (!this._signature) await this._requestAndStoreSignature();
@@ -118,48 +148,52 @@ export class GelatoOpsSDK {
         overrides
       );
     }
-    const taskReceipt: TaskReceipt = await tx.wait();
-    return this._finalizeTaskCreation(taskReceipt, args);
+    const taskId = await this._getTaskId(args);
+    await this._finalizeTaskCreation(taskId, args);
+    return { taskId, tx };
+  }
+
+  private _addDefaultOptions(
+    args: CreateTaskOptions
+  ): CreateTaskOptionsWithDefaults {
+    return {
+      ...args,
+      startTime: args.startTime ?? 0,
+      useTreasury: args.useTreasury ?? true,
+      resolverAddress: args.resolverAddress ?? this._forwarder.address,
+      resolverData:
+        args.resolverData ??
+        this._forwarder.interface.encodeFunctionData("checker", [
+          args.execData ?? [],
+        ]),
+    };
   }
 
   private async _finalizeTaskCreation(
-    taskReceipt: TaskReceipt,
-    args: CreateTaskOptions
-  ): Promise<TaskReceipt> {
-    // Retrieve taskId from TaskCreated event
-    const taskCreated = taskReceipt.events?.find(
-      (e) => e.event === "TaskCreated"
-    );
-    if (taskCreated && taskCreated.args?.taskId) {
-      const taskId = taskCreated.args.taskId;
-      taskReceipt.taskId = taskId;
-      // Post task name & contracts ABI to tasks API
-      const { name, execAddress, execAbi, resolverAddress, resolverAbi } = args;
-      const promises = [];
-      promises.push(this._setTaskName(taskId, name ?? taskId));
-      if (execAbi) {
-        promises.push(
-          this._setContractAbi(taskId, false, execAddress, execAbi)
-        );
-      }
-      if (resolverAddress && resolverAbi) {
-        promises.push(
-          this._setContractAbi(taskId, true, resolverAddress, resolverAbi)
-        );
-      }
-      await Promise.all(promises);
+    taskId: string,
+    args: CreateTaskOptionsWithDefaults
+  ): Promise<void> {
+    // Post task name & contracts ABI to tasks API
+    const { name, execAddress, execAbi, resolverAddress, resolverAbi } = args;
+    const promises: Promise<void>[] = [];
+    promises.push(this._setTaskName(taskId, name ?? taskId));
+    if (execAbi) {
+      promises.push(this._setContractAbi(taskId, false, execAddress, execAbi));
     }
-    return taskReceipt;
+    if (resolverAddress && resolverAbi) {
+      promises.push(
+        this._setContractAbi(taskId, true, resolverAddress, resolverAbi)
+      );
+    }
+    await Promise.all(promises);
   }
 
   public async cancelTask(
     taskId: string,
     overrides: Overrides = {}
-  ): Promise<TaskReceipt> {
+  ): Promise<TaskTransaction> {
     const tx = await this._ops.cancelTask(taskId, overrides);
-    const taskReceipt: TaskReceipt = await tx.wait();
-    taskReceipt.taskId = taskId;
-    return taskReceipt;
+    return { taskId, tx };
   }
 
   private async _requestAndStoreSignature() {
