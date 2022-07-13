@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
@@ -8,7 +9,7 @@ import {
   Forwarder,
   Forwarder__factory,
 } from "../contracts/types";
-import { ContractTransaction, ethers, Overrides } from "ethers";
+import { ContractTransaction, ethers, Overrides, providers } from "ethers";
 import {
   CreateTaskOptions,
   CreateTaskOptionsWithDefaults,
@@ -198,8 +199,16 @@ export class GelatoOpsSDK {
   }
 
   public isGnosisSafeApp = (): boolean => {
-    // eslint-disable-next-line no-prototype-builtins
-    return Boolean(this._signer.provider?.hasOwnProperty("safe"));
+    let provider: providers.Provider | undefined;
+    if (this._signer.provider?.hasOwnProperty("provider")) {
+      // Use internal provider
+      provider = (
+        this._signer.provider as unknown as { provider: providers.Provider }
+      ).provider;
+    } else {
+      provider = this._signer.provider;
+    }
+    return Boolean(provider?.hasOwnProperty("safe"));
   };
 
   private async _requestAndStoreSignature() {
