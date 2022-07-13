@@ -14,6 +14,7 @@ import {
   CreateTaskOptionsWithDefaults,
   Task,
   TaskApiParams,
+  TokenData,
 } from "../types";
 import axios from "axios";
 import { isGelatoOpsSupported } from "../utils";
@@ -24,7 +25,7 @@ export class GelatoOpsSDK {
   private readonly _signer: Signer;
   private _ops: Ops;
   private _forwarder: Forwarder;
-  private _signature!: string;
+  private _token!: string;
   private readonly _signatureMessage: string;
 
   constructor(chainId: number, signer: Signer, signatureMessage?: string) {
@@ -114,7 +115,7 @@ export class GelatoOpsSDK {
     const args = this._addDefaultOptions(_args);
 
     // Ask for signature
-    if (!this._signature) await this._requestAndStoreSignature();
+    if (!this._token) await this._requestAndStoreSignature();
 
     // Create task using appropriate contract method
     let tx: ContractTransaction;
@@ -196,17 +197,27 @@ export class GelatoOpsSDK {
     return { taskId, tx };
   }
 
+  public isGnosisSafeApp = (): boolean => {
+    // eslint-disable-next-line no-prototype-builtins
+    return Boolean(this._signer.provider?.hasOwnProperty("safe"));
+  };
+
   private async _requestAndStoreSignature() {
-    this._signature = await this._signer.signMessage(this._signatureMessage);
-    const token = Buffer.from(
-      JSON.stringify({
-        signature: this._signature,
-        message: this._signatureMessage,
-      })
-    ).toString("base64");
+    const tokenData: TokenData = {
+      message: this._signatureMessage,
+      origin: "SDK",
+    };
+    if (this.isGnosisSafeApp()) {
+      tokenData.unsignedUser = await this._signer.getAddress();
+    } else {
+      tokenData.signature = await this._signer.signMessage(
+        this._signatureMessage
+      );
+    }
+    this._token = Buffer.from(JSON.stringify(tokenData)).toString("base64");
 
     // Set Axios headers
-    axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    axios.defaults.headers.common["Authorization"] = `Bearer ${this._token}`;
   }
 
   private async _setTaskName(taskId: string, name: string): Promise<void> {
@@ -215,6 +226,10 @@ export class GelatoOpsSDK {
   }
 
   public async renameTask(taskId: string, name: string): Promise<void> {
+    if (this.isGnosisSafeApp()) {
+      throw new Error("Cannot rename task from a gnosis safe");
+    }
+
     const path = `/tasks/${this._chainId}/${taskId}`;
     await this._postTaskApi(path, { name });
   }
@@ -240,7 +255,7 @@ export class GelatoOpsSDK {
     data: TaskApiParams,
     skipSignature = false
   ): Promise<Response | undefined> {
-    if (!skipSignature && !this._signature) {
+    if (!skipSignature && !this._token) {
       await this._requestAndStoreSignature();
     }
     try {
