@@ -127,7 +127,7 @@ This feature provides extra security.
 To fetch your OpsProxy address:
 
 ```typescript
-const opsProxyAddress = await gelatoOps.getOpsProxyAddress();
+const {opsProxyAddress} = await gelatoOps.getOpsProxyAddress();
 console.log("Ops proxy address: ", opsProxyAddress);
 ```
 
