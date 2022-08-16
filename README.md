@@ -64,6 +64,17 @@ interface CreateTaskOptions {
   interval?: number;        // execution interval in seconds
   startTime?: number;       // start timestamp in seconds or 0 to start immediately (default: 0)
 
+  // Proxy caller
+  proxy?: boolean;          // executions will be routed through proxy for extra safety.
+
+  // Single execution task
+  singleExec?: boolean;     // task cancels itself after 1 execution if true.
+
+  // Polywrap params
+  polywrapHash?: string;    // ipfs hash of polywrap.
+  polywrapArgs?: 
+  {[key: string]: unknown}; // polywrap resolver arguments object.
+
   // Payment params
   useTreasury?: boolean;    // use false if your task is self-paying (default: true)
 }
@@ -105,6 +116,19 @@ If you need to override gas settings, you can pass an additional `Overrides` obj
 const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
 const overrides: Overrides = { gasLimit: 2000000 };
 const tx: TaskTransaction = await gelatoOps.createTask(params, overrides);
+```
+
+9. Whitelisting msg.sender of function:
+
+If you enabled `proxy`, the calls will be routed through your dedicated `OpsProxy` smart contract which is deployed during task creation. `msg.sender` will be the `OpsProxy` address instead of `Ops`.
+
+This feature provides extra security. 
+
+To fetch your OpsProxy address:
+
+```typescript
+const opsProxyAddress = await gelatoOps.getOpsProxyAddress();
+console.log("Ops proxy address: ", opsProxyAddress);
 ```
 
 
