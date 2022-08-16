@@ -3,7 +3,12 @@ import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
 import { GELATO_ADDRESSES, OPS_TASKS_API, ETH, ZERO_ADD } from "../constants";
-import { Ops, Ops__factory } from "../contracts/types";
+import {
+  Ops,
+  OpsProxyFactory__factory,
+  Ops__factory,
+  ProxyModule__factory,
+} from "../contracts/types";
 import { ContractTransaction, ethers, Overrides, providers } from "ethers";
 import {
   CreateTaskOptions,
@@ -71,6 +76,27 @@ export class GelatoOpsSDK {
       });
     }
     return tasks;
+  }
+
+  public async getOpsProxyAddress(): Promise<string> {
+    const proxyModuleAddress = await this._ops.taskModuleAddresses(
+      Module.PROXY
+    );
+
+    const opsProxyFactoryAddress = await ProxyModule__factory.connect(
+      proxyModuleAddress,
+      this._signer
+    ).opsProxyFactory();
+
+    const opsProxyFactory = OpsProxyFactory__factory.connect(
+      opsProxyFactoryAddress,
+      this._signer
+    );
+
+    const userAddress = await this._signer.getAddress();
+    const [opsProxyAddress] = await opsProxyFactory.getProxyOf(userAddress);
+
+    return opsProxyAddress;
   }
 
   public async getTaskId(_args: CreateTaskOptions): Promise<string> {
