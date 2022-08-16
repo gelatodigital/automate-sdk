@@ -14,6 +14,8 @@ export interface CreateTaskOptions {
   useTreasury?: boolean;
   dedicatedMsgSender: boolean;
   singleExec?: boolean;
+  polywrapHash?: string;
+  polywrapArgs?: { [key: string]: unknown };
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {
