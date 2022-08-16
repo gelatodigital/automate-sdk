@@ -2,30 +2,30 @@
 import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
-import { GELATO_ADDRESSES, OPS_TASKS_API, ETH } from "../constants";
-import {
-  Ops,
-  Ops__factory,
-  Forwarder,
-  Forwarder__factory,
-} from "../contracts/types";
+import { GELATO_ADDRESSES, OPS_TASKS_API, ETH, ZERO_ADD } from "../constants";
+import { Ops, Ops__factory } from "../contracts/types";
 import { ContractTransaction, ethers, Overrides, providers } from "ethers";
 import {
   CreateTaskOptions,
-  CreateTaskOptionsWithDefaults,
+  CreateTaskOptionsWithModules,
   Task,
   TaskApiParams,
   TokenData,
 } from "../types";
 import axios from "axios";
-import { isGelatoOpsSupported } from "../utils";
+import {
+  encodePolywrapArgs,
+  encodeResolverArgs,
+  encodeTimeArgs,
+  isGelatoOpsSupported,
+} from "../utils";
 import { TaskTransaction } from "../types/TaskTransaction.interface";
+import { Module, ModuleData } from "../types/Module.interface";
 
 export class GelatoOpsSDK {
   private readonly _chainId: number;
   private readonly _signer: Signer;
   private _ops: Ops;
-  private _forwarder: Forwarder;
   private _token!: string;
   private readonly _signatureMessage: string;
 
@@ -42,10 +42,6 @@ export class GelatoOpsSDK {
     this._signer = signer;
     this._ops = Ops__factory.connect(
       GELATO_ADDRESSES[this._chainId].ops,
-      this._signer
-    );
-    this._forwarder = Forwarder__factory.connect(
-      GELATO_ADDRESSES[this._chainId].forwarder,
       this._signer
     );
   }
@@ -78,23 +74,60 @@ export class GelatoOpsSDK {
   }
 
   public async getTaskId(_args: CreateTaskOptions): Promise<string> {
-    return this._getTaskId(this._addDefaultOptions(_args));
+    const args = this._processModules(_args);
+
+    return this._getTaskId(args);
   }
 
   protected async _getTaskId(
-    args: CreateTaskOptionsWithDefaults
+    args: CreateTaskOptionsWithModules
+  ): Promise<string> {
+    const address = await this._signer.getAddress();
+    const modules = args.moduleData.modules;
+
+    if (
+      (modules.length === 1 && modules[0] === Module.RESOLVER) ||
+      (modules.length === 2 &&
+        modules[0] === Module.RESOLVER &&
+        modules[1] === Module.TIME)
+    )
+      return this._getLegacyTaskId(args);
+
+    const taskId = ethers.utils.keccak256(
+      ethers.utils.defaultAbiCoder.encode(
+        [
+          "address",
+          "address",
+          "bytes4",
+          "tuple(uint8[] modules,bytes[] args)",
+          "address",
+        ],
+        [
+          address,
+          args.execAddress,
+          args.execSelector,
+          args.moduleData,
+          args.useTreasury ? ethers.constants.AddressZero : ETH,
+        ]
+      )
+    );
+    return taskId;
+  }
+
+  protected async _getLegacyTaskId(
+    args: CreateTaskOptionsWithModules
   ): Promise<string> {
     const address = await this._signer.getAddress();
 
     const resolverHash = ethers.utils.keccak256(
-      new ethers.utils.AbiCoder().encode(
+      ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes"],
         [args.resolverAddress, args.resolverData]
       )
     );
 
     const taskId = ethers.utils.keccak256(
-      new ethers.utils.AbiCoder().encode(
+      ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "bytes4", "bool", "address", "bytes32"],
         [
           address,
@@ -113,67 +146,69 @@ export class GelatoOpsSDK {
     _args: CreateTaskOptions,
     overrides: Overrides = {}
   ): Promise<TaskTransaction> {
-    const args = this._addDefaultOptions(_args);
+    const args = this._processModules(_args);
 
     // Ask for signature
     if (!this._token) await this._requestAndStoreSignature();
 
-    // Create task using appropriate contract method
-    let tx: ContractTransaction;
-    if (args.interval) {
-      tx = await this._ops.createTimedTask(
-        args.startTime,
-        args.interval,
-        args.execAddress,
-        args.execSelector,
-        args.resolverAddress,
-        args.resolverData,
-        ETH,
-        args.useTreasury,
-        overrides
-      );
-    } else if (!args.useTreasury) {
-      tx = await this._ops.createTaskNoPrepayment(
-        args.execAddress,
-        args.execSelector,
-        args.resolverAddress,
-        args.resolverData,
-        ETH,
-        overrides
-      );
-    } else {
-      tx = await this._ops.createTask(
-        args.execAddress,
-        args.execSelector,
-        args.resolverAddress,
-        args.resolverData,
-        overrides
-      );
-    }
+    const tx: ContractTransaction = await this._ops.createTask(
+      args.execAddress,
+      args.execData ?? args.execSelector,
+      args.moduleData,
+      args.useTreasury ? ZERO_ADD : ETH,
+      overrides
+    );
+
     const taskId = await this._getTaskId(args);
     await this._finalizeTaskCreation(taskId, args);
     return { taskId, tx };
   }
 
-  private _addDefaultOptions(
+  private _processModules(
     args: CreateTaskOptions
-  ): CreateTaskOptionsWithDefaults {
-    return {
-      ...args,
-      startTime: args.startTime ?? 0,
-      useTreasury: args.useTreasury ?? true,
-      resolverAddress: args.resolverAddress ?? this._forwarder.address,
-      resolverData:
-        args.resolverData ??
-        this._forwarder.interface.encodeFunctionData("checker", [
-          args.execData ?? [],
-        ]),
-    };
+  ): CreateTaskOptionsWithModules {
+    const modules: Module[] = [];
+    const moduleArgs: string[] = [];
+
+    args.startTime = args.startTime ?? 0;
+
+    if (args.resolverAddress && args.resolverData) {
+      const encoded = encodeResolverArgs(
+        args.resolverAddress,
+        args.resolverData
+      );
+      modules.push(Module.RESOLVER);
+      moduleArgs.push(encoded);
+    }
+    if (args.interval) {
+      const encoded = encodeTimeArgs(args.startTime, args.interval);
+      modules.push(Module.TIME);
+      moduleArgs.push(encoded);
+    }
+    if (args.proxy) {
+      modules.push(Module.PROXY);
+      moduleArgs.push("0x");
+    }
+    if (args.singleExec) {
+      modules.push(Module.SINGLE_EXEC);
+      moduleArgs.push("0x");
+    }
+    if (args.polywrapHash) {
+      const encoded = encodePolywrapArgs(
+        args.polywrapHash,
+        args.polywrapArgs ?? {}
+      );
+      modules.push(Module.POLYWRAP);
+      moduleArgs.push(encoded);
+    }
+
+    const moduleData: ModuleData = { modules, args: moduleArgs };
+    return { ...args, useTreasury: args.useTreasury ?? true, moduleData };
   }
 
   private async _finalizeTaskCreation(
     taskId: string,
-    args: CreateTaskOptionsWithDefaults
+    args: CreateTaskOptionsWithModules
   ): Promise<void> {
     // Post task name & contracts ABI to tasks API
     const { name, execAddress, execAbi, resolverAddress, resolverAbi } = args;
