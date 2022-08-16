@@ -1,3 +1,5 @@
+import { ModuleData } from "./Module.interface";
+
 export interface CreateTaskOptions {
   name: string;
   execAddress: string;
@@ -10,11 +12,13 @@ export interface CreateTaskOptions {
   startTime?: number;
   interval?: number;
   useTreasury?: boolean;
+  proxy?: boolean;
+  singleExec?: boolean;
+  polywrapHash?: string;
+  polywrapArgs?: { [key: string]: unknown };
 }
 
-export interface CreateTaskOptionsWithDefaults extends CreateTaskOptions {
-  resolverAddress: string;
-  resolverData: string;
-  startTime: number;
+export interface CreateTaskOptionsWithModules extends CreateTaskOptions {
   useTreasury: boolean;
+  moduleData: ModuleData;
 }
