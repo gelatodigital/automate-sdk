@@ -80,7 +80,7 @@ export class GelatoOpsSDK {
 
   public async getOpsProxyAddress(): Promise<{
     opsProxyAddress: string;
-    deployed: boolean;
+    isDeployed: boolean;
   }> {
     const proxyModuleAddress = await this._ops.taskModuleAddresses(
       Module.PROXY
@@ -97,11 +97,11 @@ export class GelatoOpsSDK {
     );
 
     const userAddress = await this._signer.getAddress();
-    const [opsProxyAddress, deployed] = await opsProxyFactory.getProxyOf(
+    const [opsProxyAddress, isDeployed] = await opsProxyFactory.getProxyOf(
       userAddress
     );
 
-    return { opsProxyAddress, deployed };
+    return { opsProxyAddress, isDeployed };
   }
 
   public async getTaskId(_args: CreateTaskOptions): Promise<string> {
