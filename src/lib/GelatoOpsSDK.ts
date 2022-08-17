@@ -24,7 +24,7 @@ import {
   encodeTimeArgs,
   isGelatoOpsSupported,
 } from "../utils";
-import { TaskTransaction } from "../types/TaskTransaction.interface";
+import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
 
 export class GelatoOpsSDK {
