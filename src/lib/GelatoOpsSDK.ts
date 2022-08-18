@@ -24,7 +24,7 @@ import {
   encodeTimeArgs,
   isGelatoOpsSupported,
 } from "../utils";
-import { TaskTransaction } from "../types/TaskTransaction.interface";
+import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
 
 export class GelatoOpsSDK {
@@ -79,7 +79,7 @@ export class GelatoOpsSDK {
   }
 
   public async getOpsProxyAddress(): Promise<{
-    opsProxyAddress: string;
+    address: string;
     isDeployed: boolean;
   }> {
     const proxyModuleAddress = await this._ops.taskModuleAddresses(
@@ -97,11 +97,9 @@ export class GelatoOpsSDK {
     );
 
     const userAddress = await this._signer.getAddress();
-    const [opsProxyAddress, isDeployed] = await opsProxyFactory.getProxyOf(
-      userAddress
-    );
+    const [address, isDeployed] = await opsProxyFactory.getProxyOf(userAddress);
 
-    return { opsProxyAddress, isDeployed };
+    return { address, isDeployed };
   }
 
   public async getTaskId(_args: CreateTaskOptions): Promise<string> {
