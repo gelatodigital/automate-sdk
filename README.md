@@ -70,6 +70,11 @@ interface CreateTaskOptions {
   // Optional: Single execution task
   singleExec?: boolean;     // task cancels itself after 1 execution if true.
 
+  // Off-chain resolver params
+  offChainResolverHash?: string;    // ipfs hash of off-chain resolver.
+  offChainResolverArgs?: 
+  {[key: string]: unknown}; // off-chain resolver arguments object.
+
   // Optional: Payment params
   useTreasury?: boolean;    // use false if your task is self-paying (default: true)
 }
