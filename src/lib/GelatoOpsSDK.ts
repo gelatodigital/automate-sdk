@@ -19,7 +19,7 @@ import {
 } from "../types";
 import axios from "axios";
 import {
-  encodePolywrapArgs,
+  encodeOResolverArgs,
   encodeResolverArgs,
   encodeTimeArgs,
   isGelatoOpsSupported,
@@ -224,12 +224,12 @@ export class GelatoOpsSDK {
       modules.push(Module.SINGLE_EXEC);
       moduleArgs.push("0x");
     }
-    if (args.polywrapHash) {
-      const encoded = encodePolywrapArgs(
-        args.polywrapHash,
-        args.polywrapArgs ?? {}
+    if (args.offChainResolverHash) {
+      const encoded = encodeOResolverArgs(
+        args.offChainResolverHash,
+        args.offChainResolverArgs ?? {}
       );
-      modules.push(Module.POLYWRAP);
+      modules.push(Module.ORESOLVER);
       moduleArgs.push(encoded);
     }
 

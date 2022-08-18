@@ -5,7 +5,7 @@ export enum Module {
   TIME,
   PROXY,
   SINGLE_EXEC,
-  POLYWRAP,
+  ORESOLVER,
 }
 
 export interface ModuleData {

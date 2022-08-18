@@ -22,8 +22,8 @@ export const encodeTimeArgs = (startTime: number, interval: number): string => {
   return encoded;
 };
 
-export const encodePolywrapArgs = (
-  polywrapCid: string,
+export const encodeOResolverArgs = (
+  oResolverHash: string,
   userArgs: { [key: string]: unknown }
 ): string => {
   const userArgsBuffer = encode(userArgs);
@@ -31,7 +31,7 @@ export const encodePolywrapArgs = (
 
   const encoded = ethers.utils.defaultAbiCoder.encode(
     ["string", "bytes"],
-    [polywrapCid, userArgsHex]
+    [oResolverHash, userArgsHex]
   );
 
   return encoded;

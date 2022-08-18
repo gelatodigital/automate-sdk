@@ -14,8 +14,8 @@ export interface CreateTaskOptions {
   useTreasury?: boolean;
   proxy?: boolean;
   singleExec?: boolean;
-  polywrapHash?: string;
-  polywrapArgs?: { [key: string]: unknown };
+  offChainResolverHash?: string;
+  offChainResolverArgs?: { [key: string]: unknown };
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {
