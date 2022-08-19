@@ -18,16 +18,13 @@ import {
   TokenData,
 } from "../types";
 import axios from "axios";
-import {
-  encodeOResolverArgs,
-  encodeResolverArgs,
-  encodeTimeArgs,
-  isGelatoOpsSupported,
-} from "../utils";
+import { isGelatoOpsSupported } from "../utils";
 import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
+import { GelatoOpsModule } from "./GelatoOpsModule";
 
 export class GelatoOpsSDK {
+  private _opsModule: GelatoOpsModule;
   private readonly _chainId: number;
   private readonly _signer: Signer;
   private _ops: Ops;
@@ -42,6 +39,7 @@ export class GelatoOpsSDK {
       throw new Error(`Invalid Gelato Ops signer`);
     }
 
+    this._opsModule = new GelatoOpsModule();
     this._signatureMessage = signatureMessage ?? "Gelato Ops Task";
     this._chainId = chainId;
     this._signer = signer;
@@ -196,42 +194,19 @@ export class GelatoOpsSDK {
   private _processModules(
     args: CreateTaskOptions
   ): CreateTaskOptionsWithModules {
-    const modules: Module[] = [];
-    const moduleArgs: string[] = [];
-
     args.startTime = args.startTime ?? 0;
 
-    if (args.resolverAddress && args.resolverData) {
-      const encoded = encodeResolverArgs(
-        args.resolverAddress,
-        args.resolverData
-      );
-      modules.push(Module.RESOLVER);
-      moduleArgs.push(encoded);
-    }
-    if (args.interval) {
-      const encoded = encodeTimeArgs(args.startTime, args.interval);
-      modules.push(Module.TIME);
-      moduleArgs.push(encoded);
-    }
-    if (args.proxy) {
-      modules.push(Module.PROXY);
-      moduleArgs.push("0x");
-    }
-    if (args.singleExec) {
-      modules.push(Module.SINGLE_EXEC);
-      moduleArgs.push("0x");
-    }
-    if (args.offChainResolverHash) {
-      const encoded = encodeOResolverArgs(
-        args.offChainResolverHash,
-        args.offChainResolverArgs ?? {}
-      );
-      modules.push(Module.ORESOLVER);
-      moduleArgs.push(encoded);
-    }
+    const moduleData: ModuleData = this._opsModule.encodeModuleData({
+      resolverAddress: args.resolverAddress,
+      resolverData: args.resolverData,
+      startTime: args.startTime,
+      interval: args.interval,
+      proxy: args.proxy,
+      singleExec: args.singleExec,
+      offChainResolverHash: args.offChainResolverHash,
+      offChainResolverArgs: args.offChainResolverArgs,
+    });
 
-    const moduleData: ModuleData = { modules, args: moduleArgs };
     return { ...args, useTreasury: args.useTreasury ?? true, moduleData };
   }
 
