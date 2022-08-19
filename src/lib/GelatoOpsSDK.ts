@@ -203,6 +203,8 @@ export class GelatoOpsSDK {
       interval: args.interval,
       dedicatedMsgSender: args.dedicatedMsgSender,
       singleExec: args.singleExec,
+      offChainResolverHash: args.offChainResolverHash,
+      offChainResolverArgs: args.offChainResolverArgs,
     });
 
     return { ...args, useTreasury: args.useTreasury ?? true, moduleData };

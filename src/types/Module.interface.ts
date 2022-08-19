@@ -35,3 +35,8 @@ export interface ProxyParams {
 export interface SingleExecParams {
   singleExec: boolean | null;
 }
+
+export interface OffChainResolverParams {
+  offChainResolverHash: string | null;
+  offChainResolverArgs: { [key: string]: unknown } | null;
+}
