@@ -4,7 +4,7 @@ import { encode, decode } from "@msgpack/msgpack";
 import { ethers } from "ethers";
 import {
   Module,
-  ModuleArgs,
+  ModuleArgsParams,
   ModuleData,
   OffChainResolverParams,
   ResolverParams,
@@ -12,7 +12,9 @@ import {
 } from "../types/Module.interface";
 
 export class GelatoOpsModule {
-  public encodeModuleArgs = (moduleArgs: Partial<ModuleArgs>): ModuleData => {
+  public encodeModuleArgs = (
+    moduleArgsParams: Partial<ModuleArgsParams>
+  ): ModuleData => {
     const modules: Module[] = [];
     const args: string[] = [];
 
@@ -25,7 +27,7 @@ export class GelatoOpsModule {
       singleExec,
       offChainResolverHash,
       offChainResolverArgs,
-    } = moduleArgs;
+    } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
       modules.push(Module.RESOLVER);
@@ -57,11 +59,11 @@ export class GelatoOpsModule {
     return { modules, args };
   };
 
-  public decodeModuleArgs = (moduleData: ModuleData): ModuleArgs => {
+  public decodeModuleArgs = (moduleData: ModuleData): ModuleArgsParams => {
     const modules = moduleData.modules;
     const args = moduleData.args;
 
-    const moduleArgsDecoded: ModuleArgs = {
+    const moduleArgsDecoded: ModuleArgsParams = {
       resolverAddress: null,
       resolverData: null,
       startTime: null,

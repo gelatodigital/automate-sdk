@@ -13,7 +13,7 @@ export interface ModuleData {
   args: string[];
 }
 
-export interface ModuleArgs
+export interface ModuleArgsParams
   extends ResolverParams,
     TimeParams,
     ProxyParams,
