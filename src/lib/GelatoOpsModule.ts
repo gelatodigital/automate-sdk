@@ -12,7 +12,7 @@ import {
 } from "../types/Module.interface";
 
 export class GelatoOpsModule {
-  public encodeModuleData = (moduleArgs: ModuleArgs): ModuleData => {
+  public encodeModuleArgs = (moduleArgs: Partial<ModuleArgs>): ModuleData => {
     const modules: Module[] = [];
     const args: string[] = [];
 
@@ -57,7 +57,7 @@ export class GelatoOpsModule {
     return { modules, args };
   };
 
-  public decodeModuleData = (moduleData: ModuleData): ModuleArgs => {
+  public decodeModuleArgs = (moduleData: ModuleData): ModuleArgs => {
     const modules = moduleData.modules;
     const args = moduleData.args;
 

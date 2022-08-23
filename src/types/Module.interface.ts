@@ -14,11 +14,11 @@ export interface ModuleData {
 }
 
 export interface ModuleArgs
-  extends Partial<ResolverParams>,
-    Partial<TimeParams>,
-    Partial<ProxyParams>,
-    Partial<SingleExecParams>,
-    Partial<OffChainResolverParams> {}
+  extends ResolverParams,
+    TimeParams,
+    ProxyParams,
+    SingleExecParams,
+    OffChainResolverParams {}
 
 export interface ResolverParams {
   resolverAddress: string | null;

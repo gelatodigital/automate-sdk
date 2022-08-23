@@ -10,7 +10,6 @@
     "typeRoots": ["./node_modules/@types"],
     "declaration": true,
     "esModuleInterop": true,
-    "module": "esnext",
     "outDir": "dist",
     "baseUrl": "src",
     "rootDir": "src"

@@ -196,7 +196,7 @@ export class GelatoOpsSDK {
   ): CreateTaskOptionsWithModules {
     args.startTime = args.startTime ?? 0;
 
-    const moduleData: ModuleData = this._opsModule.encodeModuleData({
+    const moduleData: ModuleData = this._opsModule.encodeModuleArgs({
       resolverAddress: args.resolverAddress,
       resolverData: args.resolverData,
       startTime: args.startTime,
