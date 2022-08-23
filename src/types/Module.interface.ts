@@ -17,7 +17,8 @@ export interface ModuleArgsParams
   extends ResolverParams,
     TimeParams,
     ProxyParams,
-    SingleExecParams {}
+    SingleExecParams,
+    OffChainResolverParams {}
 
 export interface ResolverParams {
   resolverAddress: string | null;
