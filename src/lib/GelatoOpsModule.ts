@@ -23,6 +23,8 @@ export class GelatoOpsModule {
       interval,
       dedicatedMsgSender,
       singleExec,
+      offChainResolverHash,
+      offChainResolverArgs,
     } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
