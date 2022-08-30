@@ -34,9 +34,10 @@ export class GelatoOpsModule {
       args.push(this._encodeResolverArgs(resolverAddress, resolverData));
     }
 
-    if (startTime && interval) {
+    if (interval) {
+      const start = startTime ?? 0;
       modules.push(Module.TIME);
-      args.push(this._encodeTimeArgs(startTime, interval));
+      args.push(this._encodeTimeArgs(start, interval));
     }
 
     if (proxy) {
