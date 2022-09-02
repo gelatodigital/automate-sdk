@@ -39,7 +39,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     ops: "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41",
   },
   [CHAIN_ID.MATIC]: {
-    ops: "0x527a819db1eb0e34426297b03bae11F2f8B3A19E",
+    ops: "0xb4380a9C795C2d3337bc07F384a7f0AC5835655F",
   },
   [CHAIN_ID.MUMBAI]: {
     ops: "0xA16a69BFbBf1600490E667865f91aAFA11d62371",
