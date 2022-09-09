@@ -27,7 +27,7 @@ export const CHAIN_ID = {
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.MAINNET]: {
-    ops: "0xB3f5503f93d5Ef84b06993a1975B9D21B962892F",
+    ops: "0x7A7680767a4e41Ace578470d8B0EB1Ff97b0c023",
   },
   [CHAIN_ID.GOERLI]: {
     ops: "0xc1C6805B857Bef1f412519C4A842522431aFed39",
