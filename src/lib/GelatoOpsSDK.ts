@@ -76,7 +76,7 @@ export class GelatoOpsSDK {
     return tasks;
   }
 
-  public async getOpsProxyAddress(): Promise<{
+  public async getDedicatedMsgSender(): Promise<{
     address: string;
     isDeployed: boolean;
   }> {
@@ -201,7 +201,7 @@ export class GelatoOpsSDK {
       resolverData: args.resolverData,
       startTime: args.startTime,
       interval: args.interval,
-      proxy: args.proxy,
+      dedicatedMsgSender: args.dedicatedMsgSender,
       singleExec: args.singleExec,
       offChainResolverHash: args.offChainResolverHash,
       offChainResolverArgs: args.offChainResolverArgs,

@@ -12,7 +12,7 @@ export interface CreateTaskOptions {
   startTime?: number;
   interval?: number;
   useTreasury?: boolean;
-  proxy?: boolean;
+  dedicatedMsgSender: boolean;
   singleExec?: boolean;
   offChainResolverHash?: string;
   offChainResolverArgs?: { [key: string]: unknown };

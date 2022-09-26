@@ -69,7 +69,7 @@ export class GelatoOpsModule {
       resolverData: null,
       startTime: null,
       interval: null,
-      proxy: false,
+      dedicatedMsgSender: false,
       singleExec: false,
       offChainResolverHash: null,
       offChainResolverArgs: {},
@@ -94,7 +94,7 @@ export class GelatoOpsModule {
     }
 
     if (modules.includes(Module.PROXY)) {
-      moduleArgsDecoded.proxy = true;
+      moduleArgsDecoded.dedicatedMsgSender = true;
     }
 
     if (modules.includes(Module.SINGLE_EXEC)) {

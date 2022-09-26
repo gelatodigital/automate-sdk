@@ -31,7 +31,7 @@ export interface TimeParams {
 }
 
 export interface ProxyParams {
-  proxy: boolean | null;
+  dedicatedMsgSender: boolean | null;
 }
 export interface SingleExecParams {
   singleExec: boolean | null;

@@ -65,7 +65,7 @@ interface CreateTaskOptions {
   startTime?: number;       // start timestamp in seconds or 0 to start immediately (default: 0)
 
   // Proxy caller
-  proxy?: boolean;          // executions will be routed through proxy for extra safety.
+  dedicatedMsgSender: boolean;     // task will be called via a dedicated msg.sender which you can whitelist
 
   // Single execution task
   singleExec?: boolean;     // task cancels itself after 1 execution if true.
@@ -120,15 +120,15 @@ const tx: TaskTransaction = await gelatoOps.createTask(params, overrides);
 
 9. Whitelisting msg.sender of function:
 
-If you enabled `proxy`, the calls will be routed through your dedicated `OpsProxy` smart contract which is deployed during task creation. `msg.sender` will be the `OpsProxy` address instead of `Ops`.
+If you enabled `dedicatedMsgSender`, your task will be called via a dedicated `msg.sender` which you can whitelist on your smart contract for extra security.
 
-This feature provides extra security. 
+If `dedicatedMsgSender` is set to false, `msg.sender` of the task will be the Ops contract.
 
-To fetch your OpsProxy address:
+To fetch your dedicated `msg.sender`:
 
 ```typescript
-const {opsProxyAddress} = await gelatoOps.getOpsProxyAddress();
-console.log("Ops proxy address: ", opsProxyAddress);
+const { address } = await gelatoOps.getDedicatedMsgSender();
+console.log("Dedicated msg.sender: ", address);
 ```
 
 
