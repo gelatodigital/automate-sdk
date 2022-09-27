@@ -23,7 +23,7 @@ export class GelatoOpsModule {
       resolverData,
       startTime,
       interval,
-      proxy,
+      dedicatedMsgSender,
       singleExec,
       offChainResolverHash,
       offChainResolverArgs,
@@ -40,7 +40,7 @@ export class GelatoOpsModule {
       args.push(this._encodeTimeArgs(start, interval));
     }
 
-    if (proxy) {
+    if (dedicatedMsgSender) {
       modules.push(Module.PROXY);
       args.push("0x");
     }
