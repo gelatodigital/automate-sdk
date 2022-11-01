@@ -79,7 +79,7 @@ interface CreateTaskOptions {
   useTreasury?: boolean;    // use false if your task is self-paying (default: true)
 }
 
-const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
 const { taskId, tx }: TaskTransaction = await gelatoOps.createTask(params);
 await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
@@ -113,7 +113,7 @@ console.log(`Task canceled, taskId: ${taskId} (tx hash: ${tx.hash})`);
 If you need to override gas settings, you can pass an additional `Overrides` object to `createTask` & `cancelTask` methods:
 
 ```typescript
-const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
 const overrides: Overrides = { gasLimit: 2000000 };
 const tx: TaskTransaction = await gelatoOps.createTask(params, overrides);
 ```
