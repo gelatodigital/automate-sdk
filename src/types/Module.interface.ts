@@ -5,7 +5,6 @@ export enum Module {
   TIME,
   PROXY,
   SINGLE_EXEC,
-  ORESOLVER,
 }
 
 export interface ModuleData {
@@ -17,8 +16,7 @@ export interface ModuleArgsParams
   extends ResolverParams,
     TimeParams,
     ProxyParams,
-    SingleExecParams,
-    OffChainResolverParams {}
+    SingleExecParams {}
 
 export interface ResolverParams {
   resolverAddress: string | null;
@@ -35,8 +33,4 @@ export interface ProxyParams {
 }
 export interface SingleExecParams {
   singleExec: boolean | null;
-}
-export interface OffChainResolverParams {
-  offChainResolverHash: string | null;
-  offChainResolverArgs: { [key: string]: unknown } | null;
 }
