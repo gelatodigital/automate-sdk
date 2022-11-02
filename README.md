@@ -64,11 +64,17 @@ interface CreateTaskOptions {
   interval?: number;        // execution interval in seconds
   startTime?: number;       // start timestamp in seconds or 0 to start immediately (default: 0)
 
+  // Proxy caller
+  dedicatedMsgSender: boolean;     // task will be called via a dedicated msg.sender which you can whitelist
+
+  // Single execution task
+  singleExec?: boolean;     // task cancels itself after 1 execution if true.
+
   // Payment params
   useTreasury?: boolean;    // use false if your task is self-paying (default: true)
 }
 
-const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
 const { taskId, tx }: TaskTransaction = await gelatoOps.createTask(params);
 await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
@@ -102,9 +108,22 @@ console.log(`Task canceled, taskId: ${taskId} (tx hash: ${tx.hash})`);
 If you need to override gas settings, you can pass an additional `Overrides` object to `createTask` & `cancelTask` methods:
 
 ```typescript
-const params: CreateTaskOptions = { name, execAddress, execSelector, interval };
+const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
 const overrides: Overrides = { gasLimit: 2000000 };
 const tx: TaskTransaction = await gelatoOps.createTask(params, overrides);
+```
+
+9. Whitelisting msg.sender of function:
+
+If you enabled `dedicatedMsgSender`, your task will be called via a dedicated `msg.sender` which you can whitelist on your smart contract for extra security.
+
+If `dedicatedMsgSender` is set to false, `msg.sender` of the task will be the Ops contract.
+
+To fetch your dedicated `msg.sender`:
+
+```typescript
+const { address } = await gelatoOps.getDedicatedMsgSender();
+console.log("Dedicated msg.sender: ", address);
 ```
 
 

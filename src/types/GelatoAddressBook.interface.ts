@@ -1,3 +1,3 @@
 export interface GelatoAddressBook {
-  [key: number]: { ops: string; forwarder: string };
+  [key: number]: { ops: string };
 }

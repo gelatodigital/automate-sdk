@@ -3,6 +3,10 @@
 /* eslint-disable */
 export type { Forwarder } from "./Forwarder";
 export type { Ops } from "./Ops";
+export type { OpsProxyFactory } from "./OpsProxyFactory";
+export type { ProxyModule } from "./ProxyModule";
 export * as factories from "./factories";
 export { Forwarder__factory } from "./factories/Forwarder__factory";
 export { Ops__factory } from "./factories/Ops__factory";
+export { OpsProxyFactory__factory } from "./factories/OpsProxyFactory__factory";
+export { ProxyModule__factory } from "./factories/ProxyModule__factory";

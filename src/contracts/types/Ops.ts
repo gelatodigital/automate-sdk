@@ -13,11 +13,7 @@ import type {
   Signer,
   utils,
 } from "ethers";
-import type {
-  FunctionFragment,
-  Result,
-  EventFragment,
-} from "@ethersproject/abi";
+import type { FunctionFragment, Result } from "@ethersproject/abi";
 import type { Listener, Provider } from "@ethersproject/providers";
 import type {
   TypedEventFilter,
@@ -26,23 +22,29 @@ import type {
   OnEvent,
 } from "./common";
 
+export declare namespace LibDataTypes {
+  export type ModuleDataStruct = { modules: BigNumberish[]; args: BytesLike[] };
+
+  export type ModuleDataStructOutput = [number[], string[]] & {
+    modules: number[];
+    args: string[];
+  };
+}
+
 export interface OpsInterface extends utils.Interface {
   functions: {
     "cancelTask(bytes32)": FunctionFragment;
-    "createTask(address,bytes4,address,bytes)": FunctionFragment;
-    "createTaskNoPrepayment(address,bytes4,address,bytes,address)": FunctionFragment;
-    "createTimedTask(uint128,uint128,address,bytes4,address,bytes,address,bool)": FunctionFragment;
-    "exec(uint256,address,address,bool,bytes32,address,bytes)": FunctionFragment;
+    "createTask(address,bytes,(uint8[],bytes[]),address)": FunctionFragment;
+    "exec(address,address,bytes,(uint8[],bytes[]),uint256,address,bool,bool)": FunctionFragment;
     "execAddresses(bytes32)": FunctionFragment;
     "fee()": FunctionFragment;
     "feeToken()": FunctionFragment;
     "gelato()": FunctionFragment;
     "getFeeDetails()": FunctionFragment;
-    "getResolverHash(address,bytes)": FunctionFragment;
-    "getSelector(string)": FunctionFragment;
-    "getTaskId(address,address,bytes4,bool,address,bytes32)": FunctionFragment;
     "getTaskIdsByUser(address)": FunctionFragment;
+    "setModule(uint8[],address[])": FunctionFragment;
     "taskCreator(bytes32)": FunctionFragment;
+    "taskModuleAddresses(uint8)": FunctionFragment;
     "taskTreasury()": FunctionFragment;
     "timedTask(bytes32)": FunctionFragment;
     "version()": FunctionFragment;
@@ -52,19 +54,16 @@ export interface OpsInterface extends utils.Interface {
     nameOrSignatureOrTopic:
       | "cancelTask"
       | "createTask"
-      | "createTaskNoPrepayment"
-      | "createTimedTask"
       | "exec"
       | "execAddresses"
       | "fee"
       | "feeToken"
       | "gelato"
       | "getFeeDetails"
-      | "getResolverHash"
-      | "getSelector"
-      | "getTaskId"
       | "getTaskIdsByUser"
+      | "setModule"
       | "taskCreator"
+      | "taskModuleAddresses"
       | "taskTreasury"
       | "timedTask"
       | "version"
@@ -76,35 +75,19 @@ export interface OpsInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createTask",
-    values: [string, BytesLike, string, BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createTaskNoPrepayment",
-    values: [string, BytesLike, string, BytesLike, string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "createTimedTask",
-    values: [
-      BigNumberish,
-      BigNumberish,
-      string,
-      BytesLike,
-      string,
-      BytesLike,
-      string,
-      boolean
-    ]
+    values: [string, BytesLike, LibDataTypes.ModuleDataStruct, string]
   ): string;
   encodeFunctionData(
     functionFragment: "exec",
     values: [
+      string,
+      string,
+      BytesLike,
+      LibDataTypes.ModuleDataStruct,
       BigNumberish,
       string,
-      string,
       boolean,
-      BytesLike,
-      string,
-      BytesLike
+      boolean
     ]
   ): string;
   encodeFunctionData(
@@ -119,21 +102,20 @@ export interface OpsInterface extends utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getResolverHash",
-    values: [string, BytesLike]
-  ): string;
-  encodeFunctionData(functionFragment: "getSelector", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "getTaskId",
-    values: [string, string, BytesLike, boolean, string, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "getTaskIdsByUser",
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "setModule",
+    values: [BigNumberish[], string[]]
+  ): string;
+  encodeFunctionData(
     functionFragment: "taskCreator",
     values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "taskModuleAddresses",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "taskTreasury",
@@ -147,14 +129,6 @@ export interface OpsInterface extends utils.Interface {
 
   decodeFunctionResult(functionFragment: "cancelTask", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "createTask", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "createTaskNoPrepayment",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "createTimedTask",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "exec", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "execAddresses",
@@ -168,20 +142,16 @@ export interface OpsInterface extends utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getResolverHash",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getSelector",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(functionFragment: "getTaskId", data: BytesLike): Result;
-  decodeFunctionResult(
     functionFragment: "getTaskIdsByUser",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "setModule", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "taskModuleAddresses",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -191,73 +161,8 @@ export interface OpsInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
 
-  events: {
-    "ExecSuccess(uint256,address,address,bytes,bytes32)": EventFragment;
-    "TaskCancelled(bytes32,address)": EventFragment;
-    "TaskCreated(address,address,bytes4,address,bytes32,bytes,bool,address,bytes32)": EventFragment;
-    "TimerSet(bytes32,uint128,uint128)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "ExecSuccess"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TaskCancelled"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TaskCreated"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "TimerSet"): EventFragment;
+  events: {};
 }
-
-export interface ExecSuccessEventObject {
-  txFee: BigNumber;
-  feeToken: string;
-  execAddress: string;
-  execData: string;
-  taskId: string;
-}
-export type ExecSuccessEvent = TypedEvent<
-  [BigNumber, string, string, string, string],
-  ExecSuccessEventObject
->;
-
-export type ExecSuccessEventFilter = TypedEventFilter<ExecSuccessEvent>;
-
-export interface TaskCancelledEventObject {
-  taskId: string;
-  taskCreator: string;
-}
-export type TaskCancelledEvent = TypedEvent<
-  [string, string],
-  TaskCancelledEventObject
->;
-
-export type TaskCancelledEventFilter = TypedEventFilter<TaskCancelledEvent>;
-
-export interface TaskCreatedEventObject {
-  taskCreator: string;
-  execAddress: string;
-  selector: string;
-  resolverAddress: string;
-  taskId: string;
-  resolverData: string;
-  useTaskTreasuryFunds: boolean;
-  feeToken: string;
-  resolverHash: string;
-}
-export type TaskCreatedEvent = TypedEvent<
-  [string, string, string, string, string, string, boolean, string, string],
-  TaskCreatedEventObject
->;
-
-export type TaskCreatedEventFilter = TypedEventFilter<TaskCreatedEvent>;
-
-export interface TimerSetEventObject {
-  taskId: string;
-  nextExec: BigNumber;
-  interval: BigNumber;
-}
-export type TimerSetEvent = TypedEvent<
-  [string, BigNumber, BigNumber],
-  TimerSetEventObject
->;
-
-export type TimerSetEventFilter = TypedEventFilter<TimerSetEvent>;
 
 export interface Ops extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
@@ -293,41 +198,21 @@ export interface Ops extends BaseContract {
 
     createTask(
       _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    createTaskNoPrepayment(
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
+      _execDataOrSelector: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    createTimedTask(
-      _startTime: BigNumberish,
-      _interval: BigNumberish,
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      _feeToken: string,
-      _useTreasury: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
     exec(
-      _txFee: BigNumberish,
-      _feeToken: string,
       _taskCreator: string,
-      _useTaskTreasuryFunds: boolean,
-      _resolverHash: BytesLike,
       _execAddress: string,
       _execData: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
+      _txFee: BigNumberish,
+      _feeToken: string,
+      _useTaskTreasuryFunds: boolean,
+      _revertOnFailure: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -344,30 +229,23 @@ export interface Ops extends BaseContract {
 
     getFeeDetails(overrides?: CallOverrides): Promise<[BigNumber, string]>;
 
-    getResolverHash(
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    getSelector(_func: string, overrides?: CallOverrides): Promise<[string]>;
-
-    getTaskId(
-      _taskCreator: string,
-      _execAddress: string,
-      _selector: BytesLike,
-      _useTaskTreasuryFunds: boolean,
-      _feeToken: string,
-      _resolverHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     getTaskIdsByUser(
       _taskCreator: string,
       overrides?: CallOverrides
     ): Promise<[string[]]>;
 
+    setModule(
+      _modules: BigNumberish[],
+      _moduleAddresses: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
+
+    taskModuleAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     taskTreasury(overrides?: CallOverrides): Promise<[string]>;
 
@@ -388,41 +266,21 @@ export interface Ops extends BaseContract {
 
   createTask(
     _execAddress: string,
-    _execSelector: BytesLike,
-    _resolverAddress: string,
-    _resolverData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  createTaskNoPrepayment(
-    _execAddress: string,
-    _execSelector: BytesLike,
-    _resolverAddress: string,
-    _resolverData: BytesLike,
+    _execDataOrSelector: BytesLike,
+    _moduleData: LibDataTypes.ModuleDataStruct,
     _feeToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  createTimedTask(
-    _startTime: BigNumberish,
-    _interval: BigNumberish,
-    _execAddress: string,
-    _execSelector: BytesLike,
-    _resolverAddress: string,
-    _resolverData: BytesLike,
-    _feeToken: string,
-    _useTreasury: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
   exec(
-    _txFee: BigNumberish,
-    _feeToken: string,
     _taskCreator: string,
-    _useTaskTreasuryFunds: boolean,
-    _resolverHash: BytesLike,
     _execAddress: string,
     _execData: BytesLike,
+    _moduleData: LibDataTypes.ModuleDataStruct,
+    _txFee: BigNumberish,
+    _feeToken: string,
+    _useTaskTreasuryFunds: boolean,
+    _revertOnFailure: boolean,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -436,30 +294,23 @@ export interface Ops extends BaseContract {
 
   getFeeDetails(overrides?: CallOverrides): Promise<[BigNumber, string]>;
 
-  getResolverHash(
-    _resolverAddress: string,
-    _resolverData: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getSelector(_func: string, overrides?: CallOverrides): Promise<string>;
-
-  getTaskId(
-    _taskCreator: string,
-    _execAddress: string,
-    _selector: BytesLike,
-    _useTaskTreasuryFunds: boolean,
-    _feeToken: string,
-    _resolverHash: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   getTaskIdsByUser(
     _taskCreator: string,
     overrides?: CallOverrides
   ): Promise<string[]>;
 
+  setModule(
+    _modules: BigNumberish[],
+    _moduleAddresses: string[],
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  taskModuleAddresses(
+    arg0: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
 
   taskTreasury(overrides?: CallOverrides): Promise<string>;
 
@@ -477,41 +328,21 @@ export interface Ops extends BaseContract {
 
     createTask(
       _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    createTaskNoPrepayment(
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
+      _execDataOrSelector: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    createTimedTask(
-      _startTime: BigNumberish,
-      _interval: BigNumberish,
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      _feeToken: string,
-      _useTreasury: boolean,
       overrides?: CallOverrides
     ): Promise<string>;
 
     exec(
-      _txFee: BigNumberish,
-      _feeToken: string,
       _taskCreator: string,
-      _useTaskTreasuryFunds: boolean,
-      _resolverHash: BytesLike,
       _execAddress: string,
       _execData: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
+      _txFee: BigNumberish,
+      _feeToken: string,
+      _useTaskTreasuryFunds: boolean,
+      _revertOnFailure: boolean,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -525,30 +356,23 @@ export interface Ops extends BaseContract {
 
     getFeeDetails(overrides?: CallOverrides): Promise<[BigNumber, string]>;
 
-    getResolverHash(
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getSelector(_func: string, overrides?: CallOverrides): Promise<string>;
-
-    getTaskId(
-      _taskCreator: string,
-      _execAddress: string,
-      _selector: BytesLike,
-      _useTaskTreasuryFunds: boolean,
-      _feeToken: string,
-      _resolverHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     getTaskIdsByUser(
       _taskCreator: string,
       overrides?: CallOverrides
     ): Promise<string[]>;
 
+    setModule(
+      _modules: BigNumberish[],
+      _moduleAddresses: string[],
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    taskModuleAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
 
     taskTreasury(overrides?: CallOverrides): Promise<string>;
 
@@ -562,62 +386,7 @@ export interface Ops extends BaseContract {
     version(overrides?: CallOverrides): Promise<string>;
   };
 
-  filters: {
-    "ExecSuccess(uint256,address,address,bytes,bytes32)"(
-      txFee?: BigNumberish | null,
-      feeToken?: string | null,
-      execAddress?: string | null,
-      execData?: null,
-      taskId?: null
-    ): ExecSuccessEventFilter;
-    ExecSuccess(
-      txFee?: BigNumberish | null,
-      feeToken?: string | null,
-      execAddress?: string | null,
-      execData?: null,
-      taskId?: null
-    ): ExecSuccessEventFilter;
-
-    "TaskCancelled(bytes32,address)"(
-      taskId?: null,
-      taskCreator?: null
-    ): TaskCancelledEventFilter;
-    TaskCancelled(taskId?: null, taskCreator?: null): TaskCancelledEventFilter;
-
-    "TaskCreated(address,address,bytes4,address,bytes32,bytes,bool,address,bytes32)"(
-      taskCreator?: null,
-      execAddress?: null,
-      selector?: null,
-      resolverAddress?: null,
-      taskId?: null,
-      resolverData?: null,
-      useTaskTreasuryFunds?: null,
-      feeToken?: null,
-      resolverHash?: null
-    ): TaskCreatedEventFilter;
-    TaskCreated(
-      taskCreator?: null,
-      execAddress?: null,
-      selector?: null,
-      resolverAddress?: null,
-      taskId?: null,
-      resolverData?: null,
-      useTaskTreasuryFunds?: null,
-      feeToken?: null,
-      resolverHash?: null
-    ): TaskCreatedEventFilter;
-
-    "TimerSet(bytes32,uint128,uint128)"(
-      taskId?: BytesLike | null,
-      nextExec?: BigNumberish | null,
-      interval?: BigNumberish | null
-    ): TimerSetEventFilter;
-    TimerSet(
-      taskId?: BytesLike | null,
-      nextExec?: BigNumberish | null,
-      interval?: BigNumberish | null
-    ): TimerSetEventFilter;
-  };
+  filters: {};
 
   estimateGas: {
     cancelTask(
@@ -627,41 +396,21 @@ export interface Ops extends BaseContract {
 
     createTask(
       _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    createTaskNoPrepayment(
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
+      _execDataOrSelector: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    createTimedTask(
-      _startTime: BigNumberish,
-      _interval: BigNumberish,
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      _feeToken: string,
-      _useTreasury: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
     exec(
-      _txFee: BigNumberish,
-      _feeToken: string,
       _taskCreator: string,
-      _useTaskTreasuryFunds: boolean,
-      _resolverHash: BytesLike,
       _execAddress: string,
       _execData: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
+      _txFee: BigNumberish,
+      _feeToken: string,
+      _useTaskTreasuryFunds: boolean,
+      _revertOnFailure: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -678,30 +427,23 @@ export interface Ops extends BaseContract {
 
     getFeeDetails(overrides?: CallOverrides): Promise<BigNumber>;
 
-    getResolverHash(
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getSelector(_func: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTaskId(
-      _taskCreator: string,
-      _execAddress: string,
-      _selector: BytesLike,
-      _useTaskTreasuryFunds: boolean,
-      _feeToken: string,
-      _resolverHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getTaskIdsByUser(
       _taskCreator: string,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    setModule(
+      _modules: BigNumberish[],
+      _moduleAddresses: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
+
+    taskModuleAddresses(
+      arg0: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     taskTreasury(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -718,41 +460,21 @@ export interface Ops extends BaseContract {
 
     createTask(
       _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createTaskNoPrepayment(
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
+      _execDataOrSelector: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    createTimedTask(
-      _startTime: BigNumberish,
-      _interval: BigNumberish,
-      _execAddress: string,
-      _execSelector: BytesLike,
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      _feeToken: string,
-      _useTreasury: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
     exec(
-      _txFee: BigNumberish,
-      _feeToken: string,
       _taskCreator: string,
-      _useTaskTreasuryFunds: boolean,
-      _resolverHash: BytesLike,
       _execAddress: string,
       _execData: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
+      _txFee: BigNumberish,
+      _feeToken: string,
+      _useTaskTreasuryFunds: boolean,
+      _revertOnFailure: boolean,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
@@ -769,34 +491,24 @@ export interface Ops extends BaseContract {
 
     getFeeDetails(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    getResolverHash(
-      _resolverAddress: string,
-      _resolverData: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getSelector(
-      _func: string,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getTaskId(
-      _taskCreator: string,
-      _execAddress: string,
-      _selector: BytesLike,
-      _useTaskTreasuryFunds: boolean,
-      _feeToken: string,
-      _resolverHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     getTaskIdsByUser(
       _taskCreator: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    setModule(
+      _modules: BigNumberish[],
+      _moduleAddresses: string[],
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     taskCreator(
       arg0: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    taskModuleAddresses(
+      arg0: BigNumberish,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
