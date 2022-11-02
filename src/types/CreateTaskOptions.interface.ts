@@ -14,8 +14,6 @@ export interface CreateTaskOptions {
   useTreasury?: boolean;
   dedicatedMsgSender: boolean;
   singleExec?: boolean;
-  offChainResolverHash?: string;
-  offChainResolverArgs?: { [key: string]: unknown };
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {
