@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { GelatoAddressBook } from "../types";
 
+export const OPS_USER_API = "http://localhost:3050"; //TODO: change to prod API
 export const OPS_TASKS_API =
   "https://ops-task.fra.gelato.digital/1514007e8336fa99e6fe/api";
 
