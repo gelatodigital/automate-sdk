@@ -1,15 +1,16 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { errorMessage } from "../../utils";
-import { Authenticator } from "./Authenticator";
-import { Secrets } from "../../types";
+import { getAuthToken } from "./authToken";
 import { OPS_USER_API } from "../../constants";
+import { Secrets } from "../../types";
+import { errorMessage } from "../../utils";
 
-export class JsResolverSecrets extends Authenticator {
+export class JsResolverSecrets {
+  private readonly _signer: Signer;
   private readonly _userApi: Axios;
 
   constructor(signer: Signer) {
-    super(signer);
+    this._signer = signer;
     this._userApi = axios.create({
       baseURL: OPS_USER_API,
     });
@@ -17,8 +18,8 @@ export class JsResolverSecrets extends Authenticator {
 
   public async get(key: string): Promise<string> {
     try {
-      const address = await this.signer.getAddress();
-      const authToken = await this.getAuthToken();
+      const address = await this._signer.getAddress();
+      const authToken = await getAuthToken(this._signer);
 
       const res = await this._userApi.get(`/users/${address}/secrets/${key}`, {
         headers: { Authorization: authToken },
@@ -27,7 +28,7 @@ export class JsResolverSecrets extends Authenticator {
       const secret = res.data[key];
       if (!secret) throw new Error(`Secret not found for key: ${key}`);
 
-      return res.data[key];
+      return res.data[key] as string;
     } catch (err) {
       const errMsg = errorMessage(err);
       throw new Error(`Fail to get secret for key "${key}". \n${errMsg}`);
@@ -36,8 +37,8 @@ export class JsResolverSecrets extends Authenticator {
 
   public async list(): Promise<Secrets> {
     try {
-      const address = await this.signer.getAddress();
-      const authToken = await this.getAuthToken();
+      const address = await this._signer.getAddress();
+      const authToken = await getAuthToken(this._signer);
 
       const res = await this._userApi.get(`/users/${address}/secrets`, {
         headers: { Authorization: authToken },
@@ -52,8 +53,8 @@ export class JsResolverSecrets extends Authenticator {
 
   public async create(secrets: Secrets): Promise<void> {
     try {
-      const address = await this.signer.getAddress();
-      const authToken = await this.getAuthToken();
+      const address = await this._signer.getAddress();
+      const authToken = await getAuthToken(this._signer);
 
       await this._userApi.post(
         `/users/${address}/secrets`,
@@ -70,8 +71,8 @@ export class JsResolverSecrets extends Authenticator {
 
   public async update(key: string, secret: string): Promise<void> {
     try {
-      const address = await this.signer.getAddress();
-      const authToken = await this.getAuthToken();
+      const address = await this._signer.getAddress();
+      const authToken = await getAuthToken(this._signer);
 
       await this._userApi.put(
         `/users/${address}/secrets/${key}`,
@@ -88,8 +89,8 @@ export class JsResolverSecrets extends Authenticator {
 
   public async delete(key: string): Promise<void> {
     try {
-      const address = await this.signer.getAddress();
-      const authToken = await this.getAuthToken();
+      const address = await this._signer.getAddress();
+      const authToken = await getAuthToken(this._signer);
 
       await this._userApi.delete(`/users/${address}/secrets/${key}`, {
         headers: { Authorization: authToken },
