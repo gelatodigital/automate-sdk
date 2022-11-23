@@ -59,7 +59,7 @@ export class JsResolverSecrets {
 
       await this._userApi.post(
         `/users/${address}/secrets`,
-        { ...secrets, asdfsf: 1 },
+        { ...secrets },
         {
           headers: { Authorization: authToken },
         }
