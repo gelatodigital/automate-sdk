@@ -378,6 +378,11 @@
     "@ethersproject/properties" "^5.6.0"
     "@ethersproject/strings" "^5.6.0"
 
+"@gelatonetwork/constants@^0.0.0":
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/@gelatonetwork/constants/-/constants-0.0.0.tgz#c077c430741c4752340a883f8cd09fc3931b4baf"
+  integrity sha512-cOOY550NJjKTmNFDbf6J6VvRTXDfTdQ6MpbXQqRDS23+SDj/jI8RQnWMfGHL/hDFiZja6WJrHWiPFwok7XGf6w==
+
 "@humanwhocodes/config-array@^0.9.2":
   version "0.9.5"
   resolved "https://registry.yarnpkg.com/@humanwhocodes/config-array/-/config-array-0.9.5.tgz#2cbaf9a89460da24b5ca6531b8bbfc23e1df50c7"

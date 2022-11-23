@@ -22,7 +22,7 @@ export class JsResolverSecrets {
       const authToken = await getAuthToken(this._signer, override);
 
       const res = await this._userApi.get(`/users/${address}/secrets/${key}`, {
-        headers: { Authorization: authToken },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       const secret = res.data[key];
@@ -42,7 +42,7 @@ export class JsResolverSecrets {
       const authToken = await getAuthToken(this._signer, override);
 
       const res = await this._userApi.get(`/users/${address}/secrets`, {
-        headers: { Authorization: authToken },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
 
       return res.data as Secrets;
@@ -64,7 +64,7 @@ export class JsResolverSecrets {
         `/users/${address}/secrets`,
         { ...secrets },
         {
-          headers: { Authorization: authToken },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
     } catch (err) {
@@ -86,7 +86,7 @@ export class JsResolverSecrets {
         `/users/${address}/secrets/${key}`,
         { [key]: secret },
         {
-          headers: { Authorization: authToken },
+          headers: { Authorization: `Bearer ${authToken}` },
         }
       );
     } catch (err) {
@@ -101,7 +101,7 @@ export class JsResolverSecrets {
       const authToken = await getAuthToken(this._signer, override);
 
       await this._userApi.delete(`/users/${address}/secrets/${key}`, {
-        headers: { Authorization: authToken },
+        headers: { Authorization: `Bearer ${authToken}` },
       });
     } catch (err) {
       const errMsg = errorMessage(err);

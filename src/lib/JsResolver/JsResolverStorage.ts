@@ -1,4 +1,5 @@
 import { Signer } from "@ethersproject/abstract-signer";
+import { ChainId } from "@gelatonetwork/constants";
 import axios, { Axios } from "axios";
 import { getAuthToken } from "./authToken";
 import { OPS_USER_API } from "../../constants";
@@ -16,14 +17,14 @@ export class JsResolverStorage {
     });
   }
 
-  public async get(taskId: string): Promise<Storage> {
+  public async get(chainId: ChainId, taskId: string): Promise<Storage> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await getAuthToken(this._signer);
 
       const res = await this._userApi.get(
-        `/users/${address}/resolver-storage/${taskId}`,
-        { headers: { Authorization: authToken } }
+        `/users/${address}/resolver-storage/${chainId}/${taskId}`,
+        { headers: { Authorization: `Bearer ${authToken}` } }
       );
 
       return res.data as Storage;
