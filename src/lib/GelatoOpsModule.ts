@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
+import { encode, decode } from "@msgpack/msgpack";
 import { ethers } from "ethers";
 import {
   Module,
   ModuleArgsParams,
   ModuleData,
+  OffChainResolverParams,
   ResolverParams,
   TimeParams,
 } from "../types/Module.interface";
@@ -48,6 +50,13 @@ export class GelatoOpsModule {
       args.push("0x");
     }
 
+    if (offChainResolverHash && offChainResolverArgs) {
+      modules.push(Module.ORESOLVER);
+      args.push(
+        this.encodeOResolverArgs(offChainResolverHash, offChainResolverArgs)
+      );
+    }
+
     return { modules, args };
   };
 
@@ -62,6 +71,8 @@ export class GelatoOpsModule {
       interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
+      offChainResolverArgs: null,
+      offChainResolverHash: null,
     };
 
     if (modules.includes(Module.RESOLVER)) {
@@ -88,6 +99,15 @@ export class GelatoOpsModule {
 
     if (modules.includes(Module.SINGLE_EXEC)) {
       moduleArgsDecoded.singleExec = true;
+    }
+
+    if (modules.includes(Module.ORESOLVER)) {
+      const indexOfModule = modules.indexOf(Module.ORESOLVER);
+      const { offChainResolverHash, offChainResolverArgs } =
+        this.decodeOResolverArgs(args[indexOfModule]);
+
+      moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
+      moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
     }
 
     return moduleArgsDecoded;
@@ -141,7 +161,8 @@ export class GelatoOpsModule {
 
     return { startTime, interval };
   };
-  private _encodeOResolverArgs = (
+
+  public encodeOResolverArgs = (
     oResolverHash: string,
     oResolverArgs: { [key: string]: unknown }
   ): string => {
@@ -155,7 +176,7 @@ export class GelatoOpsModule {
     return encoded;
   };
 
-  private _decodeOResolverArgs = (
+  public decodeOResolverArgs = (
     encodedModuleArgs: string
   ): OffChainResolverParams => {
     let oResolverHash: string | null = null;
@@ -178,13 +199,13 @@ export class GelatoOpsModule {
     };
   };
 
-  private _hexToBuffer = (hexString: string): Uint8Array => {
+  public _hexToBuffer = (hexString: string): Uint8Array => {
     const noPrefix = hexString.slice(2);
     const buffer = Uint8Array.from(Buffer.from(noPrefix, "hex"));
     return buffer;
   };
 
-  private _bufferToHex = (buffer: Uint8Array): string => {
+  public _bufferToHex = (buffer: Uint8Array): string => {
     const hex = [...new Uint8Array(buffer)]
       .map((b) => b.toString(16).padStart(2, "0"))
       .join("");
