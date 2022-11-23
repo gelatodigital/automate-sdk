@@ -1,10 +1,15 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import { SiweMessage } from "siwe";
 
-export const getAuthToken = async (signer: Signer): Promise<string> => {
+export type SiweOverride = Partial<SiweMessage>;
+
+export const getAuthToken = async (
+  signer: Signer,
+  override?: SiweOverride
+): Promise<string> => {
   try {
     const domain = "app.gelato.network";
-    const uri = "http://app.gelato.network/";
+    const uri = "http://beta.app.gelato.network/";
     const address = await signer.getAddress();
     const version = "1";
     const chainId = 1;
@@ -20,6 +25,7 @@ export const getAuthToken = async (signer: Signer): Promise<string> => {
       version,
       chainId,
       expirationTime,
+      ...override,
     });
 
     const message = siweMessage.prepareMessage();
