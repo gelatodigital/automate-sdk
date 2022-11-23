@@ -18,7 +18,7 @@ import {
   TokenData,
 } from "../types";
 import axios from "axios";
-import { isGelatoOpsSupported } from "../utils";
+import { errorMessage, isGelatoOpsSupported } from "../utils";
 import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
 import { GelatoOpsModule } from "./GelatoOpsModule";
@@ -309,18 +309,11 @@ export class GelatoOpsSDK {
     try {
       const response = await axios.post(`${OPS_TASKS_API}${path}`, data);
       return response.data as Response;
-    } catch (error) {
-      this._logTaskApiError(error);
+    } catch (err) {
+      const errMsg = errorMessage(err);
+      console.error(`Error naming task for task ${data.taskId}. \n${errMsg}`);
+
       return undefined;
     }
-  }
-
-  private _logTaskApiError(error: Error) {
-    // Task API error are logged but not thrown as they are non blocking
-    let message = `GelatoOpsSDK - Error naming task: ${error.message} `;
-    if (axios.isAxiosError(error)) {
-      message += error.response?.data?.message;
-    }
-    console.error(message);
   }
 }
