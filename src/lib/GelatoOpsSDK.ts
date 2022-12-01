@@ -54,6 +54,13 @@ export class GelatoOpsSDK {
     const address = await this._signer.getAddress();
     const taskIds = await this._ops.getTaskIdsByUser(address);
 
+    return this.getTaskNames(taskIds);
+  }
+
+  public async getTaskNames(taskIds: string[]): Promise<Task[]> {
+    // short-circuit if it's clear no taskIds were received
+    if (!taskIds?.length) return [];
+
     // Retrieve task names
     const path = `/tasks/${this._chainId}/getTasksByTaskIds`;
     const tasksNames = await this._postTaskApi<Task[]>(
