@@ -72,3 +72,12 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     ops: "0x86B7e611194978F556007ac1F52D09d114D8f160",
   },
 };
+
+export const AUTH_DEFAULTS = {
+  statement: "Sign this message to authenticate",
+  domain: "app.gelato.network",
+  uri: "http://beta.app.gelato.network",
+  expirationTimestamp: 600_000,
+  chainId: 1,
+  version: "1",
+};

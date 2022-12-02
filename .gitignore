@@ -37,3 +37,4 @@ test/contracts/types
 src/logs/
 
 .eslintcache
+.npmrc

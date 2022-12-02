@@ -12,7 +12,8 @@
     "esModuleInterop": true,
     "outDir": "dist",
     "baseUrl": "src",
-    "rootDir": "src"
+    "rootDir": "src",
+    "module": "esnext"
   },
   "exclude": ["node_modules"]
 }

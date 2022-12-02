@@ -5,3 +5,5 @@ export * from "./TaskApiParams.interface";
 export * from "./TaskTransaction.interface";
 export * from "./TokenData.interface";
 export * from "./Module.interface";
+
+export * from "./ChainId.type";
