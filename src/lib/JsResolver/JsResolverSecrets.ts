@@ -1,6 +1,6 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { getAuthToken, SiweOverride } from "./authToken";
+import { Signature } from "./Signature";
 import { OPS_USER_API } from "../../constants";
 import { Secrets } from "../../types";
 import { errorMessage } from "../../utils";
@@ -8,18 +8,20 @@ import { errorMessage } from "../../utils";
 export class JsResolverSecrets {
   private readonly _signer: Signer;
   private readonly _userApi: Axios;
+  private _signature: Signature;
 
-  constructor(signer: Signer) {
+  constructor(signer: Signer, signature: Signature) {
     this._signer = signer;
     this._userApi = axios.create({
       baseURL: OPS_USER_API,
     });
+    this._signature = signature;
   }
 
-  public async get(key: string, override?: SiweOverride): Promise<string> {
+  public async get(key: string): Promise<string> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await getAuthToken(this._signer, override);
+      const authToken = await this._signature.getAuthToken();
 
       const res = await this._userApi.get(`/users/${address}/secrets/${key}`, {
         headers: { Authorization: `Bearer ${authToken}` },
@@ -36,10 +38,10 @@ export class JsResolverSecrets {
     }
   }
 
-  public async list(override?: SiweOverride): Promise<Secrets> {
+  public async list(): Promise<Secrets> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await getAuthToken(this._signer, override);
+      const authToken = await this._signature.getAuthToken();
 
       const res = await this._userApi.get(`/users/${address}/secrets`, {
         headers: { Authorization: `Bearer ${authToken}` },
@@ -52,13 +54,10 @@ export class JsResolverSecrets {
     }
   }
 
-  public async create(
-    secrets: Secrets,
-    override?: SiweOverride
-  ): Promise<void> {
+  public async create(secrets: Secrets): Promise<void> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await getAuthToken(this._signer, override);
+      const authToken = await this._signature.getAuthToken();
 
       await this._userApi.post(
         `/users/${address}/secrets`,
@@ -73,14 +72,10 @@ export class JsResolverSecrets {
     }
   }
 
-  public async update(
-    key: string,
-    secret: string,
-    override?: SiweOverride
-  ): Promise<void> {
+  public async update(key: string, secret: string): Promise<void> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await getAuthToken(this._signer, override);
+      const authToken = await this._signature.getAuthToken();
 
       await this._userApi.put(
         `/users/${address}/secrets/${key}`,
@@ -95,10 +90,10 @@ export class JsResolverSecrets {
     }
   }
 
-  public async delete(key: string, override?: SiweOverride): Promise<void> {
+  public async delete(key: string): Promise<void> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await getAuthToken(this._signer, override);
+      const authToken = await this._signature.getAuthToken();
 
       await this._userApi.delete(`/users/${address}/secrets/${key}`, {
         headers: { Authorization: `Bearer ${authToken}` },
