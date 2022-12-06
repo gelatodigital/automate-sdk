@@ -28,10 +28,8 @@ export class JsResolverSecrets {
       });
 
       const secret = res.data[key];
-      if (secret === undefined)
-        throw new Error(`Secret not found for key: ${key}`);
 
-      return res.data[key] as string;
+      return secret;
     } catch (err) {
       const errMsg = errorMessage(err);
       throw new Error(`Fail to get secret for key "${key}". \n${errMsg}`);
