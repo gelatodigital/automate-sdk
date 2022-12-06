@@ -34,6 +34,11 @@ export class GelatoOpsModule {
       const start = startTime ?? 0;
       modules.push(Module.TIME);
       args.push(this.encodeTimeArgs(start, interval));
+    } else {
+      if (singleExec && startTime) {
+        modules.push(Module.TIME);
+        args.push(this.encodeTimeArgs(startTime, 0));
+      }
     }
 
     if (dedicatedMsgSender) {
@@ -42,11 +47,6 @@ export class GelatoOpsModule {
     }
 
     if (singleExec) {
-      if (startTime && !interval) {
-        modules.push(Module.TIME);
-        args.push(this.encodeTimeArgs(startTime, 0));
-      }
-
       modules.push(Module.SINGLE_EXEC);
       args.push("0x");
     }
