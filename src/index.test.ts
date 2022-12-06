@@ -3,7 +3,9 @@ import { ethers } from "ethers";
 import { GelatoOpsSDK } from "./lib";
 dotenv.config();
 
+if (!process.env.PK) throw new Error("Missing env PK");
 const pk = process.env.PK;
+if (!process.env.PROVIDER_URL) throw new Error("Missing env PROVIDER_URL");
 const providerUrl = process.env.PROVIDER_URL;
 const chainId = 80001; // mumbai
 
