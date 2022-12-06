@@ -16,7 +16,7 @@
     "generate-contracts-typings": "npx typechain --target=ethers-v5 --out-dir src/contracts/types ./src/**/abis/*.json",
     "lint": "eslint --cache .",
     "prepare": "yarn build && yarn format && yarn lint",
-    "test": "ts-mocha --check-leaks --exit --timeout 60000 'test/**/*.spec.ts'"
+    "test": "ts-node ./src/index.test.ts"
   },
   "keywords": [],
   "author": "",
@@ -27,12 +27,14 @@
     "@types/node": "^16.11.12",
     "@typescript-eslint/eslint-plugin": "^5.6.0",
     "@typescript-eslint/parser": "^5.6.0",
+    "dotenv": "^16.0.3",
     "eslint": "^8.4.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "lint-staged": "^11.1.2",
     "prettier": "^2.3.2",
     "ts-generator": "^0.1.1",
+    "ts-node": "^10.9.1",
     "typechain": "^8.0.0",
     "typescript": "^4.5.3"
   },
