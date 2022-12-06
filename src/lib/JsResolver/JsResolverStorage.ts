@@ -1,9 +1,8 @@
 import { Signer } from "@ethersproject/abstract-signer";
-import { ChainId } from "@gelatonetwork/constants";
 import axios, { Axios } from "axios";
 import { getAuthToken } from "./authToken";
 import { OPS_USER_API } from "../../constants";
-import { Storage } from "../../types";
+import { ChainId, Storage } from "../../types";
 import { errorMessage } from "../../utils";
 
 export class JsResolverStorage {
