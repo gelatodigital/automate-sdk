@@ -52,7 +52,7 @@ export class JsResolverSecrets {
     }
   }
 
-  public async create(secrets: Secrets): Promise<void> {
+  public async set(secrets: Secrets): Promise<void> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
@@ -66,25 +66,7 @@ export class JsResolverSecrets {
       );
     } catch (err) {
       const errMsg = errorMessage(err);
-      throw new Error(`Fail to create secrets. \n${errMsg}`);
-    }
-  }
-
-  public async update(key: string, secret: string): Promise<void> {
-    try {
-      const address = await this._signer.getAddress();
-      const authToken = await this._signature.getAuthToken();
-
-      await this._userApi.put(
-        `/users/${address}/secrets/${key}`,
-        { [key]: secret },
-        {
-          headers: { Authorization: `Bearer ${authToken}` },
-        }
-      );
-    } catch (err) {
-      const errMsg = errorMessage(err);
-      throw new Error(`Fail to update secret "${key}". \n${errMsg}`);
+      throw new Error(`Fail to set secrets ${secrets}. \n${errMsg}`);
     }
   }
 
