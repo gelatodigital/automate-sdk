@@ -42,6 +42,11 @@ export class GelatoOpsModule {
     }
 
     if (singleExec) {
+      if (startTime && !interval) {
+        modules.push(Module.TIME);
+        args.push(this.encodeTimeArgs(startTime, 0));
+      }
+
       modules.push(Module.SINGLE_EXEC);
       args.push("0x");
     }
