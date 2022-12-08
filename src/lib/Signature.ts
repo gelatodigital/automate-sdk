@@ -19,6 +19,10 @@ export class Signature {
       signatureMessage ?? "Gelato JsResolver secrets & storage";
   }
 
+  public setAuthToken(token: string) {
+    this._token = token;
+  }
+
   public async getAuthToken(): Promise<string> {
     const timeNow = Date.now();
     if (
