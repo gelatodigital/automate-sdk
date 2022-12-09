@@ -1,15 +1,18 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
 import { encode, decode } from "@msgpack/msgpack";
+import { JsResolverUploader } from "@gelatonetwork/js-resolver-sdk/uploader";
 import { ethers } from "ethers";
 import {
+  JsResolverArgs,
+  JsResolverParams,
   Module,
   ModuleArgsParams,
   ModuleData,
   OffChainResolverParams,
   ResolverParams,
   TimeParams,
-} from "../types/Module.interface";
+} from "../types";
 
 export class GelatoOpsModule {
   public encodeModuleArgs = (
@@ -199,6 +202,56 @@ export class GelatoOpsModule {
     };
   };
 
+  public encodeJsResolverArgs = async (
+    jsResolverHash: string,
+    jsResolverArgs: JsResolverArgs
+  ): Promise<string> => {
+    try {
+      const types = await this.getAbiTypesFromSchema(jsResolverHash);
+      const values = Object.values(jsResolverArgs);
+
+      const jsResolverArgsHex = ethers.utils.defaultAbiCoder.encode(
+        types,
+        values
+      );
+
+      const encoded = ethers.utils.defaultAbiCoder.encode(
+        ["string", "bytes"],
+        [jsResolverHash, jsResolverArgsHex]
+      );
+
+      return encoded;
+    } catch (err) {
+      throw new Error(`Fail to encode JsResolverArgs: ${err.message}`);
+    }
+  };
+
+  public decodeJsResolverArgs = async (
+    encodedModuleArgs: string
+  ): Promise<JsResolverParams> => {
+    let jsResolverHash: string | null = null;
+    let jsResolverArgs: JsResolverArgs | null = null;
+    try {
+      let jsResolverArgsHex: string;
+
+      [jsResolverHash, jsResolverArgsHex] = ethers.utils.defaultAbiCoder.decode(
+        ["string", "bytes"],
+        encodedModuleArgs
+      );
+
+      const types = await this.getAbiTypesFromSchema(jsResolverHash as string);
+
+      jsResolverArgs = ethers.utils.defaultAbiCoder.decode(
+        types,
+        jsResolverArgsHex
+      );
+    } catch (err) {
+      console.error(`Fail to decode JsResolverArgs: ${err.message}`);
+    }
+
+    return { jsResolverHash, jsResolverArgs };
+  };
+
   public _hexToBuffer = (hexString: string): Uint8Array => {
     const noPrefix = hexString.slice(2);
     const buffer = Uint8Array.from(Buffer.from(noPrefix, "hex"));
@@ -211,5 +264,34 @@ export class GelatoOpsModule {
       .join("");
     const hexPrefixed = "0x" + hex;
     return hexPrefixed;
+  };
+
+  private getAbiTypesFromSchema = async (
+    jsResolverHash: string
+  ): Promise<string[]> => {
+    try {
+      const { userArgs } = await JsResolverUploader.fetchSchema(jsResolverHash);
+
+      const types: string[] = [];
+
+      Object.values(userArgs).forEach((value) => {
+        const v = value as string;
+        let type = "";
+        if (v.includes("number")) type = "uint256";
+        else if (v.includes("string")) type = "string";
+        else if (v.includes("boolean")) type = "bool";
+        else
+          throw new Error(
+            `Invalid schema in jsResolver CID: ${jsResolverHash}, userArgs: ${userArgs}`
+          );
+
+        if (v.includes("[]")) type += "[]";
+        types.push(type);
+      });
+
+      return types;
+    } catch (err) {
+      throw new Error(`Fail to get types from schema: ${err.message}`);
+    }
   };
 }

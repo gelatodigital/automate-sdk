@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { JsResolverArgs } from "./JsResolver.interface";
 
 export enum Module {
   RESOLVER,
@@ -40,4 +41,8 @@ export interface SingleExecParams {
 export interface OffChainResolverParams {
   offChainResolverHash: string | null;
   offChainResolverArgs: { [key: string]: unknown } | null;
+}
+export interface JsResolverParams {
+  jsResolverHash: string | null;
+  jsResolverArgs: JsResolverArgs | null;
 }
