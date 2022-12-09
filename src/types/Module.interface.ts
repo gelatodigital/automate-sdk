@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { JsResolverArgs } from "./JsResolver.interface";
+import { JsResolverUserArgs } from "@gelatonetwork/js-resolver-sdk";
 
 export enum Module {
   RESOLVER,
@@ -44,5 +44,5 @@ export interface OffChainResolverParams {
 }
 export interface JsResolverParams {
   jsResolverHash: string | null;
-  jsResolverArgs: JsResolverArgs | null;
+  jsResolverArgs: JsResolverUserArgs | null;
 }

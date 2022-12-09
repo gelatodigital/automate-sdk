@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
 import { encode, decode } from "@msgpack/msgpack";
+import { JsResolverUserArgs } from "@gelatonetwork/js-resolver-sdk";
 import { JsResolverUploader } from "@gelatonetwork/js-resolver-sdk/uploader";
 import { ethers } from "ethers";
 import {
-  JsResolverArgs,
   JsResolverParams,
   Module,
   ModuleArgsParams,
@@ -204,7 +204,7 @@ export class GelatoOpsModule {
 
   public encodeJsResolverArgs = async (
     jsResolverHash: string,
-    jsResolverArgs: JsResolverArgs
+    jsResolverArgs: JsResolverUserArgs
   ): Promise<string> => {
     try {
       const types = await this.getAbiTypesFromSchema(jsResolverHash);
@@ -230,7 +230,7 @@ export class GelatoOpsModule {
     encodedModuleArgs: string
   ): Promise<JsResolverParams> => {
     let jsResolverHash: string | null = null;
-    let jsResolverArgs: JsResolverArgs | null = null;
+    let jsResolverArgs: JsResolverUserArgs | null = null;
     try {
       let jsResolverArgsHex: string;
 
@@ -275,18 +275,30 @@ export class GelatoOpsModule {
       const types: string[] = [];
 
       Object.values(userArgs).forEach((value) => {
-        const v = value as string;
-        let type = "";
-        if (v.includes("number")) type = "uint256";
-        else if (v.includes("string")) type = "string";
-        else if (v.includes("boolean")) type = "bool";
-        else
-          throw new Error(
-            `Invalid schema in jsResolver CID: ${jsResolverHash}, userArgs: ${userArgs}`
-          );
-
-        if (v.includes("[]")) type += "[]";
-        types.push(type);
+        switch (value) {
+          case "number":
+            types.push("uint256");
+            break;
+          case "string":
+            types.push("string");
+            break;
+          case "boolean":
+            types.push("bool");
+            break;
+          case "number[]":
+            types.push("uint256[]");
+            break;
+          case "string[]":
+            types.push("string[]");
+            break;
+          case "boolean[]":
+            types.push("bool[]");
+            break;
+          default:
+            throw new Error(
+              `Invalid schema in jsResolver CID: ${jsResolverHash}. Invalid type ${value}. userArgs: ${userArgs}`
+            );
+        }
       });
 
       return types;
