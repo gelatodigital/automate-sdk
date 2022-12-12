@@ -1,6 +1,6 @@
 {
   "name": "@gelatonetwork/ops-sdk",
-  "version": "2.0.6",
+  "version": "2.0.7",
   "description": "SDK to create Gelato Ops tasks",
   "url": "https://github.com/gelatodigital/ops-sdk",
   "main": "dist/index.js",
