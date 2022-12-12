@@ -23,6 +23,7 @@ const main = async () => {
     name: "OpsSdkTest",
     execAddress: iceCreamAddress,
     execSelector: iceCreamInterface.getSighash("lick"),
+    execData: iceCreamInterface.encodeFunctionData("lick", [1]),
     dedicatedMsgSender: true,
     singleExec: true,
     startTime: (await provider.getBlock("latest")).timestamp + 300,
