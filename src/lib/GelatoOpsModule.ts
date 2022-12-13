@@ -1,7 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
 import { encode, decode } from "@msgpack/msgpack";
-import { JsResolverUserArgs } from "@gelatonetwork/js-resolver-sdk";
+import {
+  JsResolverUserArgs,
+  JsResolverUserArgsSchema,
+} from "@gelatonetwork/js-resolver-sdk";
 import { JsResolverUploader } from "@gelatonetwork/js-resolver-sdk/uploader";
 import { ethers } from "ethers";
 import {
@@ -63,7 +66,9 @@ export class GelatoOpsModule {
     return { modules, args };
   };
 
-  public decodeModuleArgs = (moduleData: ModuleData): ModuleArgsParams => {
+  public decodeModuleArgs = async (
+    moduleData: ModuleData
+  ): Promise<ModuleArgsParams> => {
     const modules = moduleData.modules;
     const args = moduleData.args;
 
@@ -74,8 +79,12 @@ export class GelatoOpsModule {
       interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
-      offChainResolverArgs: null,
       offChainResolverHash: null,
+      offChainResolverArgs: null,
+      offChainResolverArgsHex: null,
+      jsResolverHash: null,
+      jsResolverArgs: null,
+      jsResolverArgsHex: null,
     };
 
     if (modules.includes(Module.RESOLVER)) {
@@ -106,11 +115,25 @@ export class GelatoOpsModule {
 
     if (modules.includes(Module.ORESOLVER)) {
       const indexOfModule = modules.indexOf(Module.ORESOLVER);
-      const { offChainResolverHash, offChainResolverArgs } =
-        this.decodeOResolverArgs(args[indexOfModule]);
+      const {
+        offChainResolverHash,
+        offChainResolverArgs,
+        offChainResolverArgsHex,
+      } = this.decodeOResolverArgs(args[indexOfModule]);
 
       moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
       moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
+      moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
+    }
+
+    if (modules.includes(Module.JSRESOLVER)) {
+      const indexOfModule = modules.indexOf(Module.JSRESOLVER);
+      const { jsResolverHash, jsResolverArgs, jsResolverArgsHex } =
+        await this.decodeJsResolverArgs(args[indexOfModule]);
+
+      moduleArgsDecoded.jsResolverHash = jsResolverHash;
+      moduleArgsDecoded.jsResolverArgs = jsResolverArgs;
+      moduleArgsDecoded.jsResolverArgsHex = jsResolverArgsHex;
     }
 
     return moduleArgsDecoded;
@@ -184,21 +207,22 @@ export class GelatoOpsModule {
   ): OffChainResolverParams => {
     let oResolverHash: string | null = null;
     let oResolverArgs: { [key: string]: unknown } | null = null;
+    let oResolverArgsHex: string | null = null;
 
     try {
-      let oResolverArgsHex: string;
       [oResolverHash, oResolverArgsHex] = ethers.utils.defaultAbiCoder.decode(
         ["string", "bytes"],
         encodedModuleArgs
       );
 
-      const oResolverArgsBuffer = this._hexToBuffer(oResolverArgsHex);
+      const oResolverArgsBuffer = this._hexToBuffer(oResolverArgsHex as string);
       oResolverArgs = decode(oResolverArgsBuffer) as { [key: string]: unknown };
     } catch {}
 
     return {
       offChainResolverHash: oResolverHash,
       offChainResolverArgs: oResolverArgs,
+      offChainResolverArgsHex: oResolverArgsHex,
     };
   };
 
@@ -231,25 +255,55 @@ export class GelatoOpsModule {
   ): Promise<JsResolverParams> => {
     let jsResolverHash: string | null = null;
     let jsResolverArgs: JsResolverUserArgs | null = null;
-    try {
-      let jsResolverArgsHex: string;
+    let jsResolverArgsHex: string | null = null;
 
+    try {
       [jsResolverHash, jsResolverArgsHex] = ethers.utils.defaultAbiCoder.decode(
         ["string", "bytes"],
         encodedModuleArgs
       );
 
-      const types = await this.getAbiTypesFromSchema(jsResolverHash as string);
-
-      jsResolverArgs = ethers.utils.defaultAbiCoder.decode(
-        types,
-        jsResolverArgsHex
+      jsResolverArgs = await this.decodeJsResolverArgsHex(
+        jsResolverArgsHex as string,
+        {
+          jsResolverHash: jsResolverHash as string,
+        }
       );
     } catch (err) {
       console.error(`Fail to decode JsResolverArgs: ${err.message}`);
     }
 
-    return { jsResolverHash, jsResolverArgs };
+    return { jsResolverHash, jsResolverArgs, jsResolverArgsHex };
+  };
+
+  public decodeJsResolverArgsHex = async (
+    jsResolverArgsHex: string,
+    schema: {
+      jsResolverHash?: string;
+      userArgsSchema?: JsResolverUserArgsSchema;
+    }
+  ): Promise<JsResolverUserArgs | null> => {
+    let types: string[] = [];
+    let jsResolverArgs: JsResolverUserArgs | null = null;
+
+    try {
+      if (schema.jsResolverHash)
+        types = await this.getAbiTypesFromSchema(schema.jsResolverHash);
+      else
+        types = await this.getAbiTypesFromSchema(
+          undefined,
+          schema.userArgsSchema
+        );
+
+      jsResolverArgs = ethers.utils.defaultAbiCoder.decode(
+        types,
+        jsResolverArgsHex as string
+      );
+    } catch (err) {
+      console.error(`Fail to decode JsResolverArgsHex: ${err.message}`);
+    }
+
+    return jsResolverArgs;
   };
 
   public _hexToBuffer = (hexString: string): Uint8Array => {
@@ -267,14 +321,23 @@ export class GelatoOpsModule {
   };
 
   private getAbiTypesFromSchema = async (
-    jsResolverHash: string
+    jsResolverHash?: string,
+    _userArgsSchema?: JsResolverUserArgsSchema
   ): Promise<string[]> => {
     try {
-      const { userArgs } = await JsResolverUploader.fetchSchema(jsResolverHash);
+      let userArgsSchema = _userArgsSchema;
+
+      if (!userArgsSchema) {
+        if (jsResolverHash) {
+          const schema = await JsResolverUploader.fetchSchema(jsResolverHash);
+          userArgsSchema = schema.userArgs;
+        } else
+          throw new Error(`Both userArgsSchema && jsResolverHash undefined`);
+      }
 
       const types: string[] = [];
 
-      Object.values(userArgs).forEach((value) => {
+      Object.values(userArgsSchema).forEach((value) => {
         switch (value) {
           case "number":
             types.push("uint256");
@@ -296,7 +359,7 @@ export class GelatoOpsModule {
             break;
           default:
             throw new Error(
-              `Invalid schema in jsResolver CID: ${jsResolverHash}. Invalid type ${value}. userArgs: ${userArgs}`
+              `Invalid schema in jsResolver CID: ${jsResolverHash}. Invalid type ${value}. userArgsSchema: ${userArgsSchema}`
             );
         }
       });
