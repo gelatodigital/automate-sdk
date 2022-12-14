@@ -101,7 +101,7 @@ export class GelatoOpsSDK {
   }
 
   public async getTaskId(_args: CreateTaskOptions): Promise<string> {
-    const args = this._processModules(_args);
+    const args = await this._processModules(_args);
 
     return this._getTaskId(args);
   }
@@ -173,7 +173,7 @@ export class GelatoOpsSDK {
     _args: CreateTaskOptions,
     overrides: Overrides = {}
   ): Promise<TaskTransaction> {
-    const args = this._processModules(_args);
+    const args = await this._processModules(_args);
 
     // Ask for signature
     if (!this._token) await this._requestAndStoreSignature();
@@ -191,12 +191,12 @@ export class GelatoOpsSDK {
     return { taskId, tx };
   }
 
-  private _processModules(
+  private async _processModules(
     args: CreateTaskOptions
-  ): CreateTaskOptionsWithModules {
+  ): Promise<CreateTaskOptionsWithModules> {
     args.startTime = args.startTime ?? 0;
 
-    const moduleData: ModuleData = this._opsModule.encodeModuleArgs({
+    const moduleData: ModuleData = await this._opsModule.encodeModuleArgs({
       resolverAddress: args.resolverAddress,
       resolverData: args.resolverData,
       startTime: args.startTime,
@@ -205,6 +205,9 @@ export class GelatoOpsSDK {
       singleExec: args.singleExec,
       offChainResolverHash: args.offChainResolverHash,
       offChainResolverArgs: args.offChainResolverArgs,
+      jsResolverHash: args.jsResolverHash,
+      jsResolverArgs: args.jsResolverArgs,
+      jsResolverArgsHex: args.jsResolverArgsHex,
     });
 
     return { ...args, useTreasury: args.useTreasury ?? true, moduleData };

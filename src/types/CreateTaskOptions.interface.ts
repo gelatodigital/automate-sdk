@@ -1,3 +1,4 @@
+import { JsResolverUserArgs } from "@gelatonetwork/js-resolver-sdk";
 import { ModuleData } from "./Module.interface";
 
 export interface CreateTaskOptions {
@@ -16,6 +17,9 @@ export interface CreateTaskOptions {
   singleExec?: boolean;
   offChainResolverHash?: string;
   offChainResolverArgs?: { [key: string]: unknown };
+  jsResolverHash?: string;
+  jsResolverArgs?: JsResolverUserArgs;
+  jsResolverArgsHex?: string;
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {

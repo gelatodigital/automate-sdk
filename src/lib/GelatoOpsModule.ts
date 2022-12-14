@@ -18,9 +18,9 @@ import {
 } from "../types";
 
 export class GelatoOpsModule {
-  public encodeModuleArgs = (
+  public encodeModuleArgs = async (
     moduleArgsParams: Partial<ModuleArgsParams>
-  ): ModuleData => {
+  ): Promise<ModuleData> => {
     const modules: Module[] = [];
     const args: string[] = [];
 
@@ -33,6 +33,9 @@ export class GelatoOpsModule {
       singleExec,
       offChainResolverHash,
       offChainResolverArgs,
+      jsResolverHash,
+      jsResolverArgs,
+      jsResolverArgsHex,
     } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
@@ -60,6 +63,20 @@ export class GelatoOpsModule {
       modules.push(Module.ORESOLVER);
       args.push(
         this.encodeOResolverArgs(offChainResolverHash, offChainResolverArgs)
+      );
+    } else if (jsResolverHash && jsResolverArgsHex) {
+      modules.push(Module.ORESOLVER);
+      args.push(
+        await this.encodeJsResolverArgs(
+          jsResolverHash,
+          undefined,
+          jsResolverArgsHex
+        )
+      );
+    } else if (jsResolverHash && jsResolverArgs) {
+      modules.push(Module.ORESOLVER);
+      args.push(
+        await this.encodeJsResolverArgs(jsResolverHash, jsResolverArgs)
       );
     }
 
@@ -229,16 +246,15 @@ export class GelatoOpsModule {
 
   public encodeJsResolverArgs = async (
     jsResolverHash: string,
-    jsResolverArgs: JsResolverUserArgs
+    jsResolverArgs?: JsResolverUserArgs,
+    jsResolverArgsHex?: string
   ): Promise<string> => {
     try {
-      const types = await this.getAbiTypesFromSchema(jsResolverHash);
-      const values = Object.values(jsResolverArgs);
-
-      const jsResolverArgsHex = ethers.utils.defaultAbiCoder.encode(
-        types,
-        values
-      );
+      if (!jsResolverArgsHex && jsResolverArgs) {
+        const types = await this.getAbiTypesFromSchema(jsResolverHash);
+        const values = Object.values(jsResolverArgs);
+        jsResolverArgsHex = ethers.utils.defaultAbiCoder.encode(types, values);
+      }
 
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["string", "bytes"],
