@@ -7,7 +7,6 @@ export enum Module {
   PROXY,
   SINGLE_EXEC,
   ORESOLVER,
-  JSRESOLVER,
 }
 
 export interface ModuleData {

@@ -114,6 +114,8 @@ export class GelatoOpsModule {
     }
 
     if (modules.includes(Module.ORESOLVER)) {
+      // attempt to decode both ways (OResolver & JsResolver)
+      // params will be populated if decoded successfully
       const indexOfModule = modules.indexOf(Module.ORESOLVER);
       const {
         offChainResolverHash,
@@ -121,19 +123,20 @@ export class GelatoOpsModule {
         offChainResolverArgsHex,
       } = this.decodeOResolverArgs(args[indexOfModule]);
 
-      moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
-      moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
-      moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
-    }
+      if (offChainResolverArgs) {
+        moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
+        moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
+        moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
+      }
 
-    if (modules.includes(Module.JSRESOLVER)) {
-      const indexOfModule = modules.indexOf(Module.JSRESOLVER);
       const { jsResolverHash, jsResolverArgs, jsResolverArgsHex } =
         await this.decodeJsResolverArgs(args[indexOfModule]);
 
-      moduleArgsDecoded.jsResolverHash = jsResolverHash;
-      moduleArgsDecoded.jsResolverArgs = jsResolverArgs;
-      moduleArgsDecoded.jsResolverArgsHex = jsResolverArgsHex;
+      if (jsResolverArgs) {
+        moduleArgsDecoded.jsResolverHash = jsResolverHash;
+        moduleArgsDecoded.jsResolverArgs = jsResolverArgs;
+        moduleArgsDecoded.jsResolverArgsHex = jsResolverArgsHex;
+      }
     }
 
     return moduleArgsDecoded;
