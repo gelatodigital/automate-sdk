@@ -34,7 +34,7 @@ export class Signature {
   private async _requestAndStoreSignature(): Promise<void> {
     try {
       const domain = "app.gelato.network";
-      const uri = "http://beta.app.gelato.network/";
+      const uri = "https://beta.app.gelato.network/";
       const address = await this._signer.getAddress();
       const version = "1";
       const chainId = this._chainId;
