@@ -251,8 +251,20 @@ export class GelatoOpsModule {
   ): Promise<string> => {
     try {
       if (!jsResolverArgsHex && jsResolverArgs) {
-        const types = await this.getAbiTypesFromSchema(jsResolverHash);
-        const values = Object.values(jsResolverArgs);
+        const { types, keys } = await this.getAbiTypesAndKeysFromSchema(
+          jsResolverHash
+        );
+        // ensure all userArgs are provided & encoded in same order as they are defined in the schema
+        const values: any[] = [];
+        for (const key of keys) {
+          if (typeof jsResolverArgs[key] === "undefined") {
+            throw new Error(
+              `Missing user arg '${key}' defined in resolver schema`
+            );
+          }
+          values.push(jsResolverArgs[key]);
+        }
+
         jsResolverArgsHex = ethers.utils.defaultAbiCoder.encode(types, values);
       }
 
@@ -300,27 +312,34 @@ export class GelatoOpsModule {
       userArgsSchema?: JsResolverUserArgsSchema;
     }
   ): Promise<JsResolverUserArgs | null> => {
-    let types: string[] = [];
-    let jsResolverArgs: JsResolverUserArgs | null = null;
-
     try {
+      let schemaAbi: { types: string[]; keys: string[] };
+      const jsResolverArgs: JsResolverUserArgs = {};
       if (schema.jsResolverHash)
-        types = await this.getAbiTypesFromSchema(schema.jsResolverHash);
+        schemaAbi = await this.getAbiTypesAndKeysFromSchema(
+          schema.jsResolverHash
+        );
       else
-        types = await this.getAbiTypesFromSchema(
+        schemaAbi = await this.getAbiTypesAndKeysFromSchema(
           undefined,
           schema.userArgsSchema
         );
 
-      jsResolverArgs = ethers.utils.defaultAbiCoder.decode(
+      const { types, keys } = schemaAbi;
+      const jsResolverArgsValues = ethers.utils.defaultAbiCoder.decode(
         types,
         jsResolverArgsHex as string
+      ) as never[];
+      // decode argument according to schema key order
+      keys.forEach(
+        (key, idx) => (jsResolverArgs[key] = jsResolverArgsValues[idx])
       );
+
+      return jsResolverArgs;
     } catch (err) {
       console.error(`Fail to decode JsResolverArgsHex: ${err.message}`);
+      return null;
     }
-
-    return jsResolverArgs;
   };
 
   public _hexToBuffer = (hexString: string): Uint8Array => {
@@ -337,10 +356,10 @@ export class GelatoOpsModule {
     return hexPrefixed;
   };
 
-  private getAbiTypesFromSchema = async (
+  private getAbiTypesAndKeysFromSchema = async (
     jsResolverHash?: string,
     _userArgsSchema?: JsResolverUserArgsSchema
-  ): Promise<string[]> => {
+  ): Promise<{ keys: string[]; types: string[] }> => {
     try {
       let userArgsSchema = _userArgsSchema;
 
@@ -353,8 +372,12 @@ export class GelatoOpsModule {
       }
 
       const types: string[] = [];
+      const keys: string[] = [];
 
-      Object.values(userArgsSchema).forEach((value) => {
+      Object.keys(userArgsSchema).forEach((key) => {
+        if (!userArgsSchema || !userArgsSchema[key]) return;
+        keys.push(key);
+        const value = userArgsSchema[key];
         switch (value) {
           case "number":
             types.push("uint256");
@@ -381,7 +404,7 @@ export class GelatoOpsModule {
         }
       });
 
-      return types;
+      return { types, keys };
     } catch (err) {
       throw new Error(`Fail to get types from schema: ${err.message}`);
     }
