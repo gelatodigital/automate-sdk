@@ -255,7 +255,14 @@ export class GelatoOpsModule {
           jsResolverHash
         );
         // ensure all userArgs are provided & encoded in same order as they are defined in the schema
-        const values: any[] = [];
+        const values: (
+          | string
+          | boolean
+          | number
+          | string[]
+          | boolean[]
+          | number[]
+        )[] = [];
         for (const key of keys) {
           if (typeof jsResolverArgs[key] === "undefined") {
             throw new Error(
