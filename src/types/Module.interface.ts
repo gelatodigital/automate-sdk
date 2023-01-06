@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { JsResolverUserArgs } from "@gelatonetwork/js-resolver-sdk";
+
+import { JsResolverUserArgs } from "./JsResolverSchema.interface";
 
 export enum Module {
   RESOLVER,

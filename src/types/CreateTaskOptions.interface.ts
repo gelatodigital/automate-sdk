@@ -1,4 +1,4 @@
-import { JsResolverUserArgs } from "@gelatonetwork/js-resolver-sdk";
+import { JsResolverUserArgs } from "./JsResolverSchema.interface";
 import { ModuleData } from "./Module.interface";
 
 export interface CreateTaskOptions {
