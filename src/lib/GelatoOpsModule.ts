@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
 import { encode, decode } from "@msgpack/msgpack";
-import {
-  JsResolverUserArgs,
-  JsResolverUserArgsSchema,
-} from "@gelatonetwork/js-resolver-sdk";
-import { JsResolverUploader } from "@gelatonetwork/js-resolver-sdk/uploader";
 import { ethers } from "ethers";
 import {
   JsResolverParams,
+  JsResolverUserArgs,
+  JsResolverUserArgsSchema,
   Module,
   ModuleArgsParams,
   ModuleData,
@@ -16,6 +13,7 @@ import {
   ResolverParams,
   TimeParams,
 } from "../types";
+import { JsResolverDownloader } from "./JsResolver/JsResolverDownloader";
 
 export class GelatoOpsModule {
   public encodeModuleArgs = async (
@@ -372,7 +370,8 @@ export class GelatoOpsModule {
 
       if (!userArgsSchema) {
         if (jsResolverHash) {
-          const schema = await JsResolverUploader.fetchSchema(jsResolverHash);
+          const downloader = new JsResolverDownloader();
+          const schema = await downloader.fetchSchema(jsResolverHash);
           userArgsSchema = schema.userArgs;
         } else
           throw new Error(`Both userArgsSchema && jsResolverHash undefined`);
