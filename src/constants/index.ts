@@ -1,9 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { GelatoAddressBook } from "../types";
 
-export const OPS_USER_API = "https://ops-user-api.prod.gelato.digital";
-export const OPS_TASKS_API =
-  "https://ops-task.fra.gelato.digital/1514007e8336fa99e6fe/api";
+export const OPS_USER_API = "https://api.gelato.digital/automate/users";
+export const OPS_TASKS_API = "https://api.gelato.digital/automate/tasks";
 
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 export const ZERO_ADD = "0x0000000000000000000000000000000000000000";
