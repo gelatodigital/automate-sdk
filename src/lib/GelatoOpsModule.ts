@@ -62,8 +62,10 @@ export class GelatoOpsModule {
       args.push(
         this.encodeOResolverArgs(offChainResolverHash, offChainResolverArgs)
       );
-    } else if (web3FunctionHash && web3FunctionArgsHex) {
-      modules.push(Module.ORESOLVER);
+    }
+
+    if (web3FunctionHash && web3FunctionArgsHex) {
+      modules.push(Module.WEB3_FUNCTION);
       args.push(
         await this.encodeWeb3FunctionArgs(
           web3FunctionHash,
@@ -72,7 +74,7 @@ export class GelatoOpsModule {
         )
       );
     } else if (web3FunctionHash && web3FunctionArgs) {
-      modules.push(Module.ORESOLVER);
+      modules.push(Module.WEB3_FUNCTION);
       args.push(
         await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs)
       );
@@ -136,20 +138,20 @@ export class GelatoOpsModule {
         offChainResolverArgsHex,
       } = this.decodeOResolverArgs(args[indexOfModule]);
 
-      if (offChainResolverArgs) {
-        moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
-        moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
-        moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
-      } else {
-        const { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex } =
-          await this.decodeWeb3FunctionArgs(args[indexOfModule]);
+      moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
+      moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
+      moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
+    }
 
-        if (web3FunctionArgs) {
-          moduleArgsDecoded.web3FunctionHash = web3FunctionHash;
-          moduleArgsDecoded.web3FunctionArgs = web3FunctionArgs;
-          moduleArgsDecoded.web3FunctionArgsHex = web3FunctionArgsHex;
-        }
-      }
+    if (modules.includes(Module.WEB3_FUNCTION)) {
+      const indexOfModule = modules.indexOf(Module.WEB3_FUNCTION);
+
+      const { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex } =
+        await this.decodeWeb3FunctionArgs(args[indexOfModule]);
+
+      moduleArgsDecoded.web3FunctionHash = web3FunctionHash;
+      moduleArgsDecoded.web3FunctionArgs = web3FunctionArgs;
+      moduleArgsDecoded.web3FunctionArgsHex = web3FunctionArgsHex;
     }
 
     return moduleArgsDecoded;
