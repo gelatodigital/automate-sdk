@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { JsResolverUserArgs } from "./JsResolverSchema.interface";
+import { JsResolverUserArgs } from "./Web3FunctionSchema.interface";
 
 export enum Module {
   RESOLVER,

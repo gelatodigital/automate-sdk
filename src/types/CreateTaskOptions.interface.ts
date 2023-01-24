@@ -1,4 +1,4 @@
-import { JsResolverUserArgs } from "./JsResolverSchema.interface";
+import { JsResolverUserArgs } from "./Web3FunctionSchema.interface";
 import { ModuleData } from "./Module.interface";
 
 export interface CreateTaskOptions {

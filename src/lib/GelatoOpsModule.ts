@@ -13,7 +13,7 @@ import {
   ResolverParams,
   TimeParams,
 } from "../types";
-import { JsResolverDownloader } from "./JsResolver/JsResolverDownloader";
+import { JsResolverDownloader } from "./Web3Function/Web3FunctionDownloader";
 
 export class GelatoOpsModule {
   public encodeModuleArgs = async (

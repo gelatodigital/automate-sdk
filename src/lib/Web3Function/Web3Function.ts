@@ -1,8 +1,8 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import { Signature } from "./Signature";
 import { ChainId } from "../../types";
-import { JsResolverSecrets } from "./JsResolverSecrets";
-import { JsResolverStorage } from "./JsResolverStorage";
+import { JsResolverSecrets } from "./Web3FunctionSecrets";
+import { JsResolverStorage } from "./Web3FunctionStorage";
 
 export class JsResolver {
   public secrets: JsResolverSecrets;
