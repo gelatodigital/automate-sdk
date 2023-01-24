@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { JsResolverUserArgs } from "./Web3FunctionSchema.interface";
+import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
 
 export enum Module {
   RESOLVER,
@@ -21,7 +21,7 @@ export interface ModuleArgsParams
     ProxyParams,
     SingleExecParams,
     OffChainResolverParams,
-    JsResolverParams {}
+    Web3FunctionParams {}
 
 export interface ResolverParams {
   resolverAddress: string | null;
@@ -45,8 +45,8 @@ export interface OffChainResolverParams {
   offChainResolverArgs: { [key: string]: unknown } | null;
   offChainResolverArgsHex: string | null;
 }
-export interface JsResolverParams {
-  jsResolverHash: string | null;
-  jsResolverArgs: JsResolverUserArgs | null;
-  jsResolverArgsHex: string | null;
+export interface Web3FunctionParams {
+  web3FunctionHash: string | null;
+  web3FunctionArgs: Web3FunctionUserArgs | null;
+  web3FunctionArgsHex: string | null;
 }

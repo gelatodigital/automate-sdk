@@ -16,7 +16,7 @@ export class Signature {
     this._chainId = chainId;
     this._signer = signer;
     this._signatureMessage =
-      signatureMessage ?? "Gelato JsResolver secrets & storage";
+      signatureMessage ?? "Gelato Web3Function secrets & storage";
   }
 
   public async getAuthToken(): Promise<string> {

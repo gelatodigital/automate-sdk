@@ -5,7 +5,7 @@ import { OPS_USER_API } from "../../constants";
 import { ChainId, Storage } from "../../types";
 import { errorMessage } from "../../utils";
 
-export class JsResolverStorage {
+export class Web3FunctionStorage {
   private readonly _signer: Signer;
   private readonly _userApi: Axios;
   private _signature: Signature;

@@ -1,9 +1,9 @@
 import axios, { Axios } from "axios";
 import { OPS_USER_API } from "../../constants";
-import { JsResolverSchema } from "../../types";
+import { Web3FunctionSchema } from "../../types";
 import { errorMessage } from "../../utils";
 
-export class JsResolverDownloader {
+export class Web3FunctionDownloader {
   private readonly _userApi: Axios;
 
   constructor() {
@@ -12,7 +12,7 @@ export class JsResolverDownloader {
     });
   }
 
-  public async fetchSchema(cid: string): Promise<JsResolverSchema> {
+  public async fetchSchema(cid: string): Promise<Web3FunctionSchema> {
     try {
       const res = await this._userApi.get(
         `${OPS_USER_API}/users/js-resolver/${cid}/schema`

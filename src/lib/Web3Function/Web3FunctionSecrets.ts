@@ -5,7 +5,7 @@ import { OPS_USER_API } from "../../constants";
 import { Secrets } from "../../types";
 import { errorMessage } from "../../utils";
 
-export class JsResolverSecrets {
+export class Web3FunctionSecrets {
   private readonly _signer: Signer;
   private readonly _userApi: Axios;
   private _signature: Signature;

@@ -205,9 +205,9 @@ export class GelatoOpsSDK {
       singleExec: args.singleExec,
       offChainResolverHash: args.offChainResolverHash,
       offChainResolverArgs: args.offChainResolverArgs,
-      jsResolverHash: args.jsResolverHash,
-      jsResolverArgs: args.jsResolverArgs,
-      jsResolverArgsHex: args.jsResolverArgsHex,
+      web3FunctionHash: args.web3FunctionHash,
+      web3FunctionArgs: args.web3FunctionArgs,
+      web3FunctionArgsHex: args.web3FunctionArgsHex,
     });
 
     return { ...args, useTreasury: args.useTreasury ?? true, moduleData };

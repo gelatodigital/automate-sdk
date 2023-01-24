@@ -1,4 +1,4 @@
-import { JsResolverUserArgs } from "./Web3FunctionSchema.interface";
+import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
 import { ModuleData } from "./Module.interface";
 
 export interface CreateTaskOptions {
@@ -17,9 +17,9 @@ export interface CreateTaskOptions {
   singleExec?: boolean;
   offChainResolverHash?: string;
   offChainResolverArgs?: { [key: string]: unknown };
-  jsResolverHash?: string;
-  jsResolverArgs?: JsResolverUserArgs;
-  jsResolverArgsHex?: string;
+  web3FunctionHash?: string;
+  web3FunctionArgs?: Web3FunctionUserArgs;
+  web3FunctionArgsHex?: string;
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {
