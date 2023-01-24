@@ -15,12 +15,14 @@ export class Web3FunctionDownloader {
   public async fetchSchema(cid: string): Promise<Web3FunctionSchema> {
     try {
       const res = await this._userApi.get(
-        `${OPS_USER_API}/users/js-resolver/${cid}/schema`
+        `${OPS_USER_API}/users/web3-function/${cid}/schema`
       );
       return res.data;
     } catch (err) {
       const errMsg = errorMessage(err);
-      throw new Error(`Fail to get schema for resolver "${cid}". \n${errMsg}`);
+      throw new Error(
+        `Fail to get schema for Web3Function "${cid}". \n${errMsg}`
+      );
     }
   }
 }

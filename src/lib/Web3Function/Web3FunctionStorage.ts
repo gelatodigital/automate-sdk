@@ -24,7 +24,7 @@ export class Web3FunctionStorage {
       const authToken = await this._signature.getAuthToken();
 
       const res = await this._userApi.get(
-        `/users/${address}/resolver-storage/${chainId}/${taskId}`,
+        `/users/${address}/web3-function-storage/${chainId}/${taskId}`,
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
 
