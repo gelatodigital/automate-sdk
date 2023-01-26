@@ -1,3 +1,4 @@
+import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
 import { ModuleData } from "./Module.interface";
 
 export interface CreateTaskOptions {
@@ -14,8 +15,11 @@ export interface CreateTaskOptions {
   useTreasury?: boolean;
   dedicatedMsgSender: boolean;
   singleExec?: boolean;
-  polywrapHash?: string;
-  polywrapArgs?: { [key: string]: unknown };
+  offChainResolverHash?: string;
+  offChainResolverArgs?: { [key: string]: unknown };
+  web3FunctionHash?: string;
+  web3FunctionArgs?: Web3FunctionUserArgs;
+  web3FunctionArgsHex?: string;
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {
