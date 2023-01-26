@@ -1,5 +1,5 @@
 export interface Web3FunctionSchema {
-  jsResolverVersion: string;
+  web3FunctionVersion: string;
   runtime: string;
   memory: number;
   timeout: number;
