@@ -1,12 +1,12 @@
-export interface JsResolverSchema {
+export interface Web3FunctionSchema {
   jsResolverVersion: string;
   runtime: string;
   memory: number;
   timeout: number;
-  userArgs: JsResolverUserArgsSchema;
+  userArgs: Web3FunctionUserArgsSchema;
 }
 
-export interface JsResolverUserArgsSchema {
+export interface Web3FunctionUserArgsSchema {
   [key: string]:
     | "string"
     | "number"
@@ -16,6 +16,6 @@ export interface JsResolverUserArgsSchema {
     | "boolean[]";
 }
 
-export interface JsResolverUserArgs {
+export interface Web3FunctionUserArgs {
   [key: string]: string | number | boolean | string[] | number[] | boolean[];
 }

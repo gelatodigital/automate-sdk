@@ -5,7 +5,7 @@ import { OPS_USER_API } from "../../constants";
 import { ChainId, Storage } from "../../types";
 import { errorMessage } from "../../utils";
 
-export class JsResolverStorage {
+export class Web3FunctionStorage {
   private readonly _signer: Signer;
   private readonly _userApi: Axios;
   private _signature: Signature;
@@ -24,7 +24,7 @@ export class JsResolverStorage {
       const authToken = await this._signature.getAuthToken();
 
       const res = await this._userApi.get(
-        `/users/${address}/resolver-storage/${chainId}/${taskId}`,
+        `/users/${address}/web3-function-storage/${chainId}/${taskId}`,
         { headers: { Authorization: `Bearer ${authToken}` } }
       );
 

@@ -3,9 +3,9 @@
 import { encode, decode } from "@msgpack/msgpack";
 import { ethers } from "ethers";
 import {
-  JsResolverParams,
-  JsResolverUserArgs,
-  JsResolverUserArgsSchema,
+  Web3FunctionParams,
+  Web3FunctionUserArgs,
+  Web3FunctionUserArgsSchema,
   Module,
   ModuleArgsParams,
   ModuleData,
@@ -13,7 +13,7 @@ import {
   ResolverParams,
   TimeParams,
 } from "../types";
-import { JsResolverDownloader } from "./JsResolver/JsResolverDownloader";
+import { Web3FunctionDownloader } from "./Web3Function/Web3FunctionDownloader";
 
 export class GelatoOpsModule {
   public encodeModuleArgs = async (
@@ -31,9 +31,9 @@ export class GelatoOpsModule {
       singleExec,
       offChainResolverHash,
       offChainResolverArgs,
-      jsResolverHash,
-      jsResolverArgs,
-      jsResolverArgsHex,
+      web3FunctionHash,
+      web3FunctionArgs,
+      web3FunctionArgsHex,
     } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
@@ -62,19 +62,21 @@ export class GelatoOpsModule {
       args.push(
         this.encodeOResolverArgs(offChainResolverHash, offChainResolverArgs)
       );
-    } else if (jsResolverHash && jsResolverArgsHex) {
-      modules.push(Module.ORESOLVER);
+    }
+
+    if (web3FunctionHash && web3FunctionArgsHex) {
+      modules.push(Module.WEB3_FUNCTION);
       args.push(
-        await this.encodeJsResolverArgs(
-          jsResolverHash,
+        await this.encodeWeb3FunctionArgs(
+          web3FunctionHash,
           undefined,
-          jsResolverArgsHex
+          web3FunctionArgsHex
         )
       );
-    } else if (jsResolverHash && jsResolverArgs) {
-      modules.push(Module.ORESOLVER);
+    } else if (web3FunctionHash && web3FunctionArgs) {
+      modules.push(Module.WEB3_FUNCTION);
       args.push(
-        await this.encodeJsResolverArgs(jsResolverHash, jsResolverArgs)
+        await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs)
       );
     }
 
@@ -97,9 +99,9 @@ export class GelatoOpsModule {
       offChainResolverHash: null,
       offChainResolverArgs: null,
       offChainResolverArgsHex: null,
-      jsResolverHash: null,
-      jsResolverArgs: null,
-      jsResolverArgsHex: null,
+      web3FunctionHash: null,
+      web3FunctionArgs: null,
+      web3FunctionArgsHex: null,
     };
 
     if (modules.includes(Module.RESOLVER)) {
@@ -136,20 +138,20 @@ export class GelatoOpsModule {
         offChainResolverArgsHex,
       } = this.decodeOResolverArgs(args[indexOfModule]);
 
-      if (offChainResolverArgs) {
-        moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
-        moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
-        moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
-      } else {
-        const { jsResolverHash, jsResolverArgs, jsResolverArgsHex } =
-          await this.decodeJsResolverArgs(args[indexOfModule]);
+      moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
+      moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
+      moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
+    }
 
-        if (jsResolverArgs) {
-          moduleArgsDecoded.jsResolverHash = jsResolverHash;
-          moduleArgsDecoded.jsResolverArgs = jsResolverArgs;
-          moduleArgsDecoded.jsResolverArgsHex = jsResolverArgsHex;
-        }
-      }
+    if (modules.includes(Module.WEB3_FUNCTION)) {
+      const indexOfModule = modules.indexOf(Module.WEB3_FUNCTION);
+
+      const { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex } =
+        await this.decodeWeb3FunctionArgs(args[indexOfModule]);
+
+      moduleArgsDecoded.web3FunctionHash = web3FunctionHash;
+      moduleArgsDecoded.web3FunctionArgs = web3FunctionArgs;
+      moduleArgsDecoded.web3FunctionArgsHex = web3FunctionArgsHex;
     }
 
     return moduleArgsDecoded;
@@ -242,15 +244,15 @@ export class GelatoOpsModule {
     };
   };
 
-  public encodeJsResolverArgs = async (
-    jsResolverHash: string,
-    jsResolverArgs?: JsResolverUserArgs,
-    jsResolverArgsHex?: string
+  public encodeWeb3FunctionArgs = async (
+    web3FunctionHash: string,
+    web3FunctionArgs?: Web3FunctionUserArgs,
+    web3FunctionArgsHex?: string
   ): Promise<string> => {
     try {
-      if (!jsResolverArgsHex && jsResolverArgs) {
+      if (!web3FunctionArgsHex && web3FunctionArgs) {
         const { types, keys } = await this.getAbiTypesAndKeysFromSchema(
-          jsResolverHash
+          web3FunctionHash
         );
         // ensure all userArgs are provided & encoded in same order as they are defined in the schema
         const values: (
@@ -262,67 +264,71 @@ export class GelatoOpsModule {
           | number[]
         )[] = [];
         for (const key of keys) {
-          if (typeof jsResolverArgs[key] === "undefined") {
+          if (typeof web3FunctionArgs[key] === "undefined") {
             throw new Error(
               `Missing user arg '${key}' defined in resolver schema`
             );
           }
-          values.push(jsResolverArgs[key]);
+          values.push(web3FunctionArgs[key]);
         }
 
-        jsResolverArgsHex = ethers.utils.defaultAbiCoder.encode(types, values);
+        web3FunctionArgsHex = ethers.utils.defaultAbiCoder.encode(
+          types,
+          values
+        );
       }
 
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["string", "bytes"],
-        [jsResolverHash, jsResolverArgsHex]
+        [web3FunctionHash, web3FunctionArgsHex]
       );
 
       return encoded;
     } catch (err) {
-      throw new Error(`Fail to encode JsResolverArgs: ${err.message}`);
+      throw new Error(`Fail to encode Web3Function: ${err.message}`);
     }
   };
 
-  public decodeJsResolverArgs = async (
+  public decodeWeb3FunctionArgs = async (
     encodedModuleArgs: string
-  ): Promise<JsResolverParams> => {
-    let jsResolverHash: string | null = null;
-    let jsResolverArgs: JsResolverUserArgs | null = null;
-    let jsResolverArgsHex: string | null = null;
+  ): Promise<Web3FunctionParams> => {
+    let web3FunctionHash: string | null = null;
+    let web3FunctionArgs: Web3FunctionUserArgs | null = null;
+    let web3FunctionArgsHex: string | null = null;
 
     try {
-      [jsResolverHash, jsResolverArgsHex] = ethers.utils.defaultAbiCoder.decode(
-        ["string", "bytes"],
-        encodedModuleArgs
-      );
+      [web3FunctionHash, web3FunctionArgsHex] =
+        ethers.utils.defaultAbiCoder.decode(
+          ["string", "bytes"],
+          encodedModuleArgs
+        );
 
-      jsResolverArgs = await this.decodeJsResolverArgsHex(
-        jsResolverArgsHex as string,
+      web3FunctionArgs = await this.decodeWeb3FunctionArgsHex(
+        web3FunctionArgsHex as string,
         {
-          jsResolverHash: jsResolverHash as string,
+          web3FunctionHash: web3FunctionHash as string,
         }
       );
     } catch (err) {
-      console.error(`Fail to decode JsResolverArgs: ${err.message}`);
+      console.error(`Fail to decode Web3FunctionArgs: ${err.message}`);
     }
 
-    return { jsResolverHash, jsResolverArgs, jsResolverArgsHex };
+    return { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex };
   };
 
-  public decodeJsResolverArgsHex = async (
-    jsResolverArgsHex: string,
+  public decodeWeb3FunctionArgsHex = async (
+    web3FunctionArgsHex: string,
     schema: {
-      jsResolverHash?: string;
-      userArgsSchema?: JsResolverUserArgsSchema;
+      web3FunctionHash?: string;
+      userArgsSchema?: Web3FunctionUserArgsSchema;
     }
-  ): Promise<JsResolverUserArgs | null> => {
+  ): Promise<Web3FunctionUserArgs | null> => {
     try {
       let schemaAbi: { types: string[]; keys: string[] };
-      const jsResolverArgs: JsResolverUserArgs = {};
-      if (schema.jsResolverHash)
+      const web3FunctionArgs: Web3FunctionUserArgs = {};
+      if (schema.web3FunctionHash)
         schemaAbi = await this.getAbiTypesAndKeysFromSchema(
-          schema.jsResolverHash
+          schema.web3FunctionHash
         );
       else
         schemaAbi = await this.getAbiTypesAndKeysFromSchema(
@@ -331,18 +337,18 @@ export class GelatoOpsModule {
         );
 
       const { types, keys } = schemaAbi;
-      const jsResolverArgsValues = ethers.utils.defaultAbiCoder.decode(
+      const web3FunctionArgsValues = ethers.utils.defaultAbiCoder.decode(
         types,
-        jsResolverArgsHex as string
+        web3FunctionArgsHex as string
       ) as never[];
       // decode argument according to schema key order
       keys.forEach(
-        (key, idx) => (jsResolverArgs[key] = jsResolverArgsValues[idx])
+        (key, idx) => (web3FunctionArgs[key] = web3FunctionArgsValues[idx])
       );
 
-      return jsResolverArgs;
+      return web3FunctionArgs;
     } catch (err) {
-      console.error(`Fail to decode JsResolverArgsHex: ${err.message}`);
+      console.error(`Fail to decode Web3FunctionArgsHex: ${err.message}`);
       return null;
     }
   };
@@ -362,19 +368,19 @@ export class GelatoOpsModule {
   };
 
   private getAbiTypesAndKeysFromSchema = async (
-    jsResolverHash?: string,
-    _userArgsSchema?: JsResolverUserArgsSchema
+    web3FunctionHash?: string,
+    _userArgsSchema?: Web3FunctionUserArgsSchema
   ): Promise<{ keys: string[]; types: string[] }> => {
     try {
       let userArgsSchema = _userArgsSchema;
 
       if (!userArgsSchema) {
-        if (jsResolverHash) {
-          const downloader = new JsResolverDownloader();
-          const schema = await downloader.fetchSchema(jsResolverHash);
+        if (web3FunctionHash) {
+          const downloader = new Web3FunctionDownloader();
+          const schema = await downloader.fetchSchema(web3FunctionHash);
           userArgsSchema = schema.userArgs;
         } else
-          throw new Error(`Both userArgsSchema && jsResolverHash undefined`);
+          throw new Error(`Both userArgsSchema && web3FunctionHash undefined`);
       }
 
       const types: string[] = [];
@@ -405,7 +411,7 @@ export class GelatoOpsModule {
             break;
           default:
             throw new Error(
-              `Invalid schema in jsResolver CID: ${jsResolverHash}. Invalid type ${value}. userArgsSchema: ${userArgsSchema}`
+              `Invalid schema in web3Function CID: ${web3FunctionHash}. Invalid type ${value}. userArgsSchema: ${userArgsSchema}`
             );
         }
       });

@@ -5,6 +5,6 @@ export * from "./TaskApiParams.interface";
 export * from "./TaskTransaction.interface";
 export * from "./TokenData.interface";
 export * from "./Module.interface";
-export * from "./JsResolver.interface";
-export * from "./JsResolverSchema.interface";
+export * from "./Web3Function.interface";
+export * from "./Web3FunctionSchema.interface";
 export * from "./ChainId.type";

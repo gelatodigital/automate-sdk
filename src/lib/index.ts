@@ -1,4 +1,4 @@
 export * from "./GelatoOpsSDK";
 export * from "./GelatoOpsModule";
-export * from "./JsResolver/JsResolver";
-export * from "./JsResolver/JsResolverDownloader";
+export * from "./Web3Function/Web3Function";
+export * from "./Web3Function/Web3FunctionDownloader";
