@@ -21,7 +21,7 @@ import axios from "axios";
 import { isGelatoOpsSupported } from "../utils";
 import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import { GelatoOpsModule } from "./GelatoOpsModule";
+import { GelatoOpsModule } from "./AutomateModule";
 
 export class GelatoOpsSDK {
   private _opsModule: GelatoOpsModule;
