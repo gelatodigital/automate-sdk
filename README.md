@@ -1,6 +1,6 @@
-# Gelato Ops SDK <!-- omit in toc -->
+# Gelato Automate SDK <!-- omit in toc -->
 
-Automate your smart contracts using Gelato Ops SDK
+Automate your smart contracts using Automate SDK
 
 - [Installation](#installation)
 - [How to use?](#how-to-use)
@@ -9,36 +9,36 @@ Automate your smart contracts using Gelato Ops SDK
 ## Installation
 
 ```bash
-yarn add @gelatonetwork/ops-sdk
+yarn add @gelatonetwork/automate-sdk
 ```
 or
 ```bash
-npm install @gelatonetwork/ops-sdk
+npm install @gelatonetwork/automate-sdk
 ```
 
 ## How to use?
 
-1. Import the Gelato Ops SDK into your project:
+1. Import the Automate SDK into your project:
 
 ```typescript
-import { GelatoOpsSDK } from "@gelatonetwork/ops-sdk";
+import { AutomateSDK } from "@gelatonetwork/automate-sdk";
 ```
 
-2. Check if Gelato Ops is deployed on your network:
+2. Check if Automate is deployed on your network:
 
 ```typescript
-  import { isGelatoOpsSupported } from "@gelatonetwork/ops-sdk";
+  import { isAutomateSupported } from "@gelatonetwork/automate-sdk";
 
-  if (!isGelatoOpsSupported(chainId)) {
-    console.log(`Gelato Ops network not supported (${chainId})`);
+  if (!isAutomateSupported(chainId)) {
+    console.log(`Automate network not supported (${chainId})`);
     return;
   }
 ```
 
-3. Instantiate Gelato Ops using your signer:
+3. Instantiate Automate using your signer:
 
 ```typescript
-const gelatoOps = new GelatoOpsSDK(chainId, signer);
+const automate = new AutomateSDK(chainId, signer);
 ```
 
 4. Create an automation task:
@@ -75,7 +75,7 @@ interface CreateTaskOptions {
 }
 
 const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
-const { taskId, tx }: TaskTransaction = await gelatoOps.createTask(params);
+const { taskId, tx }: TaskTransaction = await automate.createTask(params);
 await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
 ```
@@ -83,7 +83,7 @@ console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
 5. Retrieve all your tasks:
 
 ```typescript
-  const activeTasks = await gelatoOps.getActiveTasks();
+  const activeTasks = await automate.getActiveTasks();
   activeTasks.forEach((task: Task) => {
     console.log(`- ${task.name} (${task.taskId})`);
   });
@@ -92,13 +92,13 @@ console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
 6. Rename a task:
 
 ```typescript
-await gelatoOps.renameTask(taskId, "Another Gelato name");
+await automate.renameTask(taskId, "Another Gelato name");
 ```
 
 7. Cancel a task:
 
 ```typescript
-const { taskId, tx }: TaskTransaction = await gelatoOps.cancelTask(taskId);
+const { taskId, tx }: TaskTransaction = await automate.cancelTask(taskId);
 await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task canceled, taskId: ${taskId} (tx hash: ${tx.hash})`);
 ```
@@ -110,23 +110,23 @@ If you need to override gas settings, you can pass an additional `Overrides` obj
 ```typescript
 const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
 const overrides: Overrides = { gasLimit: 2000000 };
-const tx: TaskTransaction = await gelatoOps.createTask(params, overrides);
+const tx: TaskTransaction = await automate.createTask(params, overrides);
 ```
 
 9. Whitelisting msg.sender of function:
 
 If you enabled `dedicatedMsgSender`, your task will be called via a dedicated `msg.sender` which you can whitelist on your smart contract for extra security.
 
-If `dedicatedMsgSender` is set to false, `msg.sender` of the task will be the Ops contract.
+If `dedicatedMsgSender` is set to false, `msg.sender` of the task will be the Automate contract.
 
 To fetch your dedicated `msg.sender`:
 
 ```typescript
-const { address } = await gelatoOps.getDedicatedMsgSender();
+const { address } = await automate.getDedicatedMsgSender();
 console.log("Dedicated msg.sender: ", address);
 ```
 
 
 ## Examples
 
-Check out our tutorial repository [ops-sdk-hello-world](https://github.com/gelatodigital/ops-sdk-hello-world) for more in-depth examples.
+Check out our tutorial repository [automate-sdk-hello-world](https://github.com/gelatodigital/automate-sdk-hello-world) for more in-depth examples.
