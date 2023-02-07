@@ -7,7 +7,6 @@ export enum Module {
   TIME,
   PROXY,
   SINGLE_EXEC,
-  ORESOLVER,
   WEB3_FUNCTION,
 }
 
@@ -21,7 +20,6 @@ export interface ModuleArgsParams
     TimeParams,
     ProxyParams,
     SingleExecParams,
-    OffChainResolverParams,
     Web3FunctionParams {}
 
 export interface ResolverParams {
@@ -41,11 +39,6 @@ export interface SingleExecParams {
   singleExec: boolean | null;
 }
 
-export interface OffChainResolverParams {
-  offChainResolverHash: string | null;
-  offChainResolverArgs: { [key: string]: unknown } | null;
-  offChainResolverArgsHex: string | null;
-}
 export interface Web3FunctionParams {
   web3FunctionHash: string | null;
   web3FunctionArgs: Web3FunctionUserArgs | null;

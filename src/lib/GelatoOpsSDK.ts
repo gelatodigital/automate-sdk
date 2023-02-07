@@ -203,8 +203,6 @@ export class GelatoOpsSDK {
       interval: args.interval,
       dedicatedMsgSender: args.dedicatedMsgSender,
       singleExec: args.singleExec,
-      offChainResolverHash: args.offChainResolverHash,
-      offChainResolverArgs: args.offChainResolverArgs,
       web3FunctionHash: args.web3FunctionHash,
       web3FunctionArgs: args.web3FunctionArgs,
       web3FunctionArgsHex: args.web3FunctionArgsHex,
