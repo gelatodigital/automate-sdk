@@ -15,8 +15,6 @@ export interface CreateTaskOptions {
   useTreasury?: boolean;
   dedicatedMsgSender: boolean;
   singleExec?: boolean;
-  offChainResolverHash?: string;
-  offChainResolverArgs?: { [key: string]: unknown };
   web3FunctionHash?: string;
   web3FunctionArgs?: Web3FunctionUserArgs;
   web3FunctionArgsHex?: string;

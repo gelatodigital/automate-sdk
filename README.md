@@ -70,6 +70,11 @@ interface CreateTaskOptions {
   // Optional: Single execution task
   singleExec?: boolean;     // task cancels itself after 1 execution if true.
 
+  // Web3 function params
+  web3FunctionHash?: string;    // ipfs hash of your web3 function
+  web3FunctionArgs?: 
+  {[key: string]: unknown}; // web3 function arguments object
+
   // Optional: Payment params
   useTreasury?: boolean;    // use false if your task is self-paying (default: true)
 }

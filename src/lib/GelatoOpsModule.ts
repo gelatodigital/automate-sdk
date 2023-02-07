@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
-import { encode, decode } from "@msgpack/msgpack";
 import { ethers } from "ethers";
 import {
   Web3FunctionParams,
@@ -9,7 +8,6 @@ import {
   Module,
   ModuleArgsParams,
   ModuleData,
-  OffChainResolverParams,
   ResolverParams,
   TimeParams,
 } from "../types";
@@ -29,8 +27,6 @@ export class GelatoOpsModule {
       interval,
       dedicatedMsgSender,
       singleExec,
-      offChainResolverHash,
-      offChainResolverArgs,
       web3FunctionHash,
       web3FunctionArgs,
       web3FunctionArgsHex,
@@ -55,13 +51,6 @@ export class GelatoOpsModule {
     if (singleExec) {
       modules.push(Module.SINGLE_EXEC);
       args.push("0x");
-    }
-
-    if (offChainResolverHash && offChainResolverArgs) {
-      modules.push(Module.ORESOLVER);
-      args.push(
-        this.encodeOResolverArgs(offChainResolverHash, offChainResolverArgs)
-      );
     }
 
     if (web3FunctionHash && web3FunctionArgsHex) {
@@ -96,9 +85,6 @@ export class GelatoOpsModule {
       interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
-      offChainResolverHash: null,
-      offChainResolverArgs: null,
-      offChainResolverArgsHex: null,
       web3FunctionHash: null,
       web3FunctionArgs: null,
       web3FunctionArgsHex: null,
@@ -128,19 +114,6 @@ export class GelatoOpsModule {
 
     if (modules.includes(Module.SINGLE_EXEC)) {
       moduleArgsDecoded.singleExec = true;
-    }
-
-    if (modules.includes(Module.ORESOLVER)) {
-      const indexOfModule = modules.indexOf(Module.ORESOLVER);
-      const {
-        offChainResolverHash,
-        offChainResolverArgs,
-        offChainResolverArgsHex,
-      } = this.decodeOResolverArgs(args[indexOfModule]);
-
-      moduleArgsDecoded.offChainResolverHash = offChainResolverHash;
-      moduleArgsDecoded.offChainResolverArgs = offChainResolverArgs;
-      moduleArgsDecoded.offChainResolverArgsHex = offChainResolverArgsHex;
     }
 
     if (modules.includes(Module.WEB3_FUNCTION)) {
@@ -204,44 +177,6 @@ export class GelatoOpsModule {
     } catch {}
 
     return { startTime, interval };
-  };
-
-  public encodeOResolverArgs = (
-    oResolverHash: string,
-    oResolverArgs: { [key: string]: unknown }
-  ): string => {
-    const oResolverArgsBuffer = encode(oResolverArgs);
-    const oResolverArgsHex = this._bufferToHex(oResolverArgsBuffer);
-    const encoded = ethers.utils.defaultAbiCoder.encode(
-      ["string", "bytes"],
-      [oResolverHash, oResolverArgsHex]
-    );
-
-    return encoded;
-  };
-
-  public decodeOResolverArgs = (
-    encodedModuleArgs: string
-  ): OffChainResolverParams => {
-    let oResolverHash: string | null = null;
-    let oResolverArgs: { [key: string]: unknown } | null = null;
-    let oResolverArgsHex: string | null = null;
-
-    try {
-      [oResolverHash, oResolverArgsHex] = ethers.utils.defaultAbiCoder.decode(
-        ["string", "bytes"],
-        encodedModuleArgs
-      );
-
-      const oResolverArgsBuffer = this._hexToBuffer(oResolverArgsHex as string);
-      oResolverArgs = decode(oResolverArgsBuffer) as { [key: string]: unknown };
-    } catch {}
-
-    return {
-      offChainResolverHash: oResolverHash,
-      offChainResolverArgs: oResolverArgs,
-      offChainResolverArgsHex: oResolverArgsHex,
-    };
   };
 
   public encodeWeb3FunctionArgs = async (

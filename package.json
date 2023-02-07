@@ -1,6 +1,6 @@
 {
   "name": "@gelatonetwork/automate-sdk",
-  "version": "2.1.1-alpha",
+  "version": "2.2.0-alpha",
   "description": "SDK to create Automate tasks",
   "url": "https://github.com/gelatodigital/automate-sdk",
   "main": "dist/index.js",
@@ -39,8 +39,8 @@
     "typescript": "^4.5.3"
   },
   "dependencies": {
-    "@msgpack/msgpack": "^2.7.2",
-    "axios": "^0.24.0",
-    "ethers": "^5.5.2"
+    "axios": "^1.2.2",
+    "ethers": "^5.5.2",
+    "siwe": "^1.1.6"
   }
 }
