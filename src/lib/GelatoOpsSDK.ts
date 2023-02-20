@@ -5,8 +5,10 @@ import { Signer } from "@ethersproject/abstract-signer";
 import { GELATO_ADDRESSES, OPS_TASKS_API, ETH, ZERO_ADD } from "../constants";
 import {
   Ops,
-  OpsProxyFactory__factory,
   Ops__factory,
+  OpsProxy,
+  OpsProxy__factory,
+  OpsProxyFactory__factory,
   ProxyModule__factory,
 } from "../contracts/types";
 import { ContractTransaction, ethers, Overrides, providers } from "ethers";
@@ -236,6 +238,50 @@ export class GelatoOpsSDK {
   ): Promise<TaskTransaction> {
     const tx = await this._ops.cancelTask(taskId, overrides);
     return { taskId, tx };
+  }
+
+  public async updateTask(
+    taskId: string,
+    _args: CreateTaskOptions,
+    overrides: Overrides = {}
+  ) {
+    const { address, isDeployed } = await this.getDedicatedMsgSender();
+    if (!isDeployed) throw new Error("Dedicated msg.sender not deployed");
+
+    const opsProxy = OpsProxy__factory.connect(address, this._signer);
+
+    const args = this._processModules(_args);
+
+    const cancelTaskData = this._ops.interface.encodeFunctionData(
+      "cancelTask",
+      [taskId]
+    );
+    const createTaskData = this._ops.interface.encodeFunctionData(
+      "createTask",
+      [
+        args.execAddress,
+        args.execData ?? args.execSelector,
+        args.moduleData,
+        args.useTreasury ? ZERO_ADD : ETH,
+      ]
+    );
+
+    const targets = [
+      GELATO_ADDRESSES[this._chainId].ops,
+      GELATO_ADDRESSES[this._chainId].ops,
+    ];
+    const datas = [cancelTaskData, createTaskData];
+    const values = [0, 0];
+
+    const tx: ContractTransaction = await opsProxy.batchExecuteCall(
+      targets,
+      datas,
+      values,
+      overrides
+    );
+    const newTaskId = await this._getTaskId(args);
+
+    return { taskId: newTaskId, tx };
   }
 
   public isGnosisSafeApp = (): boolean => {
