@@ -6,7 +6,6 @@ import { GELATO_ADDRESSES, OPS_TASKS_API, ETH, ZERO_ADD } from "../constants";
 import {
   Ops,
   Ops__factory,
-  OpsProxy,
   OpsProxy__factory,
   OpsProxyFactory__factory,
   ProxyModule__factory,
@@ -250,7 +249,7 @@ export class GelatoOpsSDK {
 
     const opsProxy = OpsProxy__factory.connect(address, this._signer);
 
-    const args = this._processModules(_args);
+    const args = await this._processModules(_args);
 
     const cancelTaskData = this._ops.interface.encodeFunctionData(
       "cancelTask",
