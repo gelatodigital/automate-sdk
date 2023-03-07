@@ -36,7 +36,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     ops: "",
   },
   [CHAIN_ID.ARBITRUM_GOERLI]: {
-    ops: "",
+    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.MATIC]: {
     ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
