@@ -22,7 +22,7 @@ import {
   TaskApiParams,
   TokenData,
 } from "../types";
-import axios from "axios";
+import axios, { Axios } from "axios";
 import { isAutomateSupported } from "../utils";
 import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
@@ -34,6 +34,7 @@ export class AutomateSDK {
   private readonly _signer: Signer;
   private _automate: Automate;
   private _token!: string;
+  private readonly _taskApi: Axios;
   private readonly _signatureMessage: string;
 
   constructor(chainId: number, signer: Signer, signatureMessage?: string) {
@@ -52,6 +53,7 @@ export class AutomateSDK {
       GELATO_ADDRESSES[this._chainId].automate,
       this._signer
     );
+    this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
   }
 
   public async getActiveTasks(): Promise<Task[]> {
@@ -277,7 +279,9 @@ export class AutomateSDK {
     this._token = Buffer.from(JSON.stringify(tokenData)).toString("base64");
 
     // Set Axios headers
-    axios.defaults.headers.common["Authorization"] = `Bearer ${this._token}`;
+    this._taskApi.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${this._token}`;
   }
 
   private async _setTaskName(taskId: string, name: string): Promise<void> {
@@ -319,7 +323,10 @@ export class AutomateSDK {
       await this._requestAndStoreSignature();
     }
     try {
-      const response = await axios.post(`${AUTOMATE_TASKS_API}${path}`, data);
+      const response = await this._taskApi.post(
+        `${AUTOMATE_TASKS_API}${path}`,
+        data
+      );
       return response.data as Response;
     } catch (error) {
       this._logTaskApiError(error);
