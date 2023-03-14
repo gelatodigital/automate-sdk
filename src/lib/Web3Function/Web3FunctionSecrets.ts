@@ -1,7 +1,7 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
 import { Signature } from "./Signature";
-import { OPS_USER_API } from "../../constants";
+import { AUTOMATE_USER_API } from "../../constants";
 import { Secrets } from "../../types";
 import { errorMessage } from "../../utils";
 
@@ -13,7 +13,7 @@ export class Web3FunctionSecrets {
   constructor(signer: Signer, signature: Signature) {
     this._signer = signer;
     this._userApi = axios.create({
-      baseURL: OPS_USER_API,
+      baseURL: AUTOMATE_USER_API,
     });
     this._signature = signature;
   }

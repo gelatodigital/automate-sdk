@@ -2,17 +2,21 @@
 /* eslint-disable no-empty */
 import { ethers } from "ethers";
 import {
+  Web3FunctionParams,
+  Web3FunctionUserArgs,
+  Web3FunctionUserArgsSchema,
   Module,
   ModuleArgsParams,
   ModuleData,
   ResolverParams,
   TimeParams,
-} from "../types/Module.interface";
+} from "../types";
+import { Web3FunctionDownloader } from "./Web3Function/Web3FunctionDownloader";
 
 export class AutomateModule {
-  public encodeModuleArgs = (
+  public encodeModuleArgs = async (
     moduleArgsParams: Partial<ModuleArgsParams>
-  ): ModuleData => {
+  ): Promise<ModuleData> => {
     const modules: Module[] = [];
     const args: string[] = [];
 
@@ -23,6 +27,9 @@ export class AutomateModule {
       interval,
       dedicatedMsgSender,
       singleExec,
+      web3FunctionHash,
+      web3FunctionArgs,
+      web3FunctionArgsHex,
     } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
@@ -34,11 +41,6 @@ export class AutomateModule {
       const start = startTime ?? 0;
       modules.push(Module.TIME);
       args.push(this.encodeTimeArgs(start, interval));
-    } else {
-      if (singleExec && startTime) {
-        modules.push(Module.TIME);
-        args.push(this.encodeTimeArgs(startTime, 1));
-      }
     }
 
     if (dedicatedMsgSender) {
@@ -51,10 +53,28 @@ export class AutomateModule {
       args.push("0x");
     }
 
+    if (web3FunctionHash && web3FunctionArgsHex) {
+      modules.push(Module.WEB3_FUNCTION);
+      args.push(
+        await this.encodeWeb3FunctionArgs(
+          web3FunctionHash,
+          undefined,
+          web3FunctionArgsHex
+        )
+      );
+    } else if (web3FunctionHash && web3FunctionArgs) {
+      modules.push(Module.WEB3_FUNCTION);
+      args.push(
+        await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs)
+      );
+    }
+
     return { modules, args };
   };
 
-  public decodeModuleArgs = (moduleData: ModuleData): ModuleArgsParams => {
+  public decodeModuleArgs = async (
+    moduleData: ModuleData
+  ): Promise<ModuleArgsParams> => {
     const modules = moduleData.modules;
     const args = moduleData.args;
 
@@ -65,6 +85,9 @@ export class AutomateModule {
       interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
+      web3FunctionHash: null,
+      web3FunctionArgs: null,
+      web3FunctionArgsHex: null,
     };
 
     if (modules.includes(Module.RESOLVER)) {
@@ -91,6 +114,17 @@ export class AutomateModule {
 
     if (modules.includes(Module.SINGLE_EXEC)) {
       moduleArgsDecoded.singleExec = true;
+    }
+
+    if (modules.includes(Module.WEB3_FUNCTION)) {
+      const indexOfModule = modules.indexOf(Module.WEB3_FUNCTION);
+
+      const { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex } =
+        await this.decodeWeb3FunctionArgs(args[indexOfModule]);
+
+      moduleArgsDecoded.web3FunctionHash = web3FunctionHash;
+      moduleArgsDecoded.web3FunctionArgs = web3FunctionArgs;
+      moduleArgsDecoded.web3FunctionArgsHex = web3FunctionArgsHex;
     }
 
     return moduleArgsDecoded;
@@ -143,5 +177,183 @@ export class AutomateModule {
     } catch {}
 
     return { startTime, interval };
+  };
+
+  public encodeWeb3FunctionArgs = async (
+    web3FunctionHash: string,
+    web3FunctionArgs?: Web3FunctionUserArgs,
+    web3FunctionArgsHex?: string
+  ): Promise<string> => {
+    try {
+      if (!web3FunctionArgsHex && web3FunctionArgs) {
+        const { types, keys } = await this.getAbiTypesAndKeysFromSchema(
+          web3FunctionHash
+        );
+        // ensure all userArgs are provided & encoded in same order as they are defined in the schema
+        const values: (
+          | string
+          | boolean
+          | number
+          | string[]
+          | boolean[]
+          | number[]
+        )[] = [];
+        for (const key of keys) {
+          if (typeof web3FunctionArgs[key] === "undefined") {
+            throw new Error(
+              `Missing user arg '${key}' defined in resolver schema`
+            );
+          }
+          values.push(web3FunctionArgs[key]);
+        }
+
+        web3FunctionArgsHex = ethers.utils.defaultAbiCoder.encode(
+          types,
+          values
+        );
+      }
+
+      const encoded = ethers.utils.defaultAbiCoder.encode(
+        ["string", "bytes"],
+        [web3FunctionHash, web3FunctionArgsHex]
+      );
+
+      return encoded;
+    } catch (err) {
+      throw new Error(`Fail to encode Web3Function: ${err.message}`);
+    }
+  };
+
+  public decodeWeb3FunctionArgs = async (
+    encodedModuleArgs: string
+  ): Promise<Web3FunctionParams> => {
+    let web3FunctionHash: string | null = null;
+    let web3FunctionArgs: Web3FunctionUserArgs | null = null;
+    let web3FunctionArgsHex: string | null = null;
+
+    try {
+      [web3FunctionHash, web3FunctionArgsHex] =
+        ethers.utils.defaultAbiCoder.decode(
+          ["string", "bytes"],
+          encodedModuleArgs
+        );
+
+      web3FunctionArgs = await this.decodeWeb3FunctionArgsHex(
+        web3FunctionArgsHex as string,
+        {
+          web3FunctionHash: web3FunctionHash as string,
+        }
+      );
+    } catch (err) {
+      console.error(`Fail to decode Web3FunctionArgs: ${err.message}`);
+    }
+
+    return { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex };
+  };
+
+  public decodeWeb3FunctionArgsHex = async (
+    web3FunctionArgsHex: string,
+    schema: {
+      web3FunctionHash?: string;
+      userArgsSchema?: Web3FunctionUserArgsSchema;
+    }
+  ): Promise<Web3FunctionUserArgs | null> => {
+    try {
+      let schemaAbi: { types: string[]; keys: string[] };
+      const web3FunctionArgs: Web3FunctionUserArgs = {};
+      if (schema.web3FunctionHash)
+        schemaAbi = await this.getAbiTypesAndKeysFromSchema(
+          schema.web3FunctionHash
+        );
+      else
+        schemaAbi = await this.getAbiTypesAndKeysFromSchema(
+          undefined,
+          schema.userArgsSchema
+        );
+
+      const { types, keys } = schemaAbi;
+      const web3FunctionArgsValues = ethers.utils.defaultAbiCoder.decode(
+        types,
+        web3FunctionArgsHex as string
+      ) as never[];
+      // decode argument according to schema key order
+      keys.forEach(
+        (key, idx) => (web3FunctionArgs[key] = web3FunctionArgsValues[idx])
+      );
+
+      return web3FunctionArgs;
+    } catch (err) {
+      console.error(`Fail to decode Web3FunctionArgsHex: ${err.message}`);
+      return null;
+    }
+  };
+
+  public _hexToBuffer = (hexString: string): Uint8Array => {
+    const noPrefix = hexString.slice(2);
+    const buffer = Uint8Array.from(Buffer.from(noPrefix, "hex"));
+    return buffer;
+  };
+
+  public _bufferToHex = (buffer: Uint8Array): string => {
+    const hex = [...new Uint8Array(buffer)]
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+    const hexPrefixed = "0x" + hex;
+    return hexPrefixed;
+  };
+
+  private getAbiTypesAndKeysFromSchema = async (
+    web3FunctionHash?: string,
+    _userArgsSchema?: Web3FunctionUserArgsSchema
+  ): Promise<{ keys: string[]; types: string[] }> => {
+    try {
+      let userArgsSchema = _userArgsSchema;
+
+      if (!userArgsSchema) {
+        if (web3FunctionHash) {
+          const downloader = new Web3FunctionDownloader();
+          const schema = await downloader.fetchSchema(web3FunctionHash);
+          userArgsSchema = schema.userArgs;
+        } else
+          throw new Error(`Both userArgsSchema && web3FunctionHash undefined`);
+      }
+
+      const types: string[] = [];
+      const keys: string[] = [];
+
+      Object.keys(userArgsSchema).forEach((key) => {
+        if (!userArgsSchema || !userArgsSchema[key]) return;
+        keys.push(key);
+        const value = userArgsSchema[key];
+        switch (value) {
+          case "number":
+            types.push("uint256");
+            break;
+          case "string":
+            types.push("string");
+            break;
+          case "boolean":
+            types.push("bool");
+            break;
+          case "number[]":
+            types.push("uint256[]");
+            break;
+          case "string[]":
+            types.push("string[]");
+            break;
+          case "boolean[]":
+            types.push("bool[]");
+            break;
+          default:
+            throw new Error(
+              `Invalid schema in web3Function CID: ${web3FunctionHash}. Invalid type ${value}. userArgsSchema: ${userArgsSchema}`
+            );
+        }
+      });
+
+      return { types, keys };
+    } catch (err) {
+      throw new Error(`Fail to get types from schema: ${err.message}`);
+    }
   };
 }

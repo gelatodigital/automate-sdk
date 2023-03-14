@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { GelatoAddressBook } from "../types";
 
-export const OPS_USER_API = "https://api.gelato.digital/automate/users";
-export const OPS_TASKS_API = "https://api.gelato.digital/automate/tasks";
+export const AUTOMATE_USER_API = "https://api.gelato.digital/automate/users";
+export const AUTOMATE_TASKS_API = "https://api.gelato.digital/automate/tasks";
 
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 export const ZERO_ADD = "0x0000000000000000000000000000000000000000";
@@ -27,48 +27,48 @@ export const CHAIN_ID = {
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.MAINNET]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.GOERLI]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.OPTIMISTIC_GOERLI]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.ARBITRUM_GOERLI]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.MATIC]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.MUMBAI]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.FANTOM]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.ARBITRUM]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.AVALANCHE]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.BSC]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.GNOSIS]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.OPTIMISM]: {
-    ops: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.MOONBEAM]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.MOONRIVER]: {
-    ops: "",
+    automate: "",
   },
   [CHAIN_ID.CRONOS]: {
-    ops: "",
+    automate: "",
   },
 };
