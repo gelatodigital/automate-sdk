@@ -39,10 +39,10 @@ export class AutomateSDK {
 
   constructor(chainId: number, signer: Signer, signatureMessage?: string) {
     if (!isAutomateSupported(chainId)) {
-      throw new Error(`Gelato Automate is not available on chainId:${chainId}`);
+      throw new Error(`Automate is not available on chainId:${chainId}`);
     }
     if (!Signer.isSigner(signer)) {
-      throw new Error(`Invalid Gelato Automate signer`);
+      throw new Error(`Invalid Automate signer`);
     }
 
     this._automateModule = new AutomateModule();

@@ -41,6 +41,11 @@ export class AutomateModule {
       const start = startTime ?? 0;
       modules.push(Module.TIME);
       args.push(this.encodeTimeArgs(start, interval));
+    } else {
+      if (singleExec && startTime) {
+        modules.push(Module.TIME);
+        args.push(this.encodeTimeArgs(startTime, 1));
+      }
     }
 
     if (dedicatedMsgSender) {
