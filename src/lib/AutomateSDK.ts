@@ -2,11 +2,16 @@
 import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
-import { GELATO_ADDRESSES, OPS_TASKS_API, ETH, ZERO_ADD } from "../constants";
 import {
-  Ops,
-  OpsProxyFactory__factory,
-  Ops__factory,
+  GELATO_ADDRESSES,
+  AUTOMATE_TASKS_API,
+  ETH,
+  ZERO_ADD,
+} from "../constants";
+import {
+  Automate,
+  AutomateProxyFactory__factory,
+  Automate__factory,
   ProxyModule__factory,
 } from "../contracts/types";
 import { ContractTransaction, ethers, Overrides, providers } from "ethers";
@@ -17,42 +22,44 @@ import {
   TaskApiParams,
   TokenData,
 } from "../types";
-import axios from "axios";
-import { isGelatoOpsSupported } from "../utils";
+import axios, { Axios } from "axios";
+import { isAutomateSupported } from "../utils";
 import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import { GelatoOpsModule } from "./GelatoOpsModule";
+import { AutomateModule } from "./AutomateModule";
 
-export class GelatoOpsSDK {
-  private _opsModule: GelatoOpsModule;
+export class AutomateSDK {
+  private _automateModule: AutomateModule;
   private readonly _chainId: number;
   private readonly _signer: Signer;
-  private _ops: Ops;
+  private _automate: Automate;
   private _token!: string;
+  private readonly _taskApi: Axios;
   private readonly _signatureMessage: string;
 
   constructor(chainId: number, signer: Signer, signatureMessage?: string) {
-    if (!isGelatoOpsSupported(chainId)) {
-      throw new Error(`Gelato Ops is not available on chainId:${chainId}`);
+    if (!isAutomateSupported(chainId)) {
+      throw new Error(`Automate is not available on chainId:${chainId}`);
     }
     if (!Signer.isSigner(signer)) {
-      throw new Error(`Invalid Gelato Ops signer`);
+      throw new Error(`Invalid Automate signer`);
     }
 
-    this._opsModule = new GelatoOpsModule();
-    this._signatureMessage = signatureMessage ?? "Gelato Ops Task";
+    this._automateModule = new AutomateModule();
+    this._signatureMessage = signatureMessage ?? "Automate Task";
     this._chainId = chainId;
     this._signer = signer;
-    this._ops = Ops__factory.connect(
-      GELATO_ADDRESSES[this._chainId].ops,
+    this._automate = Automate__factory.connect(
+      GELATO_ADDRESSES[this._chainId].automate,
       this._signer
     );
+    this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
   }
 
   public async getActiveTasks(): Promise<Task[]> {
     // Retrieve user task ids
     const address = await this._signer.getAddress();
-    const taskIds = await this._ops.getTaskIdsByUser(address);
+    const taskIds = await this._automate.getTaskIdsByUser(address);
 
     return this.getTaskNames(taskIds);
   }
@@ -87,22 +94,24 @@ export class GelatoOpsSDK {
     address: string;
     isDeployed: boolean;
   }> {
-    const proxyModuleAddress = await this._ops.taskModuleAddresses(
+    const proxyModuleAddress = await this._automate.taskModuleAddresses(
       Module.PROXY
     );
 
-    const opsProxyFactoryAddress = await ProxyModule__factory.connect(
+    const automateProxyFactoryAddress = await ProxyModule__factory.connect(
       proxyModuleAddress,
       this._signer
     ).opsProxyFactory();
 
-    const opsProxyFactory = OpsProxyFactory__factory.connect(
-      opsProxyFactoryAddress,
+    const automateProxyFactory = AutomateProxyFactory__factory.connect(
+      automateProxyFactoryAddress,
       this._signer
     );
 
     const userAddress = await this._signer.getAddress();
-    const [address, isDeployed] = await opsProxyFactory.getProxyOf(userAddress);
+    const [address, isDeployed] = await automateProxyFactory.getProxyOf(
+      userAddress
+    );
 
     return { address, isDeployed };
   }
@@ -185,7 +194,7 @@ export class GelatoOpsSDK {
     // Ask for signature
     if (!this._token) await this._requestAndStoreSignature();
 
-    const tx: ContractTransaction = await this._ops.createTask(
+    const tx: ContractTransaction = await this._automate.createTask(
       args.execAddress,
       args.execData ?? args.execSelector,
       args.moduleData,
@@ -203,7 +212,7 @@ export class GelatoOpsSDK {
   ): CreateTaskOptionsWithModules {
     args.startTime = args.startTime ?? 0;
 
-    const moduleData: ModuleData = this._opsModule.encodeModuleArgs({
+    const moduleData: ModuleData = this._automateModule.encodeModuleArgs({
       resolverAddress: args.resolverAddress,
       resolverData: args.resolverData,
       startTime: args.startTime,
@@ -238,7 +247,7 @@ export class GelatoOpsSDK {
     taskId: string,
     overrides: Overrides = {}
   ): Promise<TaskTransaction> {
-    const tx = await this._ops.cancelTask(taskId, overrides);
+    const tx = await this._automate.cancelTask(taskId, overrides);
     return { taskId, tx };
   }
 
@@ -270,7 +279,9 @@ export class GelatoOpsSDK {
     this._token = Buffer.from(JSON.stringify(tokenData)).toString("base64");
 
     // Set Axios headers
-    axios.defaults.headers.common["Authorization"] = `Bearer ${this._token}`;
+    this._taskApi.defaults.headers.common[
+      "Authorization"
+    ] = `Bearer ${this._token}`;
   }
 
   private async _setTaskName(taskId: string, name: string): Promise<void> {
@@ -312,7 +323,10 @@ export class GelatoOpsSDK {
       await this._requestAndStoreSignature();
     }
     try {
-      const response = await axios.post(`${OPS_TASKS_API}${path}`, data);
+      const response = await this._taskApi.post(
+        `${AUTOMATE_TASKS_API}${path}`,
+        data
+      );
       return response.data as Response;
     } catch (error) {
       this._logTaskApiError(error);
@@ -322,7 +336,7 @@ export class GelatoOpsSDK {
 
   private _logTaskApiError(error: Error) {
     // Task API error are logged but not thrown as they are non blocking
-    let message = `GelatoOpsSDK - Error naming task: ${error.message} `;
+    let message = `AutomateSDK - Error naming task: ${error.message} `;
     if (axios.isAxiosError(error)) {
       message += error.response?.data?.message;
     }

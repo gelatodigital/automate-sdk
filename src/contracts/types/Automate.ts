@@ -31,7 +31,7 @@ export declare namespace LibDataTypes {
   };
 }
 
-export interface OpsInterface extends utils.Interface {
+export interface AutomateInterface extends utils.Interface {
   functions: {
     "cancelTask(bytes32)": FunctionFragment;
     "createTask(address,bytes,(uint8[],bytes[]),address)": FunctionFragment;
@@ -164,12 +164,12 @@ export interface OpsInterface extends utils.Interface {
   events: {};
 }
 
-export interface Ops extends BaseContract {
+export interface Automate extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: OpsInterface;
+  interface: AutomateInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

@@ -9,7 +9,7 @@ import {
   TimeParams,
 } from "../types/Module.interface";
 
-export class GelatoOpsModule {
+export class AutomateModule {
   public encodeModuleArgs = (
     moduleArgsParams: Partial<ModuleArgsParams>
   ): ModuleData => {

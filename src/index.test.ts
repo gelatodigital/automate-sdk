@@ -1,6 +1,6 @@
 import dotenv from "dotenv";
 import { ethers } from "ethers";
-import { GelatoOpsSDK } from "./lib";
+import { AutomateSDK } from "./lib";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");
@@ -17,10 +17,10 @@ const main = async () => {
   const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 
   const wallet = new ethers.Wallet(pk as string, provider);
-  const sdk = new GelatoOpsSDK(chainId, wallet);
+  const sdk = new AutomateSDK(chainId, wallet);
 
   const taskId = await sdk.createTask({
-    name: "OpsSdkTest",
+    name: "AutomateSdkTest",
     execAddress: iceCreamAddress,
     execSelector: iceCreamInterface.getSighash("lick"),
     execData: iceCreamInterface.encodeFunctionData("lick", [1]),

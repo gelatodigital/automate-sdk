@@ -25,7 +25,7 @@ import type {
   OnEvent,
 } from "./common";
 
-export interface OpsProxyFactoryInterface extends utils.Interface {
+export interface AutomateProxyFactoryInterface extends utils.Interface {
   functions: {
     "deploy()": FunctionFragment;
     "deployFor(address)": FunctionFragment;
@@ -111,12 +111,12 @@ export type DeployProxyEvent = TypedEvent<
 
 export type DeployProxyEventFilter = TypedEventFilter<DeployProxyEvent>;
 
-export interface OpsProxyFactory extends BaseContract {
+export interface AutomateProxyFactory extends BaseContract {
   connect(signerOrProvider: Signer | Provider | string): this;
   attach(addressOrName: string): this;
   deployed(): Promise<this>;
 
-  interface: OpsProxyFactoryInterface;
+  interface: AutomateProxyFactoryInterface;
 
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,

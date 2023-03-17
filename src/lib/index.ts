@@ -1,2 +1,2 @@
-export * from "./GelatoOpsSDK";
-export * from "./GelatoOpsModule";
+export * from "./AutomateSDK";
+export * from "./AutomateModule";

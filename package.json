@@ -1,8 +1,8 @@
 {
-  "name": "@gelatonetwork/ops-sdk",
-  "version": "2.0.7",
-  "description": "SDK to create Gelato Ops tasks",
-  "url": "https://github.com/gelatodigital/ops-sdk",
+  "name": "@gelatonetwork/automate-sdk",
+  "version": "2.1.0",
+  "description": "SDK to create Automate tasks",
+  "url": "https://github.com/gelatodigital/automate-sdk",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
