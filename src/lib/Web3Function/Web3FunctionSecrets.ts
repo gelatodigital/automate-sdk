@@ -18,14 +18,17 @@ export class Web3FunctionSecrets {
     this._signature = signature;
   }
 
-  public async get(key: string): Promise<string> {
+  public async get(taskId: string, key: string): Promise<string> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
-      const res = await this._userApi.get(`/users/${address}/secrets/${key}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const res = await this._userApi.get(
+        `/users/${address}/${taskId}/secrets/${key}`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }
+      );
 
       const secret = res.data[key];
 
@@ -36,14 +39,17 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async list(): Promise<Secrets> {
+  public async list(taskId: string): Promise<Secrets> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
-      const res = await this._userApi.get(`/users/${address}/secrets`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
+      const res = await this._userApi.get(
+        `/users/${address}/${taskId}/secrets`,
+        {
+          headers: { Authorization: `Bearer ${authToken}` },
+        }
+      );
 
       return res.data as Secrets;
     } catch (err) {
@@ -52,13 +58,13 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async set(secrets: Secrets): Promise<void> {
+  public async set(taskId: string, secrets: Secrets): Promise<void> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
       await this._userApi.post(
-        `/users/${address}/secrets`,
+        `/users/${address}/${taskId}/secrets`,
         { ...secrets },
         {
           headers: { Authorization: `Bearer ${authToken}` },
@@ -70,12 +76,12 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async delete(key: string): Promise<void> {
+  public async delete(taskId: string, key: string): Promise<void> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
-      await this._userApi.delete(`/users/${address}/secrets/${key}`, {
+      await this._userApi.delete(`/users/${address}/${taskId}/secrets/${key}`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
     } catch (err) {
