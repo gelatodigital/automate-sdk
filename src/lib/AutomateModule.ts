@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import {
   Web3FunctionParams,
   Web3FunctionUserArgs,
@@ -279,12 +279,29 @@ export class AutomateModule {
       const { types, keys } = schemaAbi;
       const web3FunctionArgsValues = ethers.utils.defaultAbiCoder.decode(
         types,
-        web3FunctionArgsHex as string
-      ) as never[];
+        web3FunctionArgsHex
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) as any[];
+
       // decode argument according to schema key order
-      keys.forEach(
-        (key, idx) => (web3FunctionArgs[key] = web3FunctionArgsValues[idx])
-      );
+      keys.forEach((key, idx) => {
+        let val = web3FunctionArgsValues[idx];
+
+        // Transform BigNumber[] in number[]
+        if (Array.isArray(val)) {
+          val = val.map((v) => {
+            if (typeof v === "object" && v instanceof BigNumber) {
+              return v.toNumber();
+            }
+            return v;
+          });
+          // Transform BigNumber in number
+        } else if (typeof val === "object" && val instanceof BigNumber) {
+          val = val.toNumber();
+        }
+
+        web3FunctionArgs[key] = val;
+      });
 
       return web3FunctionArgs;
     } catch (err) {
