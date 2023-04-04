@@ -14,6 +14,7 @@ export const CHAIN_ID = {
   CRONOS: 25,
   OPTIMISTIC_GOERLI: 420,
   ARBITRUM_GOERLI: 421613,
+  BASE_GOERLI: 84531,
   BSC: 56,
   GNOSIS: 100,
   MATIC: 137,
@@ -36,6 +37,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "",
   },
   [CHAIN_ID.ARBITRUM_GOERLI]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.BASE_GOERLI]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.MATIC]: {
