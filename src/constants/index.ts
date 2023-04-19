@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { GelatoAddressBook } from "../types";
 
-export const AUTOMATE_USER_API = "https://api.gelato.digital/automate/users";
-export const AUTOMATE_TASKS_API = "https://api.gelato.digital/automate/tasks";
+export const AUTOMATE_USER_API =
+  "https://api.staging.gelato.digital/automate/users";
+export const AUTOMATE_TASKS_API =
+  "https://api.staging.gelato.digital/automate/tasks";
 
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 export const ZERO_ADD = "0x0000000000000000000000000000000000000000";
@@ -29,43 +31,43 @@ export const CHAIN_ID = {
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.MAINNET]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.GOERLI]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.OPTIMISTIC_GOERLI]: {
     automate: "",
   },
   [CHAIN_ID.ARBITRUM_GOERLI]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.BASE_GOERLI]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.MATIC]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.MUMBAI]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "0xC97aBa1B6cf4d8aCa19dFba68e99befaDA9aeFE3",
   },
   [CHAIN_ID.FANTOM]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.ARBITRUM]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.AVALANCHE]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.BSC]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.GNOSIS]: {
     automate: "",
   },
   [CHAIN_ID.OPTIMISM]: {
-    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automate: "",
   },
   [CHAIN_ID.MOONBEAM]: {
     automate: "",
