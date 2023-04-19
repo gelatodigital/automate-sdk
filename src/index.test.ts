@@ -10,9 +10,9 @@ if (!process.env.PROVIDER_URL) throw new Error("Missing env PROVIDER_URL");
 const providerUrl = process.env.PROVIDER_URL;
 const chainId = 80001; // mumbai
 
-const iceCreamAddress = "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41"; // mumbai IceCreamNFT
-const iceCreamAbi = ["function lick(uint256) external"];
-const iceCreamInterface = new ethers.utils.Interface(iceCreamAbi);
+const adBoardAddress = "0x28a0a1c63e7e8f0dae5ad633fe232c12b489d5f0";
+const adBoardAbi = ["function postMessage ( string: _message ) external"];
+const adBoardInterface = new ethers.utils.Interface(adBoardAbi);
 
 const main = async () => {
   const provider = new ethers.providers.JsonRpcProvider(providerUrl);
@@ -21,10 +21,9 @@ const main = async () => {
   const sdk = new AutomateSDK(chainId, wallet);
 
   const { taskId, tx } = await sdk.createTask({
-    name: "AutomateSdkTest",
-    execAddress: iceCreamAddress,
-    execSelector: iceCreamInterface.getSighash("lick"),
-    execData: iceCreamInterface.encodeFunctionData("lick", [2]),
+    name: "MumbaiDev AdBoard W3F",
+    execAddress: adBoardAddress,
+    execSelector: adBoardInterface.getSighash("postMessage"),
     dedicatedMsgSender: true,
     singleExec: true,
     trigger: {
