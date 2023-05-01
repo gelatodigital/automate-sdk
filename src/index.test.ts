@@ -11,7 +11,8 @@ const providerUrl = process.env.PROVIDER_URL;
 const chainId = 80001; // mumbai
 
 const adBoardAddress = "0x28a0a1c63e7e8f0dae5ad633fe232c12b489d5f0";
-const adBoardAbi = ["function postMessage ( string: _message ) external"];
+const adBoardAbi = ["function postMessage(string)"];
+
 const adBoardInterface = new ethers.utils.Interface(adBoardAbi);
 
 const main = async () => {
