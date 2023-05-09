@@ -18,12 +18,16 @@ export class Web3FunctionSecrets {
     this._signature = signature;
   }
 
-  public async get(key: string): Promise<string> {
+  public async get(key: string, taskId?: string): Promise<string> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
-      const res = await this._userApi.get(`/users/${address}/secrets/${key}`, {
+      const route = taskId
+        ? `/users/${address}/${taskId}/secrets/${key}`
+        : `/users/${address}/secrets/${key}`;
+
+      const res = await this._userApi.get(route, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
@@ -36,12 +40,16 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async list(): Promise<Secrets> {
+  public async list(taskId?: string): Promise<Secrets> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
-      const res = await this._userApi.get(`/users/${address}/secrets`, {
+      const route = taskId
+        ? `/users/${address}/${taskId}/secrets`
+        : `/users/${address}/secrets`;
+
+      const res = await this._userApi.get(route, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
 
@@ -52,13 +60,17 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async set(secrets: Secrets): Promise<void> {
+  public async set(secrets: Secrets, taskId?: string): Promise<void> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
+      const route = taskId
+        ? `/users/${address}/${taskId}/secrets`
+        : `/users/${address}/secrets`;
+
       await this._userApi.post(
-        `/users/${address}/secrets`,
+        route,
         { ...secrets },
         {
           headers: { Authorization: `Bearer ${authToken}` },
@@ -70,12 +82,16 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async delete(key: string): Promise<void> {
+  public async delete(key: string, taskId?: string): Promise<void> {
     try {
       const address = await this._signer.getAddress();
       const authToken = await this._signature.getAuthToken();
 
-      await this._userApi.delete(`/users/${address}/secrets/${key}`, {
+      const route = taskId
+        ? `/users/${address}/${taskId}/secrets/${key}`
+        : `/users/${address}/secrets/${key}`;
+
+      await this._userApi.delete(route, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
     } catch (err) {

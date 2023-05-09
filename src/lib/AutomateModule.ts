@@ -10,6 +10,7 @@ import {
   ModuleData,
   ResolverParams,
   TimeParams,
+  Web3FunctionSchema,
 } from "../types";
 import { Web3FunctionDownloader } from "./Web3Function/Web3FunctionDownloader";
 
@@ -124,12 +125,17 @@ export class AutomateModule {
     if (modules.includes(Module.WEB3_FUNCTION)) {
       const indexOfModule = modules.indexOf(Module.WEB3_FUNCTION);
 
-      const { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex } =
-        await this.decodeWeb3FunctionArgs(args[indexOfModule]);
+      const {
+        web3FunctionHash,
+        web3FunctionArgs,
+        web3FunctionArgsHex,
+        web3FunctionSchema,
+      } = await this.decodeWeb3FunctionArgs(args[indexOfModule]);
 
       moduleArgsDecoded.web3FunctionHash = web3FunctionHash;
       moduleArgsDecoded.web3FunctionArgs = web3FunctionArgs;
       moduleArgsDecoded.web3FunctionArgsHex = web3FunctionArgsHex;
+      moduleArgsDecoded.web3FunctionSchema = web3FunctionSchema;
     }
 
     return moduleArgsDecoded;
@@ -235,6 +241,7 @@ export class AutomateModule {
     let web3FunctionHash: string | null = null;
     let web3FunctionArgs: Web3FunctionUserArgs | null = null;
     let web3FunctionArgsHex: string | null = null;
+    let web3FunctionSchema: Web3FunctionSchema | undefined;
 
     try {
       [web3FunctionHash, web3FunctionArgsHex] =
@@ -243,40 +250,56 @@ export class AutomateModule {
           encodedModuleArgs
         );
 
-      web3FunctionArgs = await this.decodeWeb3FunctionArgsHex(
+      const res = await this.decodeWeb3FunctionArgsHex(
         web3FunctionArgsHex as string,
         {
           web3FunctionHash: web3FunctionHash as string,
         }
       );
+      if (res) {
+        web3FunctionArgs = res.web3FunctionArgs;
+        web3FunctionSchema = res.schema;
+      }
     } catch (err) {
       console.error(`Fail to decode Web3FunctionArgs: ${err.message}`);
     }
 
-    return { web3FunctionHash, web3FunctionArgs, web3FunctionArgsHex };
+    return {
+      web3FunctionHash,
+      web3FunctionArgs,
+      web3FunctionArgsHex,
+      web3FunctionSchema,
+    };
   };
 
   public decodeWeb3FunctionArgsHex = async (
     web3FunctionArgsHex: string,
-    schema: {
+    schemaOption: {
       web3FunctionHash?: string;
       userArgsSchema?: Web3FunctionUserArgsSchema;
     }
-  ): Promise<Web3FunctionUserArgs | null> => {
+  ): Promise<{
+    web3FunctionArgs: Web3FunctionUserArgs;
+    schema?: Web3FunctionSchema;
+  } | null> => {
     try {
-      let schemaAbi: { types: string[]; keys: string[] };
+      let schemaAbi: {
+        types: string[];
+        keys: string[];
+        schema?: Web3FunctionSchema;
+      };
       const web3FunctionArgs: Web3FunctionUserArgs = {};
-      if (schema.web3FunctionHash)
+      if (schemaOption.web3FunctionHash)
         schemaAbi = await this.getAbiTypesAndKeysFromSchema(
-          schema.web3FunctionHash
+          schemaOption.web3FunctionHash
         );
       else
         schemaAbi = await this.getAbiTypesAndKeysFromSchema(
           undefined,
-          schema.userArgsSchema
+          schemaOption.userArgsSchema
         );
 
-      const { types, keys } = schemaAbi;
+      const { types, keys, schema } = schemaAbi;
       const web3FunctionArgsValues = ethers.utils.defaultAbiCoder.decode(
         types,
         web3FunctionArgsHex
@@ -303,7 +326,7 @@ export class AutomateModule {
         web3FunctionArgs[key] = val;
       });
 
-      return web3FunctionArgs;
+      return { web3FunctionArgs, schema };
     } catch (err) {
       console.error(`Fail to decode Web3FunctionArgsHex: ${err.message}`);
       return null;
@@ -327,14 +350,19 @@ export class AutomateModule {
   private getAbiTypesAndKeysFromSchema = async (
     web3FunctionHash?: string,
     _userArgsSchema?: Web3FunctionUserArgsSchema
-  ): Promise<{ keys: string[]; types: string[] }> => {
+  ): Promise<{
+    keys: string[];
+    types: string[];
+    schema?: Web3FunctionSchema;
+  }> => {
     try {
       let userArgsSchema = _userArgsSchema;
+      let schema: Web3FunctionSchema | undefined;
 
       if (!userArgsSchema) {
         if (web3FunctionHash) {
           const downloader = new Web3FunctionDownloader();
-          const schema = await downloader.fetchSchema(web3FunctionHash);
+          schema = await downloader.fetchSchema(web3FunctionHash);
           userArgsSchema = schema.userArgs;
         } else
           throw new Error(`Both userArgsSchema && web3FunctionHash undefined`);
@@ -373,7 +401,7 @@ export class AutomateModule {
         }
       });
 
-      return { types, keys };
+      return { types, keys, schema };
     } catch (err) {
       throw new Error(`Fail to get types from schema: ${err.message}`);
     }
