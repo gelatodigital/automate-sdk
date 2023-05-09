@@ -10,12 +10,14 @@ import {
 } from "../constants";
 import {
   Automate,
+  AutomateProxy__factory,
   AutomateProxyFactory__factory,
   Automate__factory,
   ProxyModule__factory,
 } from "../contracts/types";
 import { ContractTransaction, ethers, Overrides, providers } from "ethers";
 import {
+  CreateBatchExecTaskOptions,
   CreateTaskOptions,
   CreateTaskOptionsWithModules,
   Task,
@@ -174,6 +176,29 @@ export class AutomateSDK {
       )
     );
     return taskId;
+  }
+
+  public async createBatchExecTask(
+    _args: CreateBatchExecTaskOptions,
+    overrides: Overrides = {}
+  ): Promise<TaskTransaction> {
+    const { address: execAddress } = await this.getDedicatedMsgSender();
+
+    const automateProxyInterface = AutomateProxy__factory.createInterface();
+
+    const execSelector = automateProxyInterface.getSighash("batchExecuteCall");
+
+    const execAbi = automateProxyInterface.format("json") as string;
+
+    const createTaskOptions: CreateTaskOptions = {
+      ..._args,
+      execAddress,
+      execSelector,
+      execAbi,
+      dedicatedMsgSender: true,
+    };
+
+    return await this.createTask(createTaskOptions, overrides);
   }
 
   public async createTask(

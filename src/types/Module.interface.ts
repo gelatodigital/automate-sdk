@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
-import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
+import {
+  Web3FunctionSchema,
+  Web3FunctionUserArgs,
+} from "./Web3FunctionSchema.interface";
 
 export enum Module {
   RESOLVER,
@@ -43,4 +46,5 @@ export interface Web3FunctionParams {
   web3FunctionHash: string | null;
   web3FunctionArgs: Web3FunctionUserArgs | null;
   web3FunctionArgsHex: string | null;
+  web3FunctionSchema?: Web3FunctionSchema;
 }
