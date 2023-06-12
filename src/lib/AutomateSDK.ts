@@ -254,11 +254,19 @@ export class AutomateSDK {
     const promises: Promise<void>[] = [];
     promises.push(this._setTaskName(taskId, name ?? taskId, authToken));
     if (execAbi) {
-      promises.push(this._setContractAbi(taskId, false, execAddress, execAbi));
+      promises.push(
+        this._setContractAbi(taskId, false, execAddress, execAbi, authToken)
+      );
     }
     if (resolverAddress && resolverAbi) {
       promises.push(
-        this._setContractAbi(taskId, true, resolverAddress, resolverAbi)
+        this._setContractAbi(
+          taskId,
+          true,
+          resolverAddress,
+          resolverAbi,
+          authToken
+        )
       );
     }
     await Promise.all(promises);
@@ -312,16 +320,22 @@ export class AutomateSDK {
     taskId: string,
     isResolver: boolean,
     address: string,
-    abi: string
+    abi: string,
+    authToken?: string
   ): Promise<void> {
     const path = `/contracts/${this._chainId}/`;
-    await this._postTaskApi(path, {
-      chainId: this._chainId,
-      taskId,
-      address,
-      resolver: isResolver,
-      ABI: abi,
-    });
+    await this._postTaskApi(
+      path,
+      {
+        chainId: this._chainId,
+        taskId,
+        address,
+        resolver: isResolver,
+        ABI: abi,
+      },
+      false,
+      authToken
+    );
   }
 
   private async _postTaskApi<Response>(
