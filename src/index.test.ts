@@ -19,7 +19,7 @@ const main = async () => {
   const wallet = new ethers.Wallet(pk as string, provider);
   const sdk = new AutomateSDK(chainId, wallet);
 
-  const taskId = await sdk.createTask({
+  const { taskId, tx } = await sdk.createTask({
     name: "AutomateSdkTest",
     execAddress: iceCreamAddress,
     execSelector: iceCreamInterface.getSighash("lick"),
@@ -29,7 +29,9 @@ const main = async () => {
     startTime: (await provider.getBlock("latest")).timestamp + 300,
   });
 
-  console.log(taskId);
+  console.log("TaskId:", taskId);
+  await tx.wait();
+  console.log("Transaction hash", tx.hash);
 };
 
 main()
