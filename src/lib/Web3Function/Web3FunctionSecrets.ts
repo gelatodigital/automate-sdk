@@ -1,6 +1,6 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { Signature } from "./Signature";
+import { Signature } from "../Signature";
 import { AUTOMATE_USER_API } from "../../constants";
 import { Secrets } from "../../types";
 import { errorMessage } from "../../utils";
@@ -18,10 +18,14 @@ export class Web3FunctionSecrets {
     this._signature = signature;
   }
 
-  public async get(key: string, taskId?: string): Promise<string> {
+  public async get(
+    key: string,
+    taskId?: string,
+    authToken?: string
+  ): Promise<string> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await this._signature.getAuthToken();
+      if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
         ? `/users/${address}/${taskId}/secrets/${key}`
@@ -40,10 +44,10 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async list(taskId?: string): Promise<Secrets> {
+  public async list(taskId?: string, authToken?: string): Promise<Secrets> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await this._signature.getAuthToken();
+      if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
         ? `/users/${address}/${taskId}/secrets`
@@ -60,10 +64,14 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async set(secrets: Secrets, taskId?: string): Promise<void> {
+  public async set(
+    secrets: Secrets,
+    taskId?: string,
+    authToken?: string
+  ): Promise<void> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await this._signature.getAuthToken();
+      if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
         ? `/users/${address}/${taskId}/secrets`
@@ -82,10 +90,14 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async delete(key: string, taskId?: string): Promise<void> {
+  public async delete(
+    key: string,
+    taskId?: string,
+    authToken?: string
+  ): Promise<void> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await this._signature.getAuthToken();
+      if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
         ? `/users/${address}/${taskId}/secrets/${key}`
