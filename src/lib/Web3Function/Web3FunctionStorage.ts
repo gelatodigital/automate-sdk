@@ -1,6 +1,6 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { Signature } from "./Signature";
+import { Signature } from "../Signature";
 import { AUTOMATE_USER_API } from "../../constants";
 import { ChainId, Storage } from "../../types";
 import { errorMessage } from "../../utils";
@@ -18,10 +18,14 @@ export class Web3FunctionStorage {
     this._signature = signature;
   }
 
-  public async get(chainId: ChainId, taskId: string): Promise<Storage> {
+  public async get(
+    chainId: ChainId,
+    taskId: string,
+    authToken?: string
+  ): Promise<Storage> {
     try {
       const address = await this._signer.getAddress();
-      const authToken = await this._signature.getAuthToken();
+      if (!authToken) authToken = await this._signature.getAuthToken();
 
       const res = await this._userApi.get(
         `/users/${address}/web3-function-storage/${chainId}/${taskId}`,

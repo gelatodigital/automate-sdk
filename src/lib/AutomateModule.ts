@@ -243,25 +243,21 @@ export class AutomateModule {
     let web3FunctionArgsHex: string | null = null;
     let web3FunctionSchema: Web3FunctionSchema | undefined;
 
-    try {
-      [web3FunctionHash, web3FunctionArgsHex] =
-        ethers.utils.defaultAbiCoder.decode(
-          ["string", "bytes"],
-          encodedModuleArgs
-        );
-
-      const res = await this.decodeWeb3FunctionArgsHex(
-        web3FunctionArgsHex as string,
-        {
-          web3FunctionHash: web3FunctionHash as string,
-        }
+    [web3FunctionHash, web3FunctionArgsHex] =
+      ethers.utils.defaultAbiCoder.decode(
+        ["string", "bytes"],
+        encodedModuleArgs
       );
-      if (res) {
-        web3FunctionArgs = res.web3FunctionArgs;
-        web3FunctionSchema = res.schema;
+
+    const res = await this.decodeWeb3FunctionArgsHex(
+      web3FunctionArgsHex as string,
+      {
+        web3FunctionHash: web3FunctionHash as string,
       }
-    } catch (err) {
-      console.error(`Fail to decode Web3FunctionArgs: ${err.message}`);
+    );
+    if (res) {
+      web3FunctionArgs = res.web3FunctionArgs;
+      web3FunctionSchema = res.schema;
     }
 
     return {
@@ -328,7 +324,6 @@ export class AutomateModule {
 
       return { web3FunctionArgs, schema };
     } catch (err) {
-      console.error(`Fail to decode Web3FunctionArgsHex: ${err.message}`);
       return null;
     }
   };

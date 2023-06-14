@@ -22,22 +22,21 @@ import {
   CreateTaskOptionsWithModules,
   Task,
   TaskApiParams,
-  TokenData,
 } from "../types";
 import axios, { Axios } from "axios";
 import { errorMessage, isAutomateSupported } from "../utils";
 import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
 import { AutomateModule } from "./AutomateModule";
+import { Signature } from "./Signature";
 
 export class AutomateSDK {
   private _automateModule: AutomateModule;
   private readonly _chainId: number;
   private readonly _signer: Signer;
   private _automate: Automate;
-  private _token!: string;
   private readonly _taskApi: Axios;
-  private readonly _signatureMessage: string;
+  private readonly _signature: Signature;
 
   constructor(chainId: number, signer: Signer, signatureMessage?: string) {
     if (!isAutomateSupported(chainId)) {
@@ -48,7 +47,7 @@ export class AutomateSDK {
     }
 
     this._automateModule = new AutomateModule();
-    this._signatureMessage = signatureMessage ?? "Gelato Automate Task";
+    this._signature = new Signature(chainId, signer, signatureMessage);
     this._chainId = chainId;
     this._signer = signer;
     this._automate = Automate__factory.connect(
@@ -203,12 +202,13 @@ export class AutomateSDK {
 
   public async createTask(
     _args: CreateTaskOptions,
-    overrides: Overrides = {}
+    overrides: Overrides = {},
+    authToken?: string
   ): Promise<TaskTransaction> {
     const args = await this._processModules(_args);
 
     // Ask for signature
-    if (!this._token) await this._requestAndStoreSignature();
+    if (!authToken) authToken = await this._signature.getAuthToken();
 
     const tx: ContractTransaction = await this._automate.createTask(
       args.execAddress,
@@ -219,7 +219,7 @@ export class AutomateSDK {
     );
 
     const taskId = await this._getTaskId(args);
-    await this._finalizeTaskCreation(taskId, args);
+    await this._finalizeTaskCreation(taskId, args, authToken);
     return { taskId, tx };
   }
 
@@ -245,18 +245,27 @@ export class AutomateSDK {
 
   private async _finalizeTaskCreation(
     taskId: string,
-    args: CreateTaskOptionsWithModules
+    args: CreateTaskOptionsWithModules,
+    authToken?: string
   ): Promise<void> {
     // Post task name & contracts ABI to tasks API
     const { name, execAddress, execAbi, resolverAddress, resolverAbi } = args;
     const promises: Promise<void>[] = [];
-    promises.push(this._setTaskName(taskId, name ?? taskId));
+    promises.push(this._setTaskName(taskId, name ?? taskId, authToken));
     if (execAbi) {
-      promises.push(this._setContractAbi(taskId, false, execAddress, execAbi));
+      promises.push(
+        this._setContractAbi(taskId, false, execAddress, execAbi, authToken)
+      );
     }
     if (resolverAddress && resolverAbi) {
       promises.push(
-        this._setContractAbi(taskId, true, resolverAddress, resolverAbi)
+        this._setContractAbi(
+          taskId,
+          true,
+          resolverAddress,
+          resolverAbi,
+          authToken
+        )
       );
     }
     await Promise.all(promises);
@@ -270,6 +279,9 @@ export class AutomateSDK {
     return { taskId, tx };
   }
 
+  /**
+   * @deprecated this function will be removed in next major upgrade
+   */
   public isGnosisSafeApp = (): boolean => {
     let provider: providers.Provider | undefined;
     if (this._signer.provider?.hasOwnProperty("provider")) {
@@ -283,68 +295,67 @@ export class AutomateSDK {
     return Boolean(provider?.hasOwnProperty("safe"));
   };
 
-  private async _requestAndStoreSignature() {
-    const tokenData: TokenData = {
-      message: this._signatureMessage,
-      origin: "SDK",
-    };
-    if (this.isGnosisSafeApp()) {
-      tokenData.unsignedUser = await this._signer.getAddress();
-    } else {
-      tokenData.signature = await this._signer.signMessage(
-        this._signatureMessage
-      );
-    }
-    this._token = Buffer.from(JSON.stringify(tokenData)).toString("base64");
-
-    // Set Axios headers
-    this._taskApi.defaults.headers.common[
-      "Authorization"
-    ] = `Bearer ${this._token}`;
-  }
-
-  private async _setTaskName(taskId: string, name: string): Promise<void> {
+  private async _setTaskName(
+    taskId: string,
+    name: string,
+    authToken?: string
+  ): Promise<void> {
     const path = `/tasks/${this._chainId}`;
-    await this._postTaskApi(path, { taskId, name, chainId: this._chainId });
+    await this._postTaskApi(
+      path,
+      { taskId, name, chainId: this._chainId },
+      false,
+      authToken
+    );
   }
 
-  public async renameTask(taskId: string, name: string): Promise<void> {
-    if (this.isGnosisSafeApp()) {
-      throw new Error("Cannot rename task from a gnosis safe");
-    }
-
+  public async renameTask(
+    taskId: string,
+    name: string,
+    authToken?: string
+  ): Promise<void> {
     const path = `/tasks/${this._chainId}/${taskId}`;
-    await this._postTaskApi(path, { name });
+    await this._postTaskApi(path, { name }, false, authToken);
   }
 
   private async _setContractAbi(
     taskId: string,
     isResolver: boolean,
     address: string,
-    abi: string
+    abi: string,
+    authToken?: string
   ): Promise<void> {
     const path = `/contracts/${this._chainId}/`;
-    await this._postTaskApi(path, {
-      chainId: this._chainId,
-      taskId,
-      address,
-      resolver: isResolver,
-      ABI: abi,
-    });
+    await this._postTaskApi(
+      path,
+      {
+        chainId: this._chainId,
+        taskId,
+        address,
+        resolver: isResolver,
+        ABI: abi,
+      },
+      false,
+      authToken
+    );
   }
 
   private async _postTaskApi<Response>(
     path: string,
     data: TaskApiParams,
-    skipSignature = false
+    skipSignature = false,
+    authToken?: string
   ): Promise<Response | undefined> {
-    if (!skipSignature && !this._token) {
-      await this._requestAndStoreSignature();
+    const headers: { [key: string]: string } = {};
+    if (!skipSignature) {
+      if (!authToken) authToken = await this._signature.getAuthToken();
+      headers["Authorization"] = `Bearer ${authToken}`;
     }
     try {
       const response = await this._taskApi.post(
         `${AUTOMATE_TASKS_API}${path}`,
-        data
+        data,
+        { headers }
       );
       return response.data as Response;
     } catch (err) {

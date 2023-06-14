@@ -1,5 +1,5 @@
 import { Signer } from "@ethersproject/abstract-signer";
-import { Signature } from "./Signature";
+import { Signature } from "../Signature";
 import { ChainId } from "../../types";
 import { Web3FunctionSecrets } from "./Web3FunctionSecrets";
 import { Web3FunctionStorage } from "./Web3FunctionStorage";

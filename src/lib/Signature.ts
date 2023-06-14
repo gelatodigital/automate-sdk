@@ -1,6 +1,6 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import { SiweMessage } from "siwe";
-import { ChainId } from "../../types";
+import { ChainId } from "../types";
 
 export class Signature {
   private readonly _timeTillExpiration = 600_000;
@@ -15,8 +15,7 @@ export class Signature {
   constructor(chainId: ChainId, signer: Signer, signatureMessage?: string) {
     this._chainId = chainId;
     this._signer = signer;
-    this._signatureMessage =
-      signatureMessage ?? "Gelato Web3Function secrets & storage";
+    this._signatureMessage = signatureMessage ?? "Gelato Web3Functions";
   }
 
   public async getAuthToken(): Promise<string> {
