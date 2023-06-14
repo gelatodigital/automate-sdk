@@ -25,10 +25,11 @@ export class Web3FunctionSecrets {
   ): Promise<string> {
     try {
       const address = await this._signer.getAddress();
+      const chainId = await this._signer.getChainId();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets/${key}`
+        ? `/users/${address}/secrets/${key}/${chainId}/${taskId}`
         : `/users/${address}/secrets/${key}`;
 
       const res = await this._userApi.get(route, {
@@ -47,10 +48,11 @@ export class Web3FunctionSecrets {
   public async list(taskId?: string, authToken?: string): Promise<Secrets> {
     try {
       const address = await this._signer.getAddress();
+      const chainId = await this._signer.getChainId();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets`
+        ? `/users/${address}/secrets/${chainId}/${taskId}`
         : `/users/${address}/secrets`;
 
       const res = await this._userApi.get(route, {
@@ -71,10 +73,11 @@ export class Web3FunctionSecrets {
   ): Promise<void> {
     try {
       const address = await this._signer.getAddress();
+      const chainId = await this._signer.getChainId();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets`
+        ? `/users/${address}/secrets/${chainId}/${taskId}`
         : `/users/${address}/secrets`;
 
       await this._userApi.post(
@@ -97,10 +100,11 @@ export class Web3FunctionSecrets {
   ): Promise<void> {
     try {
       const address = await this._signer.getAddress();
+      const chainId = await this._signer.getChainId();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets/${key}`
+        ? `/users/${address}/secrets/${key}/${chainId}/${taskId}`
         : `/users/${address}/secrets/${key}`;
 
       await this._userApi.delete(route, {
