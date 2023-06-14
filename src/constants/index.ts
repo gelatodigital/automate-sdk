@@ -24,6 +24,7 @@ export const CHAIN_ID = {
   ARBITRUM: 42161,
   AVALANCHE: 43114,
   MUMBAI: 80001,
+  ZKSYNC: 324,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -74,5 +75,8 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.CRONOS]: {
     automate: "",
+  },
+  [CHAIN_ID.ZKSYNC]: {
+    automate: "0xF27e0dfD58B423b1e1B90a554001d0561917602F",
   },
 };
