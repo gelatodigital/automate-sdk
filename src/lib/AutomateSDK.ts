@@ -35,7 +35,6 @@ export class AutomateSDK {
   private readonly _chainId: number;
   private readonly _signer: Signer;
   private _automate: Automate;
-  private _token!: string;
   private readonly _taskApi: Axios;
   private readonly _signature: Signature;
 
@@ -209,7 +208,7 @@ export class AutomateSDK {
     const args = await this._processModules(_args);
 
     // Ask for signature
-    if (!authToken) await this._signature.getAuthToken();
+    if (!authToken) authToken = await this._signature.getAuthToken();
 
     const tx: ContractTransaction = await this._automate.createTask(
       args.execAddress,
@@ -280,6 +279,9 @@ export class AutomateSDK {
     return { taskId, tx };
   }
 
+  /**
+   * @deprecated this function will be removed in next major upgrade
+   */
   public isGnosisSafeApp = (): boolean => {
     let provider: providers.Provider | undefined;
     if (this._signer.provider?.hasOwnProperty("provider")) {
