@@ -65,9 +65,9 @@ export class AutomateSDK {
     this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
   }
 
-  public async getActiveTasks(): Promise<Task[]> {
+  public async getActiveTasks(creatorAddress?: string): Promise<Task[]> {
     // Retrieve user task ids
-    const address = await this._signer.getAddress();
+    const address = creatorAddress ?? (await this._signer.getAddress());
     const taskIds = await this._automate.getTaskIdsByUser(address);
 
     // Retrieve task names
