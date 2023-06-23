@@ -1,6 +1,6 @@
 {
   "name": "@gelatonetwork/automate-sdk",
-  "version": "2.10.0-beta",
+  "version": "2.11.0-beta",
   "description": "SDK to create Automate tasks",
   "url": "https://github.com/gelatodigital/automate-sdk",
   "main": "dist/index.js",
@@ -9,7 +9,8 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "yarn generate-contracts-typings && tsc --project tsconfig.prod.json && yarn copy-contracts-types",
+    "clean": "rm -rf ./dist/*",
+    "build": "yarn clean && yarn generate-contracts-typings && tsc --project tsconfig.prod.json && yarn copy-contracts-types",
     "copy-contracts-types": "cp ./src/contracts/types/*.ts ./dist/contracts/types",
     "format": "prettier --write '*/**/*.{js,json,md,ts}'",
     "format:check": "prettier --check '*/**/*.{js,json,md,ts}'",
@@ -40,6 +41,7 @@
   },
   "dependencies": {
     "axios": "^1.2.2",
+    "buffer": "^6.0.3",
     "ethers": "^5.5.2",
     "siwe": "^1.1.6"
   }
