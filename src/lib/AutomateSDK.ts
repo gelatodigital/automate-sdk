@@ -28,7 +28,8 @@ import {
   CreateTaskOptionsWithModules,
   Task,
   TaskApiParams,
-  TaskPopulatedTransaction,
+  CreateTaskPopulatedTransaction,
+  CancelTaskPopulatedTransaction,
   TaskTransaction,
 } from "../types";
 import axios, { Axios } from "axios";
@@ -224,7 +225,7 @@ export class AutomateSDK {
     args: CreateBatchExecTaskOptions,
     overrides: Overrides = {},
     creatorAddress?: string
-  ): Promise<TaskPopulatedTransaction> {
+  ): Promise<CreateTaskPopulatedTransaction> {
     const options = await this._prepareBatchCreateTaskOptions(
       args,
       creatorAddress
@@ -245,7 +246,7 @@ export class AutomateSDK {
     _args: CreateTaskOptions,
     overrides: Overrides = {},
     creatorAddress?: string
-  ): Promise<TaskPopulatedTransaction> {
+  ): Promise<CreateTaskPopulatedTransaction> {
     const args = await this._processModules(_args);
     const tx: PopulatedTransaction =
       await this._automate.populateTransaction.createTask(
@@ -329,11 +330,26 @@ export class AutomateSDK {
     await Promise.all(promises);
   }
 
+  public async prepareCancelTask(
+    taskId: string,
+    overrides: Overrides = {}
+  ): Promise<CancelTaskPopulatedTransaction> {
+    const tx = await this._automate.populateTransaction.cancelTask(
+      taskId,
+      overrides
+    );
+    return { taskId, tx };
+  }
+
   public async cancelTask(
     taskId: string,
     overrides: Overrides = {}
   ): Promise<TaskTransaction> {
-    const tx = await this._automate.cancelTask(taskId, overrides);
+    const { tx: unsignedTx } = await this.prepareCancelTask(taskId, overrides);
+
+    const tx: ContractTransaction = await this._signer.sendTransaction(
+      unsignedTx
+    );
     return { taskId, tx };
   }
 
