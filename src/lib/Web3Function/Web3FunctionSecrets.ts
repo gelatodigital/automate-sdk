@@ -9,6 +9,7 @@ export class Web3FunctionSecrets {
   private readonly _signer: Signer;
   private readonly _userApi: Axios;
   private _signature: Signature;
+  private _chainId?: number;
 
   constructor(signer: Signer, signature: Signature) {
     this._signer = signer;
@@ -24,11 +25,13 @@ export class Web3FunctionSecrets {
     authToken?: string
   ): Promise<string> {
     try {
+      await this._initialize();
+
       const address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets/${key}`
+        ? `/users/${address}/secrets/${key}/${this._chainId}/${taskId}`
         : `/users/${address}/secrets/${key}`;
 
       const res = await this._userApi.get(route, {
@@ -46,11 +49,13 @@ export class Web3FunctionSecrets {
 
   public async list(taskId?: string, authToken?: string): Promise<Secrets> {
     try {
+      await this._initialize();
+
       const address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets`
+        ? `/users/${address}/secrets/${this._chainId}/${taskId}`
         : `/users/${address}/secrets`;
 
       const res = await this._userApi.get(route, {
@@ -70,11 +75,13 @@ export class Web3FunctionSecrets {
     authToken?: string
   ): Promise<void> {
     try {
+      await this._initialize();
+
       const address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets`
+        ? `/users/${address}/secrets/${this._chainId}/${taskId}`
         : `/users/${address}/secrets`;
 
       await this._userApi.post(
@@ -96,11 +103,13 @@ export class Web3FunctionSecrets {
     authToken?: string
   ): Promise<void> {
     try {
+      await this._initialize();
+
       const address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
-        ? `/users/${address}/${taskId}/secrets/${key}`
+        ? `/users/${address}/secrets/${key}/${this._chainId}/${taskId}`
         : `/users/${address}/secrets/${key}`;
 
       await this._userApi.delete(route, {
@@ -109,6 +118,12 @@ export class Web3FunctionSecrets {
     } catch (err) {
       const errMsg = errorMessage(err);
       throw new Error(`Fail to delete secret "${key}". \n${errMsg}`);
+    }
+  }
+
+  private async _initialize(): Promise<void> {
+    if (!this._chainId) {
+      this._chainId = await this._signer.getChainId();
     }
   }
 }
