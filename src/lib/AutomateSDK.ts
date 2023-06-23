@@ -15,17 +15,24 @@ import {
   Automate__factory,
   ProxyModule__factory,
 } from "../contracts/types";
-import { ContractTransaction, ethers, Overrides, providers } from "ethers";
+import {
+  ContractTransaction,
+  ethers,
+  Overrides,
+  PopulatedTransaction,
+  providers,
+} from "ethers";
 import {
   CreateBatchExecTaskOptions,
   CreateTaskOptions,
   CreateTaskOptionsWithModules,
   Task,
   TaskApiParams,
+  TaskPopulatedTransaction,
+  TaskTransaction,
 } from "../types";
 import axios, { Axios } from "axios";
 import { errorMessage, isAutomateSupported } from "../utils";
-import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
@@ -84,7 +91,7 @@ export class AutomateSDK {
     return tasks;
   }
 
-  public async getDedicatedMsgSender(): Promise<{
+  private async _getDedicatedMsgSender(creatorAddress: string): Promise<{
     address: string;
     isDeployed: boolean;
   }> {
@@ -102,22 +109,34 @@ export class AutomateSDK {
       this._signer
     );
 
-    const userAddress = await this._signer.getAddress();
-    const [address, isDeployed] = await opsProxyFactory.getProxyOf(userAddress);
+    const [address, isDeployed] = await opsProxyFactory.getProxyOf(
+      creatorAddress
+    );
 
     return { address, isDeployed };
   }
 
-  public async getTaskId(_args: CreateTaskOptions): Promise<string> {
+  public async getDedicatedMsgSender(): Promise<{
+    address: string;
+    isDeployed: boolean;
+  }> {
+    return this._getDedicatedMsgSender(await this._signer.getAddress());
+  }
+
+  public async getTaskId(
+    _args: CreateTaskOptions,
+    creatorAddress?: string
+  ): Promise<string> {
     const args = await this._processModules(_args);
 
-    return this._getTaskId(args);
+    return this._getTaskId(args, creatorAddress);
   }
 
   protected async _getTaskId(
-    args: CreateTaskOptionsWithModules
+    args: CreateTaskOptionsWithModules,
+    creatorAddress?: string
   ): Promise<string> {
-    const address = await this._signer.getAddress();
+    const address = creatorAddress ?? (await this._signer.getAddress());
     const modules = args.moduleData.modules;
 
     if (
@@ -126,7 +145,7 @@ export class AutomateSDK {
         modules[0] === Module.RESOLVER &&
         modules[1] === Module.TIME)
     )
-      return this._getLegacyTaskId(args);
+      return this._getLegacyTaskId(args, address);
 
     const taskId = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
@@ -150,10 +169,9 @@ export class AutomateSDK {
   }
 
   protected async _getLegacyTaskId(
-    args: CreateTaskOptionsWithModules
+    args: CreateTaskOptionsWithModules,
+    creatorAddress: string
   ): Promise<string> {
-    const address = await this._signer.getAddress();
-
     const resolverHash = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes"],
@@ -165,7 +183,7 @@ export class AutomateSDK {
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "bytes4", "bool", "address", "bytes32"],
         [
-          address,
+          creatorAddress,
           args.execAddress,
           args.execSelector,
           args.useTreasury,
@@ -177,11 +195,14 @@ export class AutomateSDK {
     return taskId;
   }
 
-  public async createBatchExecTask(
+  private async _prepareBatchCreateTaskOptions(
     _args: CreateBatchExecTaskOptions,
-    overrides: Overrides = {}
-  ): Promise<TaskTransaction> {
-    const { address: execAddress } = await this.getDedicatedMsgSender();
+    creatorAddress?: string
+  ): Promise<CreateTaskOptions> {
+    creatorAddress = creatorAddress ?? (await this._signer.getAddress());
+    const { address: execAddress } = await this._getDedicatedMsgSender(
+      creatorAddress
+    );
 
     const automateProxyInterface = AutomateProxy__factory.createInterface();
 
@@ -196,8 +217,47 @@ export class AutomateSDK {
       execAbi,
       dedicatedMsgSender: true,
     };
+    return createTaskOptions;
+  }
 
-    return await this.createTask(createTaskOptions, overrides);
+  public async prepareBatchExecTask(
+    args: CreateBatchExecTaskOptions,
+    overrides: Overrides = {},
+    creatorAddress?: string
+  ): Promise<TaskPopulatedTransaction> {
+    const options = await this._prepareBatchCreateTaskOptions(
+      args,
+      creatorAddress
+    );
+    return await this.prepareTask(options, overrides, creatorAddress);
+  }
+
+  public async createBatchExecTask(
+    args: CreateBatchExecTaskOptions,
+    overrides: Overrides = {},
+    authToken?: string
+  ): Promise<TaskTransaction> {
+    const createTaskOptions = await this._prepareBatchCreateTaskOptions(args);
+    return await this.createTask(createTaskOptions, overrides, authToken);
+  }
+
+  public async prepareTask(
+    _args: CreateTaskOptions,
+    overrides: Overrides = {},
+    creatorAddress?: string
+  ): Promise<TaskPopulatedTransaction> {
+    const args = await this._processModules(_args);
+    const tx: PopulatedTransaction =
+      await this._automate.populateTransaction.createTask(
+        args.execAddress,
+        args.execData ?? args.execSelector,
+        args.moduleData,
+        args.useTreasury ? ZERO_ADD : ETH,
+        overrides
+      );
+
+    const taskId = await this._getTaskId(args, creatorAddress);
+    return { taskId, tx, args };
   }
 
   public async createTask(
@@ -205,20 +265,18 @@ export class AutomateSDK {
     overrides: Overrides = {},
     authToken?: string
   ): Promise<TaskTransaction> {
-    const args = await this._processModules(_args);
-
     // Ask for signature
     if (!authToken) authToken = await this._signature.getAuthToken();
 
-    const tx: ContractTransaction = await this._automate.createTask(
-      args.execAddress,
-      args.execData ?? args.execSelector,
-      args.moduleData,
-      args.useTreasury ? ZERO_ADD : ETH,
-      overrides
-    );
+    const {
+      taskId,
+      args,
+      tx: unsignedTx,
+    } = await this.prepareTask(_args, overrides);
 
-    const taskId = await this._getTaskId(args);
+    const tx: ContractTransaction = await this._signer.sendTransaction(
+      unsignedTx
+    );
     await this._finalizeTaskCreation(taskId, args, authToken);
     return { taskId, tx };
   }
