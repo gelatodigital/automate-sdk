@@ -14,16 +14,24 @@ import {
   Automate__factory,
   ProxyModule__factory,
 } from "../contracts/types";
-import { ContractTransaction, ethers, Overrides, providers } from "ethers";
+import {
+  ContractTransaction,
+  ethers,
+  Overrides,
+  PopulatedTransaction,
+  providers,
+} from "ethers";
 import {
   CreateTaskOptions,
   CreateTaskOptionsWithModules,
   Task,
   TaskApiParams,
+  CreateTaskPopulatedTransaction,
+  CancelTaskPopulatedTransaction,
+  TaskTransaction,
 } from "../types";
 import axios, { Axios } from "axios";
 import { isAutomateSupported } from "../utils";
-import { TaskTransaction } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
@@ -55,9 +63,9 @@ export class AutomateSDK {
     this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
   }
 
-  public async getActiveTasks(): Promise<Task[]> {
+  public async getActiveTasks(creatorAddress?: string): Promise<Task[]> {
     // Retrieve user task ids
-    const address = await this._signer.getAddress();
+    const address = creatorAddress ?? (await this._signer.getAddress());
     const taskIds = await this._automate.getTaskIdsByUser(address);
 
     return this.getTaskNames(taskIds);
@@ -89,7 +97,7 @@ export class AutomateSDK {
     return tasks;
   }
 
-  public async getDedicatedMsgSender(): Promise<{
+  private async _getDedicatedMsgSender(creatorAddress: string): Promise<{
     address: string;
     isDeployed: boolean;
   }> {
@@ -107,24 +115,34 @@ export class AutomateSDK {
       this._signer
     );
 
-    const userAddress = await this._signer.getAddress();
     const [address, isDeployed] = await automateProxyFactory.getProxyOf(
-      userAddress
+      creatorAddress
     );
 
     return { address, isDeployed };
   }
 
-  public async getTaskId(_args: CreateTaskOptions): Promise<string> {
+  public async getDedicatedMsgSender(): Promise<{
+    address: string;
+    isDeployed: boolean;
+  }> {
+    return this._getDedicatedMsgSender(await this._signer.getAddress());
+  }
+
+  public async getTaskId(
+    _args: CreateTaskOptions,
+    creatorAddress?: string
+  ): Promise<string> {
     const args = this._processModules(_args);
 
-    return this._getTaskId(args);
+    return this._getTaskId(args, creatorAddress);
   }
 
   protected async _getTaskId(
-    args: CreateTaskOptionsWithModules
+    args: CreateTaskOptionsWithModules,
+    creatorAddress?: string
   ): Promise<string> {
-    const address = await this._signer.getAddress();
+    const address = creatorAddress ?? (await this._signer.getAddress());
     const modules = args.moduleData.modules;
 
     if (
@@ -133,7 +151,7 @@ export class AutomateSDK {
         modules[0] === Module.RESOLVER &&
         modules[1] === Module.TIME)
     )
-      return this._getLegacyTaskId(args);
+      return this._getLegacyTaskId(args, address);
 
     const taskId = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
@@ -157,10 +175,9 @@ export class AutomateSDK {
   }
 
   protected async _getLegacyTaskId(
-    args: CreateTaskOptionsWithModules
+    args: CreateTaskOptionsWithModules,
+    creatorAddress: string
   ): Promise<string> {
-    const address = await this._signer.getAddress();
-
     const resolverHash = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes"],
@@ -172,7 +189,7 @@ export class AutomateSDK {
       ethers.utils.defaultAbiCoder.encode(
         ["address", "address", "bytes4", "bool", "address", "bytes32"],
         [
-          address,
+          creatorAddress,
           args.execAddress,
           args.execSelector,
           args.useTreasury,
@@ -184,25 +201,42 @@ export class AutomateSDK {
     return taskId;
   }
 
+  public async prepareTask(
+    _args: CreateTaskOptions,
+    overrides: Overrides = {},
+    creatorAddress?: string
+  ): Promise<CreateTaskPopulatedTransaction> {
+    const args = await this._processModules(_args);
+    const tx: PopulatedTransaction =
+      await this._automate.populateTransaction.createTask(
+        args.execAddress,
+        args.execData ?? args.execSelector,
+        args.moduleData,
+        args.useTreasury ? ZERO_ADD : ETH,
+        overrides
+      );
+
+    const taskId = await this._getTaskId(args, creatorAddress);
+    return { taskId, tx, args };
+  }
+
   public async createTask(
     _args: CreateTaskOptions,
     overrides: Overrides = {},
     authToken?: string
   ): Promise<TaskTransaction> {
-    const args = this._processModules(_args);
-
     // Ask for signature
     if (!authToken) authToken = await this._signature.getAuthToken();
 
-    const tx: ContractTransaction = await this._automate.createTask(
-      args.execAddress,
-      args.execData ?? args.execSelector,
-      args.moduleData,
-      args.useTreasury ? ZERO_ADD : ETH,
-      overrides
-    );
+    const {
+      taskId,
+      args,
+      tx: unsignedTx,
+    } = await this.prepareTask(_args, overrides);
 
-    const taskId = await this._getTaskId(args);
+    const tx: ContractTransaction = await this._signer.sendTransaction(
+      unsignedTx
+    );
     await this._finalizeTaskCreation(taskId, args, authToken);
     return { taskId, tx };
   }
@@ -252,11 +286,26 @@ export class AutomateSDK {
     await Promise.all(promises);
   }
 
+  public async prepareCancelTask(
+    taskId: string,
+    overrides: Overrides = {}
+  ): Promise<CancelTaskPopulatedTransaction> {
+    const tx = await this._automate.populateTransaction.cancelTask(
+      taskId,
+      overrides
+    );
+    return { taskId, tx };
+  }
+
   public async cancelTask(
     taskId: string,
     overrides: Overrides = {}
   ): Promise<TaskTransaction> {
-    const tx = await this._automate.cancelTask(taskId, overrides);
+    const { tx: unsignedTx } = await this.prepareCancelTask(taskId, overrides);
+
+    const tx: ContractTransaction = await this._signer.sendTransaction(
+      unsignedTx
+    );
     return { taskId, tx };
   }
 
