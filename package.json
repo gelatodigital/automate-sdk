@@ -9,7 +9,8 @@
     "dist/**/*"
   ],
   "scripts": {
-    "build": "yarn generate-contracts-typings && tsc --project tsconfig.prod.json && yarn copy-contracts-types",
+    "build": "yarn clean && yarn generate-contracts-typings && tsc --project tsconfig.prod.json && yarn copy-contracts-types",
+    "clean": "rm -rf ./dist/*",
     "copy-contracts-types": "cp ./src/contracts/types/*.ts ./dist/contracts/types",
     "format": "prettier --write '*/**/*.{js,json,md,ts}'",
     "format:check": "prettier --check '*/**/*.{js,json,md,ts}'",
@@ -40,6 +41,7 @@
   },
   "dependencies": {
     "axios": "^0.24.0",
+    "buffer": "^6.0.3",
     "ethers": "^5.5.2",
     "siwe": "^2.1.4"
   }
