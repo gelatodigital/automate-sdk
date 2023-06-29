@@ -1,6 +1,6 @@
 {
   "name": "@gelatonetwork/automate-sdk",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "SDK to create Automate tasks",
   "url": "https://github.com/gelatodigital/automate-sdk",
   "main": "dist/index.js",
@@ -43,6 +43,6 @@
     "axios": "^0.24.0",
     "buffer": "^6.0.3",
     "ethers": "^5.5.2",
-    "siwe": "^2.1.4"
+    "siwe": "1.1.6"
   }
 }
