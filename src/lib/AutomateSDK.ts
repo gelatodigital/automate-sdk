@@ -238,12 +238,12 @@ export class AutomateSDK {
     creatorAddress?: string
   ): Promise<CreateTaskPopulatedTransaction> {
     //TODO: Temporary zksync fix
-    const { isDeployed } = await this.getDedicatedMsgSender();
-    if (this._chainId === 324 && !isDeployed) {
-      const opsProxyFactory = await this._getOpsProxyFactory();
-
-      const tx = await opsProxyFactory.deploy();
-      await tx.wait();
+    if (this._chainId === 324) {
+      const { isDeployed } = await this._getDedicatedMsgSender(
+        creatorAddress ?? (await this._signer.getAddress())
+      );
+      if (!isDeployed)
+        throw new Error(`Dedicated msg.sender is not deployed on ZkSync yet`);
     }
 
     const options = await this._prepareBatchCreateTaskOptions(
@@ -259,13 +259,14 @@ export class AutomateSDK {
     authToken?: string
   ): Promise<TaskTransaction> {
     //TODO: Temporary zksync fix
-    const { isDeployed } = await this.getDedicatedMsgSender();
+    if (this._chainId === 324) {
+      const { isDeployed } = await this.getDedicatedMsgSender();
+      if (!isDeployed) {
+        const opsProxyFactory = await this._getOpsProxyFactory();
 
-    if (this._chainId === 324 && !isDeployed) {
-      const opsProxyFactory = await this._getOpsProxyFactory();
-
-      const tx = await opsProxyFactory.deploy();
-      await tx.wait();
+        const tx = await opsProxyFactory.deploy();
+        await tx.wait();
+      }
     }
 
     const createTaskOptions = await this._prepareBatchCreateTaskOptions(args);
