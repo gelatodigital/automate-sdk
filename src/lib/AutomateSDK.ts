@@ -14,6 +14,7 @@ import {
   AutomateProxyFactory__factory,
   Automate__factory,
   ProxyModule__factory,
+  AutomateProxyFactory,
 } from "../contracts/types";
 import {
   ContractTransaction,
@@ -43,6 +44,7 @@ export class AutomateSDK {
   private readonly _chainId: number;
   private readonly _signer: Signer;
   private _automate: Automate;
+  private _opsProxyFactory: AutomateProxyFactory | undefined;
   private readonly _taskApi: Axios;
   private readonly _signature: Signature;
 
@@ -96,25 +98,34 @@ export class AutomateSDK {
     address: string;
     isDeployed: boolean;
   }> {
-    const proxyModuleAddress = await this._automate.taskModuleAddresses(
-      Module.PROXY
-    );
-
-    const opsProxyFactoryAddress = await ProxyModule__factory.connect(
-      proxyModuleAddress,
-      this._signer
-    ).opsProxyFactory();
-
-    const opsProxyFactory = AutomateProxyFactory__factory.connect(
-      opsProxyFactoryAddress,
-      this._signer
-    );
-
+    const opsProxyFactory = await this._getOpsProxyFactory();
     const [address, isDeployed] = await opsProxyFactory.getProxyOf(
       creatorAddress
     );
 
     return { address, isDeployed };
+  }
+
+  private async _getOpsProxyFactory(): Promise<AutomateProxyFactory> {
+    if (!this._opsProxyFactory) {
+      const proxyModuleAddress = await this._automate.taskModuleAddresses(
+        Module.PROXY
+      );
+
+      const opsProxyFactoryAddress = await ProxyModule__factory.connect(
+        proxyModuleAddress,
+        this._signer
+      ).opsProxyFactory();
+
+      const opsProxyFactory = AutomateProxyFactory__factory.connect(
+        opsProxyFactoryAddress,
+        this._signer
+      );
+
+      this._opsProxyFactory = opsProxyFactory;
+    }
+
+    return this._opsProxyFactory;
   }
 
   public async getDedicatedMsgSender(): Promise<{
@@ -226,6 +237,15 @@ export class AutomateSDK {
     overrides: Overrides = {},
     creatorAddress?: string
   ): Promise<CreateTaskPopulatedTransaction> {
+    //TODO: Temporary zksync fix
+    if (this._chainId === 324) {
+      const { isDeployed } = await this._getDedicatedMsgSender(
+        creatorAddress ?? (await this._signer.getAddress())
+      );
+      if (!isDeployed)
+        throw new Error(`Dedicated msg.sender is not deployed on ZkSync yet`);
+    }
+
     const options = await this._prepareBatchCreateTaskOptions(
       args,
       creatorAddress
@@ -238,6 +258,17 @@ export class AutomateSDK {
     overrides: Overrides = {},
     authToken?: string
   ): Promise<TaskTransaction> {
+    //TODO: Temporary zksync fix
+    if (this._chainId === 324) {
+      const { isDeployed } = await this.getDedicatedMsgSender();
+      if (!isDeployed) {
+        const opsProxyFactory = await this._getOpsProxyFactory();
+
+        const tx = await opsProxyFactory.deploy();
+        await tx.wait();
+      }
+    }
+
     const createTaskOptions = await this._prepareBatchCreateTaskOptions(args);
     return await this.createTask(createTaskOptions, overrides, authToken);
   }
