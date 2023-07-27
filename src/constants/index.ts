@@ -25,6 +25,7 @@ export const CHAIN_ID = {
   AVALANCHE: 43114,
   MUMBAI: 80001,
   ZKSYNC: 324,
+  LINEA: 59144,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -78,5 +79,8 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.ZKSYNC]: {
     automate: "0xF27e0dfD58B423b1e1B90a554001d0561917602F",
+  },
+  [CHAIN_ID.LINEA]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
