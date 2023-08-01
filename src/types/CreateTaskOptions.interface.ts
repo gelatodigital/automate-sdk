@@ -1,15 +1,15 @@
-import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
 import { ModuleData } from "./Module.interface";
+import { TriggerConfig } from "./Trigger.interface";
+import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
 
 export interface CreateBatchExecTaskOptions {
   name: string;
-  startTime?: number;
-  interval?: number;
   useTreasury?: boolean;
   singleExec?: boolean;
   web3FunctionHash: string;
   web3FunctionArgs?: Web3FunctionUserArgs;
   web3FunctionArgsHex?: string;
+  triggerConfig: TriggerConfig;
 }
 export interface CreateTaskOptions {
   name: string;
@@ -20,14 +20,13 @@ export interface CreateTaskOptions {
   resolverAddress?: string;
   resolverData?: string;
   resolverAbi?: string;
-  startTime?: number;
-  interval?: number;
   useTreasury?: boolean;
   dedicatedMsgSender: boolean;
   singleExec?: boolean;
   web3FunctionHash?: string;
   web3FunctionArgs?: Web3FunctionUserArgs;
   web3FunctionArgsHex?: string;
+  triggerConfig: TriggerConfig;
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {

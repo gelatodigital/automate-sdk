@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 import { AutomateSDK } from "./lib";
+import { TriggerType } from "./types/Trigger.interface";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");
@@ -27,6 +28,11 @@ const main = async () => {
     dedicatedMsgSender: true,
     web3FunctionHash: "QmYDtW34NgZEppbR5GkGsXEkEkhT87nwX5RxiiSkzVRwb2",
     web3FunctionArgs: {},
+    triggerConfig: {
+      type: TriggerType.TIME,
+      start: (await provider.getBlock("latest")).timestamp + 300,
+      interval: 60 * 1000,
+    },
   });
 
   console.log("TaskId:", taskId);

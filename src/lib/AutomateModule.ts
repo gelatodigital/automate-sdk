@@ -2,16 +2,18 @@
 /* eslint-disable no-empty */
 import { BigNumber, ethers } from "ethers";
 import {
-  Web3FunctionParams,
-  Web3FunctionUserArgs,
-  Web3FunctionUserArgsSchema,
   Module,
   ModuleArgsParams,
   ModuleData,
   ResolverParams,
   TimeParams,
+  TriggerParams,
+  Web3FunctionParams,
   Web3FunctionSchema,
+  Web3FunctionUserArgs,
+  Web3FunctionUserArgsSchema,
 } from "../types";
+import { TriggerConfig, TriggerType } from "../types/Trigger.interface";
 import { Web3FunctionDownloader } from "./Web3Function/Web3FunctionDownloader";
 
 export class AutomateModule {
@@ -20,33 +22,22 @@ export class AutomateModule {
   ): Promise<ModuleData> => {
     const modules: Module[] = [];
     const args: string[] = [];
+    let isWeb3FunctionIncluded = false;
 
     const {
       resolverAddress,
       resolverData,
-      startTime,
-      interval,
       dedicatedMsgSender,
       singleExec,
       web3FunctionHash,
       web3FunctionArgs,
       web3FunctionArgsHex,
+      triggerConfig,
     } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
       modules.push(Module.RESOLVER);
       args.push(this.encodeResolverArgs(resolverAddress, resolverData));
-    }
-
-    if (interval) {
-      const start = startTime ?? 0;
-      modules.push(Module.TIME);
-      args.push(this.encodeTimeArgs(start, interval));
-    } else {
-      if (singleExec && startTime) {
-        modules.push(Module.TIME);
-        args.push(this.encodeTimeArgs(startTime, 1));
-      }
     }
 
     if (dedicatedMsgSender) {
@@ -60,6 +51,7 @@ export class AutomateModule {
     }
 
     if (web3FunctionHash && web3FunctionArgsHex) {
+      isWeb3FunctionIncluded = true;
       modules.push(Module.WEB3_FUNCTION);
       args.push(
         await this.encodeWeb3FunctionArgs(
@@ -69,10 +61,32 @@ export class AutomateModule {
         )
       );
     } else if (web3FunctionHash && web3FunctionArgs) {
+      isWeb3FunctionIncluded = true;
       modules.push(Module.WEB3_FUNCTION);
       args.push(
         await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs)
       );
+    }
+
+    if (triggerConfig) {
+      modules.push(Module.TRIGGER);
+      let triggerArgs: string;
+
+      if (triggerConfig.type === TriggerType.TIME) {
+        triggerArgs = await this.encodeTriggerTimeArgs(
+          triggerConfig.start ?? 0,
+          triggerConfig.interval
+        );
+      } else {
+        triggerArgs = await this.encodeTriggerCronArgs(triggerConfig.cron);
+      }
+
+      args.push(triggerArgs);
+    } else if (isWeb3FunctionIncluded) {
+      modules.push(Module.TRIGGER);
+
+      // Default 1 minute interval if trigger is not configured
+      args.push(await this.encodeTriggerTimeArgs(0, 60 * 1000));
     }
 
     return { modules, args };
@@ -94,6 +108,7 @@ export class AutomateModule {
       web3FunctionHash: null,
       web3FunctionArgs: null,
       web3FunctionArgsHex: null,
+      triggerConfig: null,
     };
 
     if (modules.includes(Module.RESOLVER)) {
@@ -266,6 +281,67 @@ export class AutomateModule {
       web3FunctionArgsHex,
       web3FunctionSchema,
     };
+  };
+
+  public encodeTriggerTimeArgs = async (
+    start: number,
+    interval: number
+  ): Promise<string> => {
+    const encoded = ethers.utils.defaultAbiCoder.encode(
+      ["uint128", "uint128"],
+      [start, interval]
+    );
+
+    return encoded;
+  };
+
+  public decodeTriggerTimeArgs = async (
+    encodedModuleArgs: string
+  ): Promise<TriggerParams> => {
+    let start: number | null = null;
+    let interval: number | null = null;
+
+    try {
+      [start, interval] = ethers.utils.defaultAbiCoder.decode(
+        ["uint128", "uint128"],
+        encodedModuleArgs
+      );
+    } catch {}
+
+    let triggerConfig: TriggerConfig | null = null;
+
+    if (start !== null && interval !== null) {
+      triggerConfig = { type: TriggerType.TIME, start, interval };
+    }
+
+    return { triggerConfig };
+  };
+
+  public encodeTriggerCronArgs = async (cron: string): Promise<string> => {
+    const encoded = ethers.utils.defaultAbiCoder.encode(["string"], [cron]);
+
+    return encoded;
+  };
+
+  public decodeTriggerCronArgs = async (
+    encodedModuleArgs: string
+  ): Promise<TriggerParams> => {
+    let cron: string | null = null;
+
+    try {
+      [cron] = ethers.utils.defaultAbiCoder.decode(
+        ["string"],
+        encodedModuleArgs
+      );
+    } catch {}
+
+    let triggerConfig: TriggerConfig | null = null;
+
+    if (cron !== null) {
+      triggerConfig = { type: TriggerType.CRON, cron };
+    }
+
+    return { triggerConfig };
   };
 
   public decodeWeb3FunctionArgsHex = async (
