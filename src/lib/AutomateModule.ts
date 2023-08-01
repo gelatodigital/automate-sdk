@@ -81,11 +81,6 @@ export class AutomateModule {
       }
 
       args.push(triggerArgs);
-    } else if (isWeb3FunctionIncluded) {
-      modules.push(Module.TRIGGER);
-
-      // Default 1 minute interval if trigger is not configured
-      args.push(await this.encodeTriggerTimeArgs(0, 60 * 1000));
     }
 
     return { modules, args };
