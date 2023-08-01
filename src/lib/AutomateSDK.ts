@@ -2,40 +2,40 @@
 import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
+import axios, { Axios } from "axios";
 import {
-  GELATO_ADDRESSES,
+  ContractTransaction,
+  Overrides,
+  PopulatedTransaction,
+  ethers,
+  providers,
+} from "ethers";
+import {
   AUTOMATE_TASKS_API,
   ETH,
+  GELATO_ADDRESSES,
   ZERO_ADD,
 } from "../constants";
 import {
   Automate,
-  AutomateProxy__factory,
+  AutomateProxyFactory,
   AutomateProxyFactory__factory,
+  AutomateProxy__factory,
   Automate__factory,
   ProxyModule__factory,
-  AutomateProxyFactory,
 } from "../contracts/types";
 import {
-  ContractTransaction,
-  ethers,
-  Overrides,
-  PopulatedTransaction,
-  providers,
-} from "ethers";
-import {
+  CancelTaskPopulatedTransaction,
   CreateBatchExecTaskOptions,
   CreateTaskOptions,
   CreateTaskOptionsWithModules,
+  CreateTaskPopulatedTransaction,
   Task,
   TaskApiParams,
-  CreateTaskPopulatedTransaction,
-  CancelTaskPopulatedTransaction,
   TaskTransaction,
 } from "../types";
-import axios, { Axios } from "axios";
-import { errorMessage, isAutomateSupported } from "../utils";
 import { Module, ModuleData } from "../types/Module.interface";
+import { errorMessage, isAutomateSupported } from "../utils";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
 
@@ -296,18 +296,15 @@ export class AutomateSDK {
   private async _processModules(
     args: CreateTaskOptions
   ): Promise<CreateTaskOptionsWithModules> {
-    args.startTime = args.startTime ?? 0;
-
     const moduleData: ModuleData = await this._automateModule.encodeModuleArgs({
       resolverAddress: args.resolverAddress,
       resolverData: args.resolverData,
-      startTime: args.startTime,
-      interval: args.interval,
       dedicatedMsgSender: args.dedicatedMsgSender,
       singleExec: args.singleExec,
       web3FunctionHash: args.web3FunctionHash,
       web3FunctionArgs: args.web3FunctionArgs,
       web3FunctionArgsHex: args.web3FunctionArgsHex,
+      triggerConfig: args.triggerConfig,
     });
 
     return { ...args, useTreasury: args.useTreasury ?? true, moduleData };

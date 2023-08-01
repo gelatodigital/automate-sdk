@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 import { AutomateSDK } from "./lib";
+import { TriggerType } from "./types/Trigger.interface";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");
@@ -26,7 +27,11 @@ const main = async () => {
     execData: iceCreamInterface.encodeFunctionData("lick", [2]),
     dedicatedMsgSender: true,
     singleExec: true,
-    startTime: (await provider.getBlock("latest")).timestamp + 300,
+    triggerConfig: {
+      type: TriggerType.TIME,
+      start: (await provider.getBlock("latest")).timestamp + 300,
+      interval: 60 * 1000,
+    },
   });
 
   console.log("TaskId:", taskId);
