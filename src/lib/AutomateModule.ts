@@ -6,7 +6,6 @@ import {
   ModuleArgsParams,
   ModuleData,
   ResolverParams,
-  TimeParams,
   TriggerParams,
   Web3FunctionParams,
   Web3FunctionSchema,
@@ -101,8 +100,6 @@ export class AutomateModule {
     const moduleArgsDecoded: ModuleArgsParams = {
       resolverAddress: null,
       resolverData: null,
-      startTime: null,
-      interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
       web3FunctionHash: null,
@@ -119,14 +116,6 @@ export class AutomateModule {
 
       moduleArgsDecoded.resolverAddress = resolverAddress;
       moduleArgsDecoded.resolverData = resolverData;
-    }
-
-    if (modules.includes(Module.TIME)) {
-      const indexOfModule = modules.indexOf(Module.TIME);
-      const { startTime, interval } = this.decodeTimeArgs(args[indexOfModule]);
-
-      moduleArgsDecoded.startTime = startTime;
-      moduleArgsDecoded.interval = interval;
     }
 
     if (modules.includes(Module.PROXY)) {
@@ -180,29 +169,6 @@ export class AutomateModule {
     } catch {}
 
     return { resolverAddress, resolverData };
-  };
-
-  public encodeTimeArgs = (startTime: number, interval: number): string => {
-    const encoded = ethers.utils.defaultAbiCoder.encode(
-      ["uint128", "uint128"],
-      [startTime, interval]
-    );
-
-    return encoded;
-  };
-
-  public decodeTimeArgs = (encodedModuleArgs: string): TimeParams => {
-    let startTime: number | null = null;
-    let interval: number | null = null;
-
-    try {
-      [startTime, interval] = ethers.utils.defaultAbiCoder.decode(
-        ["uint128", "uint128"],
-        encodedModuleArgs
-      );
-    } catch {}
-
-    return { startTime, interval };
   };
 
   public encodeWeb3FunctionArgs = async (
