@@ -22,7 +22,6 @@ export interface ModuleData {
 
 export interface ModuleArgsParams
   extends ResolverParams,
-    TimeParams,
     ProxyParams,
     SingleExecParams,
     Web3FunctionParams,
@@ -31,11 +30,6 @@ export interface ModuleArgsParams
 export interface ResolverParams {
   resolverAddress: string | null;
   resolverData: string | null;
-}
-
-export interface TimeParams {
-  startTime: number | null;
-  interval: number | null;
 }
 
 export interface ProxyParams {
