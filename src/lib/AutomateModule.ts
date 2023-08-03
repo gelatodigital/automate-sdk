@@ -246,18 +246,24 @@ export class AutomateModule {
     let triggerArgs: string;
 
     if (triggerConfig.type === TriggerType.TIME) {
+      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+        ["uint128", "uint128"],
+        [triggerConfig.start ?? 0, triggerConfig.interval]
+      );
+
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
-        ["uint8", "uint128", "uint128"],
-        [
-          Number(TriggerType.TIME),
-          triggerConfig.start ?? 0,
-          triggerConfig.interval,
-        ]
+        ["uint128", "bytes"],
+        [Number(TriggerType.TIME), triggerBytes]
       );
     } else {
+      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+        ["string"],
+        [triggerConfig.cron]
+      );
+
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
-        ["uint8", "string"],
-        [Number(TriggerType.CRON), triggerConfig.cron]
+        ["uint8", "bytes"],
+        [Number(TriggerType.CRON), triggerBytes]
       );
     }
 
@@ -273,21 +279,24 @@ export class AutomateModule {
 
     try {
       [type, encodedTriggerConfig] = ethers.utils.defaultAbiCoder.decode(
-        ["uint8", "string"],
+        ["uint8", "bytes"],
         encodedModuleArgs
       );
 
       if (type !== null && encodedTriggerConfig !== null) {
         if (type === TriggerType.TIME) {
-          let start: number | null = null;
-          let interval: number | null = null;
-
-          [start, interval] = ethers.utils.defaultAbiCoder.decode(
+          let [start, interval] = ethers.utils.defaultAbiCoder.decode(
             ["uint128", "uint128"],
             encodedTriggerConfig
           );
 
           if (start !== null && interval !== null) {
+            if (typeof start === "object" && start instanceof BigNumber) {
+              start = start.toNumber();
+            }
+            if (typeof interval === "object" && interval instanceof BigNumber) {
+              interval = interval.toNumber();
+            }
             triggerConfig = { type, start, interval };
           }
         } else if (type === TriggerType.CRON) {
