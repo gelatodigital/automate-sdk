@@ -139,12 +139,12 @@ export interface AutomateProxyFactory extends BaseContract {
 
   functions: {
     deploy(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     deployFor(
       owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     determineProxyAddress(
@@ -171,12 +171,12 @@ export interface AutomateProxyFactory extends BaseContract {
   };
 
   deploy(
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   deployFor(
     owner: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   determineProxyAddress(
@@ -247,13 +247,11 @@ export interface AutomateProxyFactory extends BaseContract {
   };
 
   estimateGas: {
-    deploy(
-      overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
+    deploy(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
 
     deployFor(
       owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     determineProxyAddress(
@@ -281,12 +279,12 @@ export interface AutomateProxyFactory extends BaseContract {
 
   populateTransaction: {
     deploy(
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     deployFor(
       owner: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     determineProxyAddress(

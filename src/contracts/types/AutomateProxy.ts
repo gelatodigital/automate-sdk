@@ -119,14 +119,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     ops(overrides?: CallOverrides): Promise<[string]>;
@@ -140,14 +140,14 @@ export interface AutomateProxy extends BaseContract {
     _targets: string[],
     _datas: BytesLike[],
     _values: BigNumberish[],
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   executeCall(
     _target: string,
     _data: BytesLike,
     _value: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   ops(overrides?: CallOverrides): Promise<string>;
@@ -198,14 +198,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<BigNumber>;
 
     ops(overrides?: CallOverrides): Promise<BigNumber>;
@@ -220,14 +220,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     ops(overrides?: CallOverrides): Promise<PopulatedTransaction>;
