@@ -21,7 +21,6 @@ export class AutomateModule {
   ): Promise<ModuleData> => {
     const modules: Module[] = [];
     const args: string[] = [];
-    let isWeb3FunctionIncluded = false;
 
     const {
       resolverAddress,
@@ -50,7 +49,6 @@ export class AutomateModule {
     }
 
     if (web3FunctionHash && web3FunctionArgsHex) {
-      isWeb3FunctionIncluded = true;
       modules.push(Module.WEB3_FUNCTION);
       args.push(
         await this.encodeWeb3FunctionArgs(
@@ -60,7 +58,6 @@ export class AutomateModule {
         )
       );
     } else if (web3FunctionHash && web3FunctionArgs) {
-      isWeb3FunctionIncluded = true;
       modules.push(Module.WEB3_FUNCTION);
       args.push(
         await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs)
