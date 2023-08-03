@@ -300,9 +300,7 @@ export class AutomateModule {
             triggerConfig = { type, start, interval };
           }
         } else if (type === TriggerType.CRON) {
-          let cron: string | null;
-
-          [cron] = ethers.utils.defaultAbiCoder.decode(
+          const [cron] = ethers.utils.defaultAbiCoder.decode(
             ["string"],
             encodedTriggerConfig
           );
