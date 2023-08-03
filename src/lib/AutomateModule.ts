@@ -66,18 +66,7 @@ export class AutomateModule {
 
     if (triggerConfig) {
       modules.push(Module.TRIGGER);
-      let triggerArgs: string;
-
-      if (triggerConfig.type === TriggerType.TIME) {
-        triggerArgs = await this.encodeTriggerTimeArgs(
-          triggerConfig.start ?? 0,
-          triggerConfig.interval
-        );
-      } else {
-        triggerArgs = await this.encodeTriggerCronArgs(triggerConfig.cron);
-      }
-
-      args.push(triggerArgs);
+      args.push(await this.encodeTriggerArgs(triggerConfig));
     }
 
     return { modules, args };
@@ -132,6 +121,16 @@ export class AutomateModule {
       moduleArgsDecoded.web3FunctionArgs = web3FunctionArgs;
       moduleArgsDecoded.web3FunctionArgsHex = web3FunctionArgsHex;
       moduleArgsDecoded.web3FunctionSchema = web3FunctionSchema;
+    }
+
+    if (modules.includes(Module.TRIGGER)) {
+      const indexOfModule = modules.indexOf(Module.TRIGGER);
+
+      const { triggerConfig } = await this.decodeTriggerArgs(
+        args[indexOfModule]
+      );
+
+      moduleArgsDecoded.triggerConfig = triggerConfig;
     }
 
     return moduleArgsDecoded;
@@ -241,63 +240,70 @@ export class AutomateModule {
     };
   };
 
-  public encodeTriggerTimeArgs = async (
-    start: number,
-    interval: number
+  public encodeTriggerArgs = async (
+    triggerConfig: TriggerConfig
   ): Promise<string> => {
-    const encoded = ethers.utils.defaultAbiCoder.encode(
-      ["uint128", "uint128"],
-      [start, interval]
-    );
+    let triggerArgs: string;
 
-    return encoded;
-  };
-
-  public decodeTriggerTimeArgs = async (
-    encodedModuleArgs: string
-  ): Promise<TriggerParams> => {
-    let start: number | null = null;
-    let interval: number | null = null;
-
-    try {
-      [start, interval] = ethers.utils.defaultAbiCoder.decode(
-        ["uint128", "uint128"],
-        encodedModuleArgs
+    if (triggerConfig.type === TriggerType.TIME) {
+      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+        ["uint8", "uint128", "uint128"],
+        [
+          Number(TriggerType.TIME),
+          triggerConfig.start ?? 0,
+          triggerConfig.interval,
+        ]
       );
-    } catch {}
-
-    let triggerConfig: TriggerConfig | null = null;
-
-    if (start !== null && interval !== null) {
-      triggerConfig = { type: TriggerType.TIME, start, interval };
+    } else {
+      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+        ["uint8", "string"],
+        [Number(TriggerType.CRON), triggerConfig.cron]
+      );
     }
 
-    return { triggerConfig };
+    return triggerArgs;
   };
 
-  public encodeTriggerCronArgs = async (cron: string): Promise<string> => {
-    const encoded = ethers.utils.defaultAbiCoder.encode(["string"], [cron]);
-
-    return encoded;
-  };
-
-  public decodeTriggerCronArgs = async (
+  public decodeTriggerArgs = async (
     encodedModuleArgs: string
   ): Promise<TriggerParams> => {
-    let cron: string | null = null;
-
-    try {
-      [cron] = ethers.utils.defaultAbiCoder.decode(
-        ["string"],
-        encodedModuleArgs
-      );
-    } catch {}
-
+    let type: number | null = null;
+    let encodedTriggerConfig: string | null = null;
     let triggerConfig: TriggerConfig | null = null;
 
-    if (cron !== null) {
-      triggerConfig = { type: TriggerType.CRON, cron };
-    }
+    try {
+      [type, encodedTriggerConfig] = ethers.utils.defaultAbiCoder.decode(
+        ["uint8", "string"],
+        encodedModuleArgs
+      );
+
+      if (type !== null && encodedTriggerConfig !== null) {
+        if (type === TriggerType.TIME) {
+          let start: number | null = null;
+          let interval: number | null = null;
+
+          [start, interval] = ethers.utils.defaultAbiCoder.decode(
+            ["uint128", "uint128"],
+            encodedTriggerConfig
+          );
+
+          if (start !== null && interval !== null) {
+            triggerConfig = { type, start, interval };
+          }
+        } else if (type === TriggerType.CRON) {
+          let cron: string | null;
+
+          [cron] = ethers.utils.defaultAbiCoder.decode(
+            ["string"],
+            encodedTriggerConfig
+          );
+
+          if (cron !== null) {
+            triggerConfig = { type, cron };
+          }
+        }
+      }
+    } catch {}
 
     return { triggerConfig };
   };
