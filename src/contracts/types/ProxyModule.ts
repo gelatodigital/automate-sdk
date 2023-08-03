@@ -182,7 +182,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<[string]>;
@@ -192,7 +192,7 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     preCancelTask(
@@ -242,7 +242,7 @@ export interface ProxyModule extends BaseContract {
     arg2: string,
     arg3: BytesLike,
     arg4: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   opsProxyFactory(overrides?: CallOverrides): Promise<string>;
@@ -252,7 +252,7 @@ export interface ProxyModule extends BaseContract {
     taskCreator: string,
     execAddress: string,
     execData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   preCancelTask(
@@ -368,7 +368,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<BigNumber>;
@@ -378,7 +378,7 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     preCancelTask(
@@ -427,7 +427,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -437,7 +437,7 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     preCancelTask(

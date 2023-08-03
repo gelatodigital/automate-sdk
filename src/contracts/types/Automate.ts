@@ -193,7 +193,7 @@ export interface Automate extends BaseContract {
   functions: {
     cancelTask(
       _taskId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     createTask(
@@ -201,7 +201,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     exec(
@@ -213,7 +213,7 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     execAddresses(
@@ -237,7 +237,7 @@ export interface Automate extends BaseContract {
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<ContractTransaction>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
@@ -261,7 +261,7 @@ export interface Automate extends BaseContract {
 
   cancelTask(
     _taskId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   createTask(
@@ -269,7 +269,7 @@ export interface Automate extends BaseContract {
     _execDataOrSelector: BytesLike,
     _moduleData: LibDataTypes.ModuleDataStruct,
     _feeToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   exec(
@@ -281,7 +281,7 @@ export interface Automate extends BaseContract {
     _feeToken: string,
     _useTaskTreasuryFunds: boolean,
     _revertOnFailure: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -302,7 +302,7 @@ export interface Automate extends BaseContract {
   setModule(
     _modules: BigNumberish[],
     _moduleAddresses: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string }
   ): Promise<ContractTransaction>;
 
   taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -391,7 +391,7 @@ export interface Automate extends BaseContract {
   estimateGas: {
     cancelTask(
       _taskId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     createTask(
@@ -399,7 +399,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     exec(
@@ -411,7 +411,7 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     execAddresses(
@@ -435,7 +435,7 @@ export interface Automate extends BaseContract {
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<BigNumber>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -455,7 +455,7 @@ export interface Automate extends BaseContract {
   populateTransaction: {
     cancelTask(
       _taskId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     createTask(
@@ -463,7 +463,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     exec(
@@ -475,7 +475,7 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     execAddresses(
@@ -499,7 +499,7 @@ export interface Automate extends BaseContract {
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string }
     ): Promise<PopulatedTransaction>;
 
     taskCreator(
