@@ -300,7 +300,7 @@ type ProxyModuleConstructorParams =
   | ConstructorParameters<typeof ContractFactory>;
 
 const isSuperArgs = (
-  xs: ProxyModuleConstructorParams
+  xs: ProxyModuleConstructorParams,
 ): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class ProxyModule__factory extends ContractFactory {
@@ -314,16 +314,16 @@ export class ProxyModule__factory extends ContractFactory {
 
   override deploy(
     _opsProxyFactory: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ProxyModule> {
     return super.deploy(
       _opsProxyFactory,
-      overrides || {}
+      overrides || {},
     ) as Promise<ProxyModule>;
   }
   override getDeployTransaction(
     _opsProxyFactory: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): TransactionRequest {
     return super.getDeployTransaction(_opsProxyFactory, overrides || {});
   }
@@ -341,7 +341,7 @@ export class ProxyModule__factory extends ContractFactory {
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): ProxyModule {
     return new Contract(address, _abi, signerOrProvider) as ProxyModule;
   }

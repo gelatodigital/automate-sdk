@@ -22,7 +22,7 @@ export class Web3FunctionSecrets {
   public async get(
     key: string,
     taskId?: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<string> {
     try {
       await this._initialize();
@@ -72,7 +72,7 @@ export class Web3FunctionSecrets {
   public async set(
     secrets: Secrets,
     taskId?: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<void> {
     try {
       await this._initialize();
@@ -89,7 +89,7 @@ export class Web3FunctionSecrets {
         { ...secrets },
         {
           headers: { Authorization: `Bearer ${authToken}` },
-        }
+        },
       );
     } catch (err) {
       const errMsg = errorMessage(err);
@@ -100,7 +100,7 @@ export class Web3FunctionSecrets {
   public async delete(
     key: string,
     taskId?: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<void> {
     try {
       await this._initialize();

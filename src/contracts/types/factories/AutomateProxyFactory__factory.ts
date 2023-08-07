@@ -243,7 +243,7 @@ type AutomateProxyFactoryConstructorParams =
   | ConstructorParameters<typeof ContractFactory>;
 
 const isSuperArgs = (
-  xs: AutomateProxyFactoryConstructorParams
+  xs: AutomateProxyFactoryConstructorParams,
 ): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class AutomateProxyFactory__factory extends ContractFactory {
@@ -258,18 +258,18 @@ export class AutomateProxyFactory__factory extends ContractFactory {
   override deploy(
     _ops: string,
     _implementation: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<AutomateProxyFactory> {
     return super.deploy(
       _ops,
       _implementation,
-      overrides || {}
+      overrides || {},
     ) as Promise<AutomateProxyFactory>;
   }
   override getDeployTransaction(
     _ops: string,
     _implementation: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): TransactionRequest {
     return super.getDeployTransaction(_ops, _implementation, overrides || {});
   }
@@ -287,12 +287,12 @@ export class AutomateProxyFactory__factory extends ContractFactory {
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): AutomateProxyFactory {
     return new Contract(
       address,
       _abi,
-      signerOrProvider
+      signerOrProvider,
     ) as AutomateProxyFactory;
   }
 }

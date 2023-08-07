@@ -14,7 +14,7 @@
     "copy-contracts-types": "cp ./src/contracts/types/*.ts ./dist/contracts/types",
     "format": "prettier --write '*/**/*.{js,json,md,ts}'",
     "format:check": "prettier --check '*/**/*.{js,json,md,ts}'",
-    "generate-contracts-typings": "npx typechain --target=ethers-v5 --out-dir src/contracts/types ./src/**/abis/*.json",
+    "generate-contracts-typings": "npx typechain --target=ethers-v5 --out-dir src/contracts/types ./src/**/abis/*.json && yarn format",
     "lint": "eslint --cache .",
     "prepare": "yarn build && yarn format && yarn lint",
     "test": "ts-node ./src/index.test.ts"
@@ -25,12 +25,12 @@
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.2",
     "@typechain/ethers-v5": "^11.1.1",
-    "@types/node": "^20.4.6",
+    "@types/node": "^20.4.8",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "dotenv": "^16.3.1",
     "eslint": "^8.46.0",
-    "eslint-config-prettier": "^8.10.0",
+    "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "lint-staged": "^13.2.3",
     "prettier": "^3.0.1",

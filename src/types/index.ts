@@ -9,4 +9,3 @@ export * from "./TaskTransaction.interface";
 export * from "./Trigger.interface";
 export * from "./Web3Function.interface";
 export * from "./Web3FunctionSchema.interface";
-

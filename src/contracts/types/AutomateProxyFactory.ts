@@ -50,21 +50,21 @@ export interface AutomateProxyFactoryInterface extends utils.Interface {
       | "implementation"
       | "isProxy"
       | "ops"
-      | "version"
+      | "version",
   ): FunctionFragment;
 
   encodeFunctionData(functionFragment: "deploy", values?: undefined): string;
   encodeFunctionData(functionFragment: "deployFor", values: [string]): string;
   encodeFunctionData(
     functionFragment: "determineProxyAddress",
-    values: [string]
+    values: [string],
   ): string;
   encodeFunctionData(functionFragment: "getNextSeed", values: [string]): string;
   encodeFunctionData(functionFragment: "getOwnerOf", values: [string]): string;
   encodeFunctionData(functionFragment: "getProxyOf", values: [string]): string;
   encodeFunctionData(
     functionFragment: "implementation",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(functionFragment: "isProxy", values: [string]): string;
   encodeFunctionData(functionFragment: "ops", values?: undefined): string;
@@ -74,17 +74,17 @@ export interface AutomateProxyFactoryInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "deployFor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "determineProxyAddress",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "getNextSeed",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "getOwnerOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getProxyOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "implementation",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "isProxy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ops", data: BytesLike): Result;
@@ -121,15 +121,15 @@ export interface AutomateProxyFactory extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -139,17 +139,17 @@ export interface AutomateProxyFactory extends BaseContract {
 
   functions: {
     deploy(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     deployFor(
       owner: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     determineProxyAddress(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     getNextSeed(_account: string, overrides?: CallOverrides): Promise<[string]>;
@@ -158,7 +158,7 @@ export interface AutomateProxyFactory extends BaseContract {
 
     getProxyOf(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, boolean]>;
 
     implementation(overrides?: CallOverrides): Promise<[string]>;
@@ -171,17 +171,17 @@ export interface AutomateProxyFactory extends BaseContract {
   };
 
   deploy(
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   deployFor(
     owner: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   determineProxyAddress(
     _account: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   getNextSeed(_account: string, overrides?: CallOverrides): Promise<string>;
@@ -190,7 +190,7 @@ export interface AutomateProxyFactory extends BaseContract {
 
   getProxyOf(
     _account: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[string, boolean]>;
 
   implementation(overrides?: CallOverrides): Promise<string>;
@@ -208,7 +208,7 @@ export interface AutomateProxyFactory extends BaseContract {
 
     determineProxyAddress(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     getNextSeed(_account: string, overrides?: CallOverrides): Promise<string>;
@@ -217,7 +217,7 @@ export interface AutomateProxyFactory extends BaseContract {
 
     getProxyOf(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, boolean]>;
 
     implementation(overrides?: CallOverrides): Promise<string>;
@@ -235,14 +235,14 @@ export interface AutomateProxyFactory extends BaseContract {
       owner?: string | null,
       seed?: null,
       salt?: null,
-      proxy?: null
+      proxy?: null,
     ): DeployProxyEventFilter;
     DeployProxy(
       deployer?: string | null,
       owner?: string | null,
       seed?: null,
       salt?: null,
-      proxy?: null
+      proxy?: null,
     ): DeployProxyEventFilter;
   };
 
@@ -251,17 +251,17 @@ export interface AutomateProxyFactory extends BaseContract {
 
     deployFor(
       owner: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     determineProxyAddress(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getNextSeed(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     getOwnerOf(_proxy: string, overrides?: CallOverrides): Promise<BigNumber>;
@@ -279,39 +279,39 @@ export interface AutomateProxyFactory extends BaseContract {
 
   populateTransaction: {
     deploy(
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     deployFor(
       owner: string,
-      overrides?: Overrides & { from?: string }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     determineProxyAddress(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getNextSeed(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getOwnerOf(
       _proxy: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     getProxyOf(
       _account: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     implementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     isProxy(
       proxy: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     ops(overrides?: CallOverrides): Promise<PopulatedTransaction>;

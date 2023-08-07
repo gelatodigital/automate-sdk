@@ -21,7 +21,7 @@ export class Web3FunctionStorage {
   public async get(
     chainId: ChainId,
     taskId: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<Storage> {
     try {
       const address = await this._signer.getAddress();
@@ -29,7 +29,7 @@ export class Web3FunctionStorage {
 
       const res = await this._userApi.get(
         `/users/${address}/web3-function-storage/${chainId}/${taskId}`,
-        { headers: { Authorization: `Bearer ${authToken}` } }
+        { headers: { Authorization: `Bearer ${authToken}` } },
       );
 
       return res.data as Storage;

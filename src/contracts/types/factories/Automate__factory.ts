@@ -356,7 +356,7 @@ type AutomateConstructorParams =
   | ConstructorParameters<typeof ContractFactory>;
 
 const isSuperArgs = (
-  xs: AutomateConstructorParams
+  xs: AutomateConstructorParams,
 ): xs is ConstructorParameters<typeof ContractFactory> => xs.length > 1;
 
 export class Automate__factory extends ContractFactory {
@@ -371,18 +371,18 @@ export class Automate__factory extends ContractFactory {
   override deploy(
     _gelato: string,
     _taskTreasury: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): Promise<Automate> {
     return super.deploy(
       _gelato,
       _taskTreasury,
-      overrides || {}
+      overrides || {},
     ) as Promise<Automate>;
   }
   override getDeployTransaction(
     _gelato: string,
     _taskTreasury: string,
-    overrides?: Overrides & { from?: string }
+    overrides?: Overrides & { from?: string },
   ): TransactionRequest {
     return super.getDeployTransaction(_gelato, _taskTreasury, overrides || {});
   }
@@ -400,7 +400,7 @@ export class Automate__factory extends ContractFactory {
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): Automate {
     return new Contract(address, _abi, signerOrProvider) as Automate;
   }
