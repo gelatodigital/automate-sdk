@@ -6,6 +6,7 @@ import {
   ModuleArgsParams,
   ModuleData,
   ResolverParams,
+  TimeParams,
   TriggerParams,
   Web3FunctionParams,
   Web3FunctionSchema,
@@ -17,7 +18,7 @@ import { Web3FunctionDownloader } from "./Web3Function/Web3FunctionDownloader";
 
 export class AutomateModule {
   public encodeModuleArgs = async (
-    moduleArgsParams: Partial<ModuleArgsParams>
+    moduleArgsParams: Partial<ModuleArgsParams>,
   ): Promise<ModuleData> => {
     const modules: Module[] = [];
     const args: string[] = [];
@@ -25,6 +26,8 @@ export class AutomateModule {
     const {
       resolverAddress,
       resolverData,
+      startTime,
+      interval,
       dedicatedMsgSender,
       singleExec,
       web3FunctionHash,
@@ -36,6 +39,17 @@ export class AutomateModule {
     if (resolverAddress && resolverData) {
       modules.push(Module.RESOLVER);
       args.push(this.encodeResolverArgs(resolverAddress, resolverData));
+    }
+
+    if (interval) {
+      const start = startTime ?? 0;
+      modules.push(Module.TIME);
+      args.push(this.encodeTimeArgs(start, interval));
+    } else {
+      if (singleExec && startTime) {
+        modules.push(Module.TIME);
+        args.push(this.encodeTimeArgs(startTime, 1));
+      }
     }
 
     if (dedicatedMsgSender) {
@@ -54,13 +68,13 @@ export class AutomateModule {
         await this.encodeWeb3FunctionArgs(
           web3FunctionHash,
           undefined,
-          web3FunctionArgsHex
-        )
+          web3FunctionArgsHex,
+        ),
       );
     } else if (web3FunctionHash && web3FunctionArgs) {
       modules.push(Module.WEB3_FUNCTION);
       args.push(
-        await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs)
+        await this.encodeWeb3FunctionArgs(web3FunctionHash, web3FunctionArgs),
       );
     }
 
@@ -73,7 +87,7 @@ export class AutomateModule {
   };
 
   public decodeModuleArgs = async (
-    moduleData: ModuleData
+    moduleData: ModuleData,
   ): Promise<ModuleArgsParams> => {
     const modules = moduleData.modules;
     const args = moduleData.args;
@@ -81,6 +95,8 @@ export class AutomateModule {
     const moduleArgsDecoded: ModuleArgsParams = {
       resolverAddress: null,
       resolverData: null,
+      startTime: null,
+      interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
       web3FunctionHash: null,
@@ -92,11 +108,19 @@ export class AutomateModule {
     if (modules.includes(Module.RESOLVER)) {
       const indexOfModule = modules.indexOf(Module.RESOLVER);
       const { resolverAddress, resolverData } = this.decodeResolverArgs(
-        args[indexOfModule]
+        args[indexOfModule],
       );
 
       moduleArgsDecoded.resolverAddress = resolverAddress;
       moduleArgsDecoded.resolverData = resolverData;
+    }
+
+    if (modules.includes(Module.TIME)) {
+      const indexOfModule = modules.indexOf(Module.TIME);
+      const { startTime, interval } = this.decodeTimeArgs(args[indexOfModule]);
+
+      moduleArgsDecoded.startTime = startTime;
+      moduleArgsDecoded.interval = interval;
     }
 
     if (modules.includes(Module.PROXY)) {
@@ -127,7 +151,7 @@ export class AutomateModule {
       const indexOfModule = modules.indexOf(Module.TRIGGER);
 
       const { triggerConfig } = await this.decodeTriggerArgs(
-        args[indexOfModule]
+        args[indexOfModule],
       );
 
       moduleArgsDecoded.triggerConfig = triggerConfig;
@@ -138,11 +162,11 @@ export class AutomateModule {
 
   public encodeResolverArgs = (
     resolverAddress: string,
-    resolverData: string
+    resolverData: string,
   ): string => {
     const encoded = ethers.utils.defaultAbiCoder.encode(
       ["address", "bytes"],
-      [resolverAddress, resolverData]
+      [resolverAddress, resolverData],
     );
 
     return encoded;
@@ -155,22 +179,45 @@ export class AutomateModule {
     try {
       [resolverAddress, resolverData] = ethers.utils.defaultAbiCoder.decode(
         ["address", "bytes"],
-        encodedModuleArgs
+        encodedModuleArgs,
       );
     } catch {}
 
     return { resolverAddress, resolverData };
   };
 
+  public encodeTimeArgs = (startTime: number, interval: number): string => {
+    const encoded = ethers.utils.defaultAbiCoder.encode(
+      ["uint128", "uint128"],
+      [startTime, interval],
+    );
+
+    return encoded;
+  };
+
+  public decodeTimeArgs = (encodedModuleArgs: string): TimeParams => {
+    let startTime: number | null = null;
+    let interval: number | null = null;
+
+    try {
+      [startTime, interval] = ethers.utils.defaultAbiCoder.decode(
+        ["uint128", "uint128"],
+        encodedModuleArgs,
+      );
+    } catch {}
+
+    return { startTime, interval };
+  };
+
   public encodeWeb3FunctionArgs = async (
     web3FunctionHash: string,
     web3FunctionArgs?: Web3FunctionUserArgs,
-    web3FunctionArgsHex?: string
+    web3FunctionArgsHex?: string,
   ): Promise<string> => {
     try {
       if (!web3FunctionArgsHex && web3FunctionArgs) {
         const { types, keys } = await this.getAbiTypesAndKeysFromSchema(
-          web3FunctionHash
+          web3FunctionHash,
         );
         // ensure all userArgs are provided & encoded in same order as they are defined in the schema
         const values: (
@@ -184,7 +231,7 @@ export class AutomateModule {
         for (const key of keys) {
           if (typeof web3FunctionArgs[key] === "undefined") {
             throw new Error(
-              `Missing user arg '${key}' defined in resolver schema`
+              `Missing user arg '${key}' defined in resolver schema`,
             );
           }
           values.push(web3FunctionArgs[key]);
@@ -192,13 +239,13 @@ export class AutomateModule {
 
         web3FunctionArgsHex = ethers.utils.defaultAbiCoder.encode(
           types,
-          values
+          values,
         );
       }
 
       const encoded = ethers.utils.defaultAbiCoder.encode(
         ["string", "bytes"],
-        [web3FunctionHash, web3FunctionArgsHex]
+        [web3FunctionHash, web3FunctionArgsHex],
       );
 
       return encoded;
@@ -208,7 +255,7 @@ export class AutomateModule {
   };
 
   public decodeWeb3FunctionArgs = async (
-    encodedModuleArgs: string
+    encodedModuleArgs: string,
   ): Promise<Web3FunctionParams> => {
     let web3FunctionHash: string | null = null;
     let web3FunctionArgs: Web3FunctionUserArgs | null = null;
@@ -218,14 +265,14 @@ export class AutomateModule {
     [web3FunctionHash, web3FunctionArgsHex] =
       ethers.utils.defaultAbiCoder.decode(
         ["string", "bytes"],
-        encodedModuleArgs
+        encodedModuleArgs,
       );
 
     const res = await this.decodeWeb3FunctionArgsHex(
       web3FunctionArgsHex as string,
       {
         web3FunctionHash: web3FunctionHash as string,
-      }
+      },
     );
     if (res) {
       web3FunctionArgs = res.web3FunctionArgs;
@@ -241,29 +288,29 @@ export class AutomateModule {
   };
 
   public encodeTriggerArgs = async (
-    triggerConfig: TriggerConfig
+    triggerConfig: TriggerConfig,
   ): Promise<string> => {
     let triggerArgs: string;
 
     if (triggerConfig.type === TriggerType.TIME) {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["uint128", "uint128"],
-        [triggerConfig.start ?? 0, triggerConfig.interval]
+        [triggerConfig.start ?? 0, triggerConfig.interval],
       );
 
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
         ["uint128", "bytes"],
-        [Number(TriggerType.TIME), triggerBytes]
+        [Number(TriggerType.TIME), triggerBytes],
       );
     } else {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["string"],
-        [triggerConfig.cron]
+        [triggerConfig.cron],
       );
 
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
         ["uint8", "bytes"],
-        [Number(TriggerType.CRON), triggerBytes]
+        [Number(TriggerType.CRON), triggerBytes],
       );
     }
 
@@ -271,7 +318,7 @@ export class AutomateModule {
   };
 
   public decodeTriggerArgs = async (
-    encodedModuleArgs: string
+    encodedModuleArgs: string,
   ): Promise<TriggerParams> => {
     let type: number | null = null;
     let encodedTriggerConfig: string | null = null;
@@ -280,14 +327,14 @@ export class AutomateModule {
     try {
       [type, encodedTriggerConfig] = ethers.utils.defaultAbiCoder.decode(
         ["uint8", "bytes"],
-        encodedModuleArgs
+        encodedModuleArgs,
       );
 
       if (type !== null && encodedTriggerConfig !== null) {
         if (type === TriggerType.TIME) {
           let [start, interval] = ethers.utils.defaultAbiCoder.decode(
             ["uint128", "uint128"],
-            encodedTriggerConfig
+            encodedTriggerConfig,
           );
 
           if (start !== null && interval !== null) {
@@ -302,7 +349,7 @@ export class AutomateModule {
         } else if (type === TriggerType.CRON) {
           const [cron] = ethers.utils.defaultAbiCoder.decode(
             ["string"],
-            encodedTriggerConfig
+            encodedTriggerConfig,
           );
 
           if (cron !== null) {
@@ -320,7 +367,7 @@ export class AutomateModule {
     schemaOption: {
       web3FunctionHash?: string;
       userArgsSchema?: Web3FunctionUserArgsSchema;
-    }
+    },
   ): Promise<{
     web3FunctionArgs: Web3FunctionUserArgs;
     schema?: Web3FunctionSchema;
@@ -334,18 +381,18 @@ export class AutomateModule {
       const web3FunctionArgs: Web3FunctionUserArgs = {};
       if (schemaOption.web3FunctionHash)
         schemaAbi = await this.getAbiTypesAndKeysFromSchema(
-          schemaOption.web3FunctionHash
+          schemaOption.web3FunctionHash,
         );
       else
         schemaAbi = await this.getAbiTypesAndKeysFromSchema(
           undefined,
-          schemaOption.userArgsSchema
+          schemaOption.userArgsSchema,
         );
 
       const { types, keys, schema } = schemaAbi;
       const web3FunctionArgsValues = ethers.utils.defaultAbiCoder.decode(
         types,
-        web3FunctionArgsHex
+        web3FunctionArgsHex,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ) as any[];
 
@@ -391,7 +438,7 @@ export class AutomateModule {
 
   private getAbiTypesAndKeysFromSchema = async (
     web3FunctionHash?: string,
-    _userArgsSchema?: Web3FunctionUserArgsSchema
+    _userArgsSchema?: Web3FunctionUserArgsSchema,
   ): Promise<{
     keys: string[];
     types: string[];
@@ -438,7 +485,7 @@ export class AutomateModule {
             break;
           default:
             throw new Error(
-              `Invalid schema in web3Function CID: ${web3FunctionHash}. Invalid type ${value}. userArgsSchema: ${userArgsSchema}`
+              `Invalid schema in web3Function CID: ${web3FunctionHash}. Invalid type ${value}. userArgsSchema: ${userArgsSchema}`,
             );
         }
       });

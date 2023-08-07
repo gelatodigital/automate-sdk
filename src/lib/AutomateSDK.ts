@@ -62,7 +62,7 @@ export class AutomateSDK {
     this._signer = signer;
     this._automate = Automate__factory.connect(
       GELATO_ADDRESSES[this._chainId].automate,
-      this._signer
+      this._signer,
     );
     this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
   }
@@ -79,7 +79,7 @@ export class AutomateSDK {
       {
         taskIds,
       },
-      true // used to skip signature
+      true, // used to skip signature
     );
 
     // Build results
@@ -100,7 +100,7 @@ export class AutomateSDK {
   }> {
     const opsProxyFactory = await this._getOpsProxyFactory();
     const [address, isDeployed] = await opsProxyFactory.getProxyOf(
-      creatorAddress
+      creatorAddress,
     );
 
     return { address, isDeployed };
@@ -109,17 +109,17 @@ export class AutomateSDK {
   private async _getOpsProxyFactory(): Promise<AutomateProxyFactory> {
     if (!this._opsProxyFactory) {
       const proxyModuleAddress = await this._automate.taskModuleAddresses(
-        Module.PROXY
+        Module.PROXY,
       );
 
       const opsProxyFactoryAddress = await ProxyModule__factory.connect(
         proxyModuleAddress,
-        this._signer
+        this._signer,
       ).opsProxyFactory();
 
       const opsProxyFactory = AutomateProxyFactory__factory.connect(
         opsProxyFactoryAddress,
-        this._signer
+        this._signer,
       );
 
       this._opsProxyFactory = opsProxyFactory;
@@ -137,7 +137,7 @@ export class AutomateSDK {
 
   public async getTaskId(
     _args: CreateTaskOptions,
-    creatorAddress?: string
+    creatorAddress?: string,
   ): Promise<string> {
     const args = await this._processModules(_args);
 
@@ -146,7 +146,7 @@ export class AutomateSDK {
 
   protected async _getTaskId(
     args: CreateTaskOptionsWithModules,
-    creatorAddress?: string
+    creatorAddress?: string,
   ): Promise<string> {
     const address = creatorAddress ?? (await this._signer.getAddress());
     const modules = args.moduleData.modules;
@@ -174,21 +174,21 @@ export class AutomateSDK {
           args.execSelector,
           args.moduleData,
           args.useTreasury ? ethers.constants.AddressZero : ETH,
-        ]
-      )
+        ],
+      ),
     );
     return taskId;
   }
 
   protected async _getLegacyTaskId(
     args: CreateTaskOptionsWithModules,
-    creatorAddress: string
+    creatorAddress: string,
   ): Promise<string> {
     const resolverHash = ethers.utils.keccak256(
       ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes"],
-        [args.resolverAddress, args.resolverData]
-      )
+        [args.resolverAddress, args.resolverData],
+      ),
     );
 
     const taskId = ethers.utils.keccak256(
@@ -201,19 +201,19 @@ export class AutomateSDK {
           args.useTreasury,
           args.useTreasury ? ethers.constants.AddressZero : ETH,
           resolverHash,
-        ]
-      )
+        ],
+      ),
     );
     return taskId;
   }
 
   private async _prepareBatchCreateTaskOptions(
     _args: CreateBatchExecTaskOptions,
-    creatorAddress?: string
+    creatorAddress?: string,
   ): Promise<CreateTaskOptions> {
     creatorAddress = creatorAddress ?? (await this._signer.getAddress());
     const { address: execAddress } = await this._getDedicatedMsgSender(
-      creatorAddress
+      creatorAddress,
     );
 
     const automateProxyInterface = AutomateProxy__factory.createInterface();
@@ -235,11 +235,11 @@ export class AutomateSDK {
   public async prepareBatchExecTask(
     args: CreateBatchExecTaskOptions,
     overrides: Overrides = {},
-    creatorAddress?: string
+    creatorAddress?: string,
   ): Promise<CreateTaskPopulatedTransaction> {
     const options = await this._prepareBatchCreateTaskOptions(
       args,
-      creatorAddress
+      creatorAddress,
     );
     return await this.prepareTask(options, overrides, creatorAddress);
   }
@@ -247,7 +247,7 @@ export class AutomateSDK {
   public async createBatchExecTask(
     args: CreateBatchExecTaskOptions,
     overrides: Overrides = {},
-    authToken?: string
+    authToken?: string,
   ): Promise<TaskTransaction> {
     const createTaskOptions = await this._prepareBatchCreateTaskOptions(args);
     return await this.createTask(createTaskOptions, overrides, authToken);
@@ -256,7 +256,7 @@ export class AutomateSDK {
   public async prepareTask(
     _args: CreateTaskOptions,
     overrides: Overrides = {},
-    creatorAddress?: string
+    creatorAddress?: string,
   ): Promise<CreateTaskPopulatedTransaction> {
     const args = await this._processModules(_args);
     const tx: PopulatedTransaction =
@@ -265,7 +265,7 @@ export class AutomateSDK {
         args.execData ?? args.execSelector,
         args.moduleData,
         args.useTreasury ? ZERO_ADD : ETH,
-        overrides
+        overrides,
       );
 
     const taskId = await this._getTaskId(args, creatorAddress);
@@ -275,7 +275,7 @@ export class AutomateSDK {
   public async createTask(
     _args: CreateTaskOptions,
     overrides: Overrides = {},
-    authToken?: string
+    authToken?: string,
   ): Promise<TaskTransaction> {
     // Ask for signature
     if (!authToken) authToken = await this._signature.getAuthToken();
@@ -287,18 +287,22 @@ export class AutomateSDK {
     } = await this.prepareTask(_args, overrides);
 
     const tx: ContractTransaction = await this._signer.sendTransaction(
-      unsignedTx
+      unsignedTx,
     );
     await this._finalizeTaskCreation(taskId, args, authToken);
     return { taskId, tx };
   }
 
   private async _processModules(
-    args: CreateTaskOptions
+    args: CreateTaskOptions,
   ): Promise<CreateTaskOptionsWithModules> {
+    args.startTime = args.startTime ?? 0;
+
     const moduleData: ModuleData = await this._automateModule.encodeModuleArgs({
       resolverAddress: args.resolverAddress,
       resolverData: args.resolverData,
+      startTime: args.startTime,
+      interval: args.interval,
       dedicatedMsgSender: args.dedicatedMsgSender,
       singleExec: args.singleExec,
       web3FunctionHash: args.web3FunctionHash,
@@ -313,7 +317,7 @@ export class AutomateSDK {
   private async _finalizeTaskCreation(
     taskId: string,
     args: CreateTaskOptionsWithModules,
-    authToken?: string
+    authToken?: string,
   ): Promise<void> {
     // Post task name & contracts ABI to tasks API
     const { name, execAddress, execAbi, resolverAddress, resolverAbi } = args;
@@ -321,7 +325,7 @@ export class AutomateSDK {
     promises.push(this._setTaskName(taskId, name ?? taskId, authToken));
     if (execAbi) {
       promises.push(
-        this._setContractAbi(taskId, false, execAddress, execAbi, authToken)
+        this._setContractAbi(taskId, false, execAddress, execAbi, authToken),
       );
     }
     if (resolverAddress && resolverAbi) {
@@ -331,8 +335,8 @@ export class AutomateSDK {
           true,
           resolverAddress,
           resolverAbi,
-          authToken
-        )
+          authToken,
+        ),
       );
     }
     await Promise.all(promises);
@@ -340,23 +344,23 @@ export class AutomateSDK {
 
   public async prepareCancelTask(
     taskId: string,
-    overrides: Overrides = {}
+    overrides: Overrides = {},
   ): Promise<CancelTaskPopulatedTransaction> {
     const tx = await this._automate.populateTransaction.cancelTask(
       taskId,
-      overrides
+      overrides,
     );
     return { taskId, tx };
   }
 
   public async cancelTask(
     taskId: string,
-    overrides: Overrides = {}
+    overrides: Overrides = {},
   ): Promise<TaskTransaction> {
     const { tx: unsignedTx } = await this.prepareCancelTask(taskId, overrides);
 
     const tx: ContractTransaction = await this._signer.sendTransaction(
-      unsignedTx
+      unsignedTx,
     );
     return { taskId, tx };
   }
@@ -380,21 +384,21 @@ export class AutomateSDK {
   private async _setTaskName(
     taskId: string,
     name: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<void> {
     const path = `/tasks/${this._chainId}`;
     await this._postTaskApi(
       path,
       { taskId, name, chainId: this._chainId },
       false,
-      authToken
+      authToken,
     );
   }
 
   public async renameTask(
     taskId: string,
     name: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<void> {
     const path = `/tasks/${this._chainId}/${taskId}`;
     await this._postTaskApi(path, { name }, false, authToken);
@@ -405,7 +409,7 @@ export class AutomateSDK {
     isResolver: boolean,
     address: string,
     abi: string,
-    authToken?: string
+    authToken?: string,
   ): Promise<void> {
     const path = `/contracts/${this._chainId}/`;
     await this._postTaskApi(
@@ -418,7 +422,7 @@ export class AutomateSDK {
         ABI: abi,
       },
       false,
-      authToken
+      authToken,
     );
   }
 
@@ -426,7 +430,7 @@ export class AutomateSDK {
     path: string,
     data: TaskApiParams,
     skipSignature = false,
-    authToken?: string
+    authToken?: string,
   ): Promise<Response | undefined> {
     const headers: { [key: string]: string } = {};
     if (!skipSignature) {
@@ -437,7 +441,7 @@ export class AutomateSDK {
       const response = await this._taskApi.post(
         `${AUTOMATE_TASKS_API}${path}`,
         data,
-        { headers }
+        { headers },
       );
       return response.data as Response;
     } catch (err) {
