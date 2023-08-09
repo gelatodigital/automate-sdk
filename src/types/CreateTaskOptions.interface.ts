@@ -11,7 +11,7 @@ export interface CreateBatchExecTaskOptions {
   web3FunctionHash: string;
   web3FunctionArgs?: Web3FunctionUserArgs;
   web3FunctionArgsHex?: string;
-  triggerConfig: TriggerConfig;
+  trigger: TriggerConfig;
 }
 export interface CreateTaskOptions {
   name: string;
@@ -30,7 +30,7 @@ export interface CreateTaskOptions {
   web3FunctionHash?: string;
   web3FunctionArgs?: Web3FunctionUserArgs;
   web3FunctionArgsHex?: string;
-  triggerConfig: TriggerConfig;
+  trigger: TriggerConfig;
 }
 
 export interface CreateTaskOptionsWithModules extends CreateTaskOptions {

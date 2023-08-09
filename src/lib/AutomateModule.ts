@@ -34,7 +34,7 @@ export class AutomateModule {
       web3FunctionHash,
       web3FunctionArgs,
       web3FunctionArgsHex,
-      triggerConfig,
+      trigger,
     } = moduleArgsParams;
 
     if (resolverAddress && resolverData) {
@@ -79,9 +79,9 @@ export class AutomateModule {
       );
     }
 
-    if (triggerConfig) {
+    if (trigger) {
       modules.push(Module.TRIGGER);
-      args.push(await this.encodeTriggerArgs(triggerConfig));
+      args.push(await this.encodeTriggerArgs(trigger));
     }
 
     return { modules, args };
@@ -103,7 +103,7 @@ export class AutomateModule {
       web3FunctionHash: null,
       web3FunctionArgs: null,
       web3FunctionArgsHex: null,
-      triggerConfig: null,
+      trigger: null,
     };
 
     if (modules.includes(Module.RESOLVER)) {
@@ -151,11 +151,9 @@ export class AutomateModule {
     if (modules.includes(Module.TRIGGER)) {
       const indexOfModule = modules.indexOf(Module.TRIGGER);
 
-      const { triggerConfig } = await this.decodeTriggerArgs(
-        args[indexOfModule],
-      );
+      const { trigger } = await this.decodeTriggerArgs(args[indexOfModule]);
 
-      moduleArgsDecoded.triggerConfig = triggerConfig;
+      moduleArgsDecoded.trigger = trigger;
     }
 
     return moduleArgsDecoded;
@@ -289,14 +287,14 @@ export class AutomateModule {
   };
 
   public encodeTriggerArgs = async (
-    triggerConfig: TriggerConfig,
+    trigger: TriggerConfig,
   ): Promise<string> => {
     let triggerArgs: string;
 
-    if (triggerConfig.type === TriggerType.TIME) {
+    if (trigger.type === TriggerType.TIME) {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["uint128", "uint128"],
-        [triggerConfig.start ?? 0, triggerConfig.interval],
+        [trigger.start ?? 0, trigger.interval],
       );
 
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
@@ -306,7 +304,7 @@ export class AutomateModule {
     } else {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["string"],
-        [triggerConfig.cron],
+        [trigger.cron],
       );
 
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
@@ -323,7 +321,7 @@ export class AutomateModule {
   ): Promise<TriggerParams> => {
     let type: number | null = null;
     let encodedTriggerConfig: string | null = null;
-    let triggerConfig: TriggerConfig | null = null;
+    let trigger: TriggerConfig | null = null;
 
     try {
       [type, encodedTriggerConfig] = ethers.utils.defaultAbiCoder.decode(
@@ -345,7 +343,7 @@ export class AutomateModule {
             if (typeof interval === "object" && interval instanceof BigNumber) {
               interval = interval.toNumber();
             }
-            triggerConfig = { type, start, interval };
+            trigger = { type, start, interval };
           }
         } else if (type === TriggerType.CRON) {
           const [cron] = ethers.utils.defaultAbiCoder.decode(
@@ -354,13 +352,13 @@ export class AutomateModule {
           );
 
           if (cron !== null) {
-            triggerConfig = { type, cron };
+            trigger = { type, cron };
           }
         }
       }
     } catch {}
 
-    return { triggerConfig };
+    return { trigger };
   };
 
   public decodeWeb3FunctionArgsHex = async (

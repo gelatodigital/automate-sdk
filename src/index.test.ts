@@ -27,7 +27,7 @@ const main = async () => {
     execData: iceCreamInterface.encodeFunctionData("lick", [2]),
     dedicatedMsgSender: true,
     singleExec: true,
-    triggerConfig: {
+    trigger: {
       type: TriggerType.TIME,
       start: (await provider.getBlock("latest")).timestamp + 300,
       interval: 60 * 1000,

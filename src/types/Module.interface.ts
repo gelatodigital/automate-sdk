@@ -53,5 +53,5 @@ export interface Web3FunctionParams {
 }
 
 export interface TriggerParams {
-  triggerConfig: TriggerConfig | null;
+  trigger: TriggerConfig | null;
 }

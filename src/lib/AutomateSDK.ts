@@ -308,7 +308,7 @@ export class AutomateSDK {
       web3FunctionHash: args.web3FunctionHash,
       web3FunctionArgs: args.web3FunctionArgs,
       web3FunctionArgsHex: args.web3FunctionArgsHex,
-      triggerConfig: args.triggerConfig,
+      trigger: args.trigger,
     });
 
     return { ...args, useTreasury: args.useTreasury ?? true, moduleData };
