@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import { ethers } from "ethers";
 import { AutomateSDK } from "./lib";
-import { TriggerType } from "./types/Trigger.interface";
+import { TriggerType } from "./types";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");

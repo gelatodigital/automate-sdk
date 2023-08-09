@@ -7,13 +7,14 @@ import {
   ModuleData,
   ResolverParams,
   TimeParams,
+  TriggerConfig,
   TriggerParams,
+  TriggerType,
   Web3FunctionParams,
   Web3FunctionSchema,
   Web3FunctionUserArgs,
   Web3FunctionUserArgsSchema,
 } from "../types";
-import { TriggerConfig, TriggerType } from "../types/Trigger.interface";
 import { Web3FunctionDownloader } from "./Web3Function/Web3FunctionDownloader";
 
 export class AutomateModule {
