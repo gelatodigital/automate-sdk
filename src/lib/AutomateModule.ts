@@ -6,7 +6,6 @@ import {
   ModuleArgsParams,
   ModuleData,
   ResolverParams,
-  TimeParams,
   TriggerConfig,
   TriggerParams,
   TriggerType,
@@ -27,8 +26,6 @@ export class AutomateModule {
     const {
       resolverAddress,
       resolverData,
-      startTime,
-      interval,
       dedicatedMsgSender,
       singleExec,
       web3FunctionHash,
@@ -40,17 +37,6 @@ export class AutomateModule {
     if (resolverAddress && resolverData) {
       modules.push(Module.RESOLVER);
       args.push(this.encodeResolverArgs(resolverAddress, resolverData));
-    }
-
-    if (interval) {
-      const start = startTime ?? 0;
-      modules.push(Module.TIME);
-      args.push(this.encodeTimeArgs(start, interval));
-    } else {
-      if (singleExec && startTime) {
-        modules.push(Module.TIME);
-        args.push(this.encodeTimeArgs(startTime, 1));
-      }
     }
 
     if (dedicatedMsgSender) {
@@ -96,8 +82,6 @@ export class AutomateModule {
     const moduleArgsDecoded: ModuleArgsParams = {
       resolverAddress: null,
       resolverData: null,
-      startTime: null,
-      interval: null,
       dedicatedMsgSender: false,
       singleExec: false,
       web3FunctionHash: null,
@@ -114,14 +98,6 @@ export class AutomateModule {
 
       moduleArgsDecoded.resolverAddress = resolverAddress;
       moduleArgsDecoded.resolverData = resolverData;
-    }
-
-    if (modules.includes(Module.TIME)) {
-      const indexOfModule = modules.indexOf(Module.TIME);
-      const { startTime, interval } = this.decodeTimeArgs(args[indexOfModule]);
-
-      moduleArgsDecoded.startTime = startTime;
-      moduleArgsDecoded.interval = interval;
     }
 
     if (modules.includes(Module.PROXY)) {
@@ -183,29 +159,6 @@ export class AutomateModule {
     } catch {}
 
     return { resolverAddress, resolverData };
-  };
-
-  public encodeTimeArgs = (startTime: number, interval: number): string => {
-    const encoded = ethers.utils.defaultAbiCoder.encode(
-      ["uint128", "uint128"],
-      [startTime, interval],
-    );
-
-    return encoded;
-  };
-
-  public decodeTimeArgs = (encodedModuleArgs: string): TimeParams => {
-    let startTime: number | null = null;
-    let interval: number | null = null;
-
-    try {
-      [startTime, interval] = ethers.utils.defaultAbiCoder.decode(
-        ["uint128", "uint128"],
-        encodedModuleArgs,
-      );
-    } catch {}
-
-    return { startTime, interval };
   };
 
   public encodeWeb3FunctionArgs = async (

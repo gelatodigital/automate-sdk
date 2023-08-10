@@ -296,13 +296,9 @@ export class AutomateSDK {
   private async _processModules(
     args: CreateTaskOptions,
   ): Promise<CreateTaskOptionsWithModules> {
-    args.startTime = args.startTime ?? 0;
-
     const moduleData: ModuleData = await this._automateModule.encodeModuleArgs({
       resolverAddress: args.resolverAddress,
       resolverData: args.resolverData,
-      startTime: args.startTime,
-      interval: args.interval,
       dedicatedMsgSender: args.dedicatedMsgSender,
       singleExec: args.singleExec,
       web3FunctionHash: args.web3FunctionHash,

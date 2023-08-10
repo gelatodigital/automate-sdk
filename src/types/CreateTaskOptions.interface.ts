@@ -4,8 +4,6 @@ import { Web3FunctionUserArgs } from "./Web3FunctionSchema.interface";
 
 export interface CreateBatchExecTaskOptions {
   name: string;
-  startTime?: number;
-  interval?: number;
   useTreasury?: boolean;
   singleExec?: boolean;
   web3FunctionHash: string;
@@ -22,8 +20,6 @@ export interface CreateTaskOptions {
   resolverAddress?: string;
   resolverData?: string;
   resolverAbi?: string;
-  startTime?: number;
-  interval?: number;
   useTreasury?: boolean;
   dedicatedMsgSender: boolean;
   singleExec?: boolean;
