@@ -41,16 +41,16 @@ export interface AutomateProxyInterface extends utils.Interface {
       | "executeCall"
       | "ops"
       | "owner"
-      | "version"
+      | "version",
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "batchExecuteCall",
-    values: [string[], BytesLike[], BigNumberish[]]
+    values: [string[], BytesLike[], BigNumberish[]],
   ): string;
   encodeFunctionData(
     functionFragment: "executeCall",
-    values: [string, BytesLike, BigNumberish]
+    values: [string, BytesLike, BigNumberish],
   ): string;
   encodeFunctionData(functionFragment: "ops", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -58,11 +58,11 @@ export interface AutomateProxyInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "batchExecuteCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "executeCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "ops", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -98,15 +98,15 @@ export interface AutomateProxy extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -119,14 +119,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     ops(overrides?: CallOverrides): Promise<[string]>;
@@ -140,14 +140,14 @@ export interface AutomateProxy extends BaseContract {
     _targets: string[],
     _datas: BytesLike[],
     _values: BigNumberish[],
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   executeCall(
     _target: string,
     _data: BytesLike,
     _value: BigNumberish,
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
+    overrides?: PayableOverrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   ops(overrides?: CallOverrides): Promise<string>;
@@ -161,14 +161,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     ops(overrides?: CallOverrides): Promise<string>;
@@ -183,13 +183,13 @@ export interface AutomateProxy extends BaseContract {
       target?: string | null,
       data?: null,
       value?: null,
-      returnData?: null
+      returnData?: null,
     ): ExecuteCallEventFilter;
     ExecuteCall(
       target?: string | null,
       data?: null,
       value?: null,
-      returnData?: null
+      returnData?: null,
     ): ExecuteCallEventFilter;
   };
 
@@ -198,14 +198,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<BigNumber>;
 
     ops(overrides?: CallOverrides): Promise<BigNumber>;
@@ -220,14 +220,14 @@ export interface AutomateProxy extends BaseContract {
       _targets: string[],
       _datas: BytesLike[],
       _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     executeCall(
       _target: string,
       _data: BytesLike,
       _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
+      overrides?: PayableOverrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     ops(overrides?: CallOverrides): Promise<PopulatedTransaction>;

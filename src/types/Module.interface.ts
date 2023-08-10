@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
+import { TriggerConfig } from "./Trigger.interface";
 import {
   Web3FunctionSchema,
   Web3FunctionUserArgs,
@@ -11,6 +12,7 @@ export enum Module {
   PROXY,
   SINGLE_EXEC,
   WEB3_FUNCTION,
+  TRIGGER,
 }
 
 export interface ModuleData {
@@ -20,19 +22,14 @@ export interface ModuleData {
 
 export interface ModuleArgsParams
   extends ResolverParams,
-    TimeParams,
     ProxyParams,
     SingleExecParams,
-    Web3FunctionParams {}
+    Web3FunctionParams,
+    TriggerParams {}
 
 export interface ResolverParams {
   resolverAddress: string | null;
   resolverData: string | null;
-}
-
-export interface TimeParams {
-  startTime: number | null;
-  interval: number | null;
 }
 
 export interface ProxyParams {
@@ -47,4 +44,8 @@ export interface Web3FunctionParams {
   web3FunctionArgs: Web3FunctionUserArgs | null;
   web3FunctionArgsHex: string | null;
   web3FunctionSchema?: Web3FunctionSchema;
+}
+
+export interface TriggerParams {
+  trigger: TriggerConfig | null;
 }

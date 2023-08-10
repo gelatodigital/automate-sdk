@@ -31,7 +31,7 @@ const _abi = [
     stateMutability: "pure",
     type: "function",
   },
-];
+] as const;
 
 export class Forwarder__factory {
   static readonly abi = _abi;
@@ -40,7 +40,7 @@ export class Forwarder__factory {
   }
   static connect(
     address: string,
-    signerOrProvider: Signer | Provider
+    signerOrProvider: Signer | Provider,
   ): Forwarder {
     return new Contract(address, _abi, signerOrProvider) as Forwarder;
   }

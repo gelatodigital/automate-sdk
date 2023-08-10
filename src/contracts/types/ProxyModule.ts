@@ -51,89 +51,89 @@ export interface ProxyModuleInterface extends utils.Interface {
       | "preExecCall"
       | "taskCreator"
       | "taskModuleAddresses"
-      | "timedTask"
+      | "timedTask",
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "execAddresses",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onCreateTask",
-    values: [BytesLike, string, string, BytesLike, BytesLike]
+    values: [BytesLike, string, string, BytesLike, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "opsProxyFactory",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "postExecCall",
-    values: [BytesLike, string, string, BytesLike]
+    values: [BytesLike, string, string, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "preCancelTask",
-    values: [BytesLike, string]
+    values: [BytesLike, string],
   ): string;
   encodeFunctionData(
     functionFragment: "preCreateTask",
-    values: [string, string]
+    values: [string, string],
   ): string;
   encodeFunctionData(
     functionFragment: "preExecCall",
-    values: [BytesLike, string, string, BytesLike]
+    values: [BytesLike, string, string, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "taskCreator",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "taskModuleAddresses",
-    values: [BigNumberish]
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: "timedTask",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
 
   decodeFunctionResult(
     functionFragment: "execAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onCreateTask",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "opsProxyFactory",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "postExecCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "preCancelTask",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "preCreateTask",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "preExecCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskModuleAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
 
@@ -150,15 +150,15 @@ export interface ProxyModule extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -169,7 +169,7 @@ export interface ProxyModule extends BaseContract {
   functions: {
     execAddresses(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     fee(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -182,7 +182,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<[string]>;
@@ -192,19 +192,19 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     preCancelTask(
       arg0: BytesLike,
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     preCreateTask(
       _taskCreator: string,
       _execAddress: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, string]>;
 
     preExecCall(
@@ -212,19 +212,19 @@ export interface ProxyModule extends BaseContract {
       _taskCreator: string,
       _execAddress: string,
       _execData: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, string] & { execData: string }>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     timedTask(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
     >;
@@ -242,7 +242,7 @@ export interface ProxyModule extends BaseContract {
     arg2: string,
     arg3: BytesLike,
     arg4: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   opsProxyFactory(overrides?: CallOverrides): Promise<string>;
@@ -252,19 +252,19 @@ export interface ProxyModule extends BaseContract {
     taskCreator: string,
     execAddress: string,
     execData: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   preCancelTask(
     arg0: BytesLike,
     _taskCreator: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   preCreateTask(
     _taskCreator: string,
     _execAddress: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[string, string]>;
 
   preExecCall(
@@ -272,19 +272,19 @@ export interface ProxyModule extends BaseContract {
     _taskCreator: string,
     _execAddress: string,
     _execData: BytesLike,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<[string, string] & { execData: string }>;
 
   taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   taskModuleAddresses(
     arg0: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   timedTask(
     arg0: BytesLike,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<
     [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
   >;
@@ -302,7 +302,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<string>;
@@ -312,19 +312,19 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     preCancelTask(
       arg0: BytesLike,
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     preCreateTask(
       _taskCreator: string,
       _execAddress: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, string]>;
 
     preExecCall(
@@ -332,19 +332,19 @@ export interface ProxyModule extends BaseContract {
       _taskCreator: string,
       _execAddress: string,
       _execData: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string, string] & { execData: string }>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     timedTask(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
     >;
@@ -355,7 +355,7 @@ export interface ProxyModule extends BaseContract {
   estimateGas: {
     execAddresses(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     fee(overrides?: CallOverrides): Promise<BigNumber>;
@@ -368,7 +368,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<BigNumber>;
@@ -378,19 +378,19 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     preCancelTask(
       arg0: BytesLike,
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     preCreateTask(
       _taskCreator: string,
       _execAddress: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     preExecCall(
@@ -398,14 +398,14 @@ export interface ProxyModule extends BaseContract {
       _taskCreator: string,
       _execAddress: string,
       _execData: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     timedTask(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
@@ -414,7 +414,7 @@ export interface ProxyModule extends BaseContract {
   populateTransaction: {
     execAddresses(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     fee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -427,7 +427,7 @@ export interface ProxyModule extends BaseContract {
       arg2: string,
       arg3: BytesLike,
       arg4: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     opsProxyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -437,19 +437,19 @@ export interface ProxyModule extends BaseContract {
       taskCreator: string,
       execAddress: string,
       execData: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     preCancelTask(
       arg0: BytesLike,
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     preCreateTask(
       _taskCreator: string,
       _execAddress: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     preExecCall(
@@ -457,22 +457,22 @@ export interface ProxyModule extends BaseContract {
       _taskCreator: string,
       _execAddress: string,
       _execData: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     taskCreator(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     timedTask(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
   };
 }

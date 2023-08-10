@@ -11,7 +11,9 @@ Automate your smart contracts using Automate SDK
 ```bash
 yarn add @gelatonetwork/automate-sdk
 ```
+
 or
+
 ```bash
 npm install @gelatonetwork/automate-sdk
 ```
@@ -27,12 +29,12 @@ import { AutomateSDK } from "@gelatonetwork/automate-sdk";
 2. Check if Automate is deployed on your network:
 
 ```typescript
-  import { isAutomateSupported } from "@gelatonetwork/automate-sdk";
+import { isAutomateSupported } from "@gelatonetwork/automate-sdk";
 
-  if (!isAutomateSupported(chainId)) {
-    console.log(`Automate network not supported (${chainId})`);
-    return;
-  }
+if (!isAutomateSupported(chainId)) {
+  console.log(`Automate network not supported (${chainId})`);
+  return;
+}
 ```
 
 3. Instantiate Automate using your signer:
@@ -45,41 +47,54 @@ const automate = new AutomateSDK(chainId, signer);
 
 ```typescript
 interface CreateTaskOptions {
-  name: string;             // your task name
+  name: string; // your task name
 
   // Function to execute
-  execAddress: string;      // address of your target smart contract
-  execSelector: string;     // function selector to execute on your target smart contract
-  execAbi?: string;         // ABI of your target smart contract
-  
+  execAddress: string; // address of your target smart contract
+  execSelector: string; // function selector to execute on your target smart contract
+  execAbi?: string; // ABI of your target smart contract
+
   // Proxy caller
-  dedicatedMsgSender: boolean;     // task will be called via a dedicated msg.sender which you can whitelist (recommended: true)
+  dedicatedMsgSender: boolean; // task will be called via a dedicated msg.sender which you can whitelist (recommended: true)
 
   // Optional: Pre-defined / static target smart contract inputs
-  execData?: string;        // exec call data 
-  
+  execData?: string; // exec call data
+
   // Optional: Dynamic target smart contract inputs (using a resolver)
   resolverAddress?: string; // resolver contract address
-  resolverData?: string;    // resolver call data (encoded data with function selector)
-  resolverAbi?: string;     // your resolver smart contract ABI
-
-  // Optional: Time based task params
-  interval?: number;        // execution interval in seconds
-  startTime?: number;       // start timestamp in seconds or 0 to start immediately (default: 0)
+  resolverData?: string; // resolver call data (encoded data with function selector)
+  resolverAbi?: string; // your resolver smart contract ABI
 
   // Optional: Single execution task
-  singleExec?: boolean;     // task cancels itself after 1 execution if true.
+  singleExec?: boolean; // task cancels itself after 1 execution if true.
 
   // Web3 function params
-  web3FunctionHash?: string;    // ipfs hash of your web3 function
-  web3FunctionArgs?: 
-  {[key: string]: unknown}; // web3 function arguments object
+  web3FunctionHash?: string; // ipfs hash of your web3 function
+  web3FunctionArgs?: { [key: string]: unknown }; // web3 function arguments object
 
   // Optional: Payment params
-  useTreasury?: boolean;    // use false if your task is self-paying (default: true)
+  useTreasury?: boolean; // use false if your task is self-paying (default: true)
+
+  // Optional: Trigger params, 60s time interval trigger as default if undefined
+  trigger?:
+    | {
+        type: TriggerType.TIME; // time interval trigger
+        interval: number; // task interval in ms
+        start?: number; // task start timestamp, task will start immediately if undefined or 0
+      }
+    | {
+        type: TriggerType.CRON; // cron trigger
+        cron: string; // cron expression
+      };
 }
 
-const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
+const params: CreateTaskOptions = {
+  name,
+  execAddress,
+  execSelector,
+  interval,
+  dedicatedMsgSender,
+};
 const { taskId, tx }: TaskTransaction = await automate.createTask(params);
 await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
@@ -88,10 +103,10 @@ console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
 5. Retrieve all your tasks:
 
 ```typescript
-  const activeTasks = await automate.getActiveTasks();
-  activeTasks.forEach((task: Task) => {
-    console.log(`- ${task.name} (${task.taskId})`);
-  });
+const activeTasks = await automate.getActiveTasks();
+activeTasks.forEach((task: Task) => {
+  console.log(`- ${task.name} (${task.taskId})`);
+});
 ```
 
 6. Rename a task:
@@ -113,7 +128,13 @@ console.log(`Task canceled, taskId: ${taskId} (tx hash: ${tx.hash})`);
 If you need to override gas settings, you can pass an additional `Overrides` object to `createTask` & `cancelTask` methods:
 
 ```typescript
-const params: CreateTaskOptions = { name, execAddress, execSelector, interval, dedicatedMsgSender };
+const params: CreateTaskOptions = {
+  name,
+  execAddress,
+  execSelector,
+  interval,
+  dedicatedMsgSender,
+};
 const overrides: Overrides = { gasLimit: 2000000 };
 const tx: TaskTransaction = await automate.createTask(params, overrides);
 ```
@@ -130,7 +151,6 @@ To fetch your dedicated `msg.sender`:
 const { address } = await automate.getDedicatedMsgSender();
 console.log("Dedicated msg.sender: ", address);
 ```
-
 
 ## Examples
 

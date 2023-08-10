@@ -66,16 +66,16 @@ export interface AutomateInterface extends utils.Interface {
       | "taskModuleAddresses"
       | "taskTreasury"
       | "timedTask"
-      | "version"
+      | "version",
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "cancelTask",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "createTask",
-    values: [string, BytesLike, LibDataTypes.ModuleDataStruct, string]
+    values: [string, BytesLike, LibDataTypes.ModuleDataStruct, string],
   ): string;
   encodeFunctionData(
     functionFragment: "exec",
@@ -87,43 +87,43 @@ export interface AutomateInterface extends utils.Interface {
       BigNumberish,
       string,
       boolean,
-      boolean
-    ]
+      boolean,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: "execAddresses",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(functionFragment: "gelato", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getFeeDetails",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "getTaskIdsByUser",
-    values: [string]
+    values: [string],
   ): string;
   encodeFunctionData(
     functionFragment: "setModule",
-    values: [BigNumberish[], string[]]
+    values: [BigNumberish[], string[]],
   ): string;
   encodeFunctionData(
     functionFragment: "taskCreator",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "taskModuleAddresses",
-    values: [BigNumberish]
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: "taskTreasury",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "timedTask",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
@@ -132,31 +132,31 @@ export interface AutomateInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "exec", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "execAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gelato", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getFeeDetails",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTaskIdsByUser",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "setModule", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskModuleAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskTreasury",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
@@ -174,15 +174,15 @@ export interface Automate extends BaseContract {
   queryFilter<TEvent extends TypedEvent>(
     event: TypedEventFilter<TEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TEvent>>;
 
   listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>
+    eventFilter?: TypedEventFilter<TEvent>,
   ): Array<TypedListener<TEvent>>;
   listeners(eventName?: string): Array<Listener>;
   removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>
+    eventFilter: TypedEventFilter<TEvent>,
   ): this;
   removeAllListeners(eventName?: string): this;
   off: OnEvent<this>;
@@ -193,7 +193,7 @@ export interface Automate extends BaseContract {
   functions: {
     cancelTask(
       _taskId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     createTask(
@@ -201,7 +201,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     exec(
@@ -213,12 +213,12 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     execAddresses(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     fee(overrides?: CallOverrides): Promise<[BigNumber]>;
@@ -231,27 +231,27 @@ export interface Automate extends BaseContract {
 
     getTaskIdsByUser(
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string[]]>;
 
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<ContractTransaction>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<[string]>;
 
     taskTreasury(overrides?: CallOverrides): Promise<[string]>;
 
     timedTask(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
     >;
@@ -261,7 +261,7 @@ export interface Automate extends BaseContract {
 
   cancelTask(
     _taskId: BytesLike,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   createTask(
@@ -269,7 +269,7 @@ export interface Automate extends BaseContract {
     _execDataOrSelector: BytesLike,
     _moduleData: LibDataTypes.ModuleDataStruct,
     _feeToken: string,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   exec(
@@ -281,7 +281,7 @@ export interface Automate extends BaseContract {
     _feeToken: string,
     _useTaskTreasuryFunds: boolean,
     _revertOnFailure: boolean,
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -296,27 +296,27 @@ export interface Automate extends BaseContract {
 
   getTaskIdsByUser(
     _taskCreator: string,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string[]>;
 
   setModule(
     _modules: BigNumberish[],
     _moduleAddresses: string[],
-    overrides?: Overrides & { from?: string | Promise<string> }
+    overrides?: Overrides & { from?: string },
   ): Promise<ContractTransaction>;
 
   taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
   taskModuleAddresses(
     arg0: BigNumberish,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<string>;
 
   taskTreasury(overrides?: CallOverrides): Promise<string>;
 
   timedTask(
     arg0: BytesLike,
-    overrides?: CallOverrides
+    overrides?: CallOverrides,
   ): Promise<
     [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
   >;
@@ -331,7 +331,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     exec(
@@ -343,7 +343,7 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
@@ -358,27 +358,27 @@ export interface Automate extends BaseContract {
 
     getTaskIdsByUser(
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string[]>;
 
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<void>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<string>;
 
     taskTreasury(overrides?: CallOverrides): Promise<string>;
 
     timedTask(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<
       [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
     >;
@@ -391,7 +391,7 @@ export interface Automate extends BaseContract {
   estimateGas: {
     cancelTask(
       _taskId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     createTask(
@@ -399,7 +399,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     exec(
@@ -411,12 +411,12 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     execAddresses(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     fee(overrides?: CallOverrides): Promise<BigNumber>;
@@ -429,20 +429,20 @@ export interface Automate extends BaseContract {
 
     getTaskIdsByUser(
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<BigNumber>;
 
     taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<BigNumber>;
 
     taskTreasury(overrides?: CallOverrides): Promise<BigNumber>;
@@ -455,7 +455,7 @@ export interface Automate extends BaseContract {
   populateTransaction: {
     cancelTask(
       _taskId: BytesLike,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     createTask(
@@ -463,7 +463,7 @@ export interface Automate extends BaseContract {
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _feeToken: string,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     exec(
@@ -475,12 +475,12 @@ export interface Automate extends BaseContract {
       _feeToken: string,
       _useTaskTreasuryFunds: boolean,
       _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     execAddresses(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     fee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
@@ -493,30 +493,30 @@ export interface Automate extends BaseContract {
 
     getTaskIdsByUser(
       _taskCreator: string,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     setModule(
       _modules: BigNumberish[],
       _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string | Promise<string> }
+      overrides?: Overrides & { from?: string },
     ): Promise<PopulatedTransaction>;
 
     taskCreator(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     taskModuleAddresses(
       arg0: BigNumberish,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     taskTreasury(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     timedTask(
       arg0: BytesLike,
-      overrides?: CallOverrides
+      overrides?: CallOverrides,
     ): Promise<PopulatedTransaction>;
 
     version(overrides?: CallOverrides): Promise<PopulatedTransaction>;

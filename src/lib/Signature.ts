@@ -56,7 +56,7 @@ export class Signature {
       const signature = await this._signer.signMessage(message);
 
       const authToken = Buffer.from(
-        JSON.stringify({ message, signature })
+        JSON.stringify({ message, signature }),
       ).toString("base64");
 
       this._token = authToken;
