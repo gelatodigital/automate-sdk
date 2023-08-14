@@ -17,7 +17,7 @@ export const CHAIN_ID = {
   BASE_GOERLI: 84531,
   BSC: 56,
   GNOSIS: 100,
-  MATIC: 137,
+  POLYGON: 137,
   FANTOM: 250,
   MOONBEAM: 1284,
   MOONRIVER: 1285,
@@ -46,7 +46,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   [CHAIN_ID.BASE_GOERLI]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
-  [CHAIN_ID.MATIC]: {
+  [CHAIN_ID.POLYGON]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.MUMBAI]: {
