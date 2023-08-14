@@ -26,6 +26,7 @@ export const CHAIN_ID = {
   MUMBAI: 80001,
   ZKSYNC: 324,
   LINEA: 59144,
+  BASE: 8453,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -57,6 +58,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.AVALANCHE]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.BASE]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.BSC]: {
