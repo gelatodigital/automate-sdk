@@ -462,11 +462,7 @@ export class AutomateSDK {
       headers["Authorization"] = `Bearer ${authToken}`;
     }
     try {
-      const response = await this._taskApi.post(
-        `${AUTOMATE_TASKS_API}${path}`,
-        data,
-        { headers },
-      );
+      const response = await this._taskApi.post(`${path}`, data, { headers });
       return response.data as Response;
     } catch (err) {
       const errMsg = errorMessage(err);
