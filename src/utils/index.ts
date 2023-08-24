@@ -5,6 +5,13 @@ export function isAutomateSupported(chainId: number): boolean {
   return Boolean(GELATO_ADDRESSES[chainId]);
 }
 
+export function isAutomateDevSupported(chainId: number): boolean {
+  return (
+    isAutomateSupported(chainId) &&
+    Boolean(GELATO_ADDRESSES[chainId].automateDev)
+  );
+}
+
 export function errorMessage(err: Error | AxiosError) {
   let errMsg = `${err.message} `;
   if (axios.isAxiosError(err)) {

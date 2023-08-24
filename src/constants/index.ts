@@ -51,6 +51,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.MUMBAI]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automateDev: "0xC97aBa1B6cf4d8aCa19dFba68e99befaDA9aeFE3",
   },
   [CHAIN_ID.FANTOM]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
