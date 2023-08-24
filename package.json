@@ -1,6 +1,6 @@
 {
   "name": "@gelatonetwork/automate-sdk",
-  "version": "2.17.0-beta",
+  "version": "2.17.1-beta",
   "description": "SDK to create Automate tasks",
   "url": "https://github.com/gelatodigital/automate-sdk",
   "main": "dist/index.js",
