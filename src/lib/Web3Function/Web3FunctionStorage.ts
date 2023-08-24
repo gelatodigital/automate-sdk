@@ -1,20 +1,29 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { Signature } from "../Signature";
-import { AUTOMATE_USER_API } from "../../constants";
-import { ChainId, Storage } from "../../types";
+import { AUTOMATE_USER_API, AUTOMATE_USER_STAGING_API } from "../../constants";
+import { ChainId, Config, Storage } from "../../types";
 import { errorMessage } from "../../utils";
+import { Signature } from "../Signature";
 
 export class Web3FunctionStorage {
   private readonly _signer: Signer;
   private readonly _userApi: Axios;
   private _signature: Signature;
 
-  constructor(signer: Signer, signature: Signature) {
+  constructor(signer: Signer, signature: Signature, config?: Partial<Config>) {
     this._signer = signer;
+
+    let userApiUrl: string = AUTOMATE_USER_API;
+    if (config) {
+      userApiUrl =
+        config.userApi ?? config.isDevelopment
+          ? AUTOMATE_USER_STAGING_API
+          : AUTOMATE_USER_API;
+    }
     this._userApi = axios.create({
-      baseURL: AUTOMATE_USER_API,
+      baseURL: userApiUrl,
     });
+
     this._signature = signature;
   }
 

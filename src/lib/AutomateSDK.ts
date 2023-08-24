@@ -12,6 +12,7 @@ import {
 } from "ethers";
 import {
   AUTOMATE_TASKS_API,
+  AUTOMATE_TASKS_STAGING_API,
   ETH,
   GELATO_ADDRESSES,
   ZERO_ADD,
@@ -83,7 +84,15 @@ export class AutomateSDK {
     this._chainId = chainId;
     this._signer = signer;
     this._automate = Automate__factory.connect(automateAddress, this._signer);
-    this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
+
+    let taskApiUrl: string = AUTOMATE_TASKS_API;
+    if (config) {
+      taskApiUrl =
+        config.taskApi ?? config.isDevelopment
+          ? AUTOMATE_TASKS_STAGING_API
+          : AUTOMATE_TASKS_API;
+    }
+    this._taskApi = axios.create({ baseURL: taskApiUrl });
   }
 
   public async getActiveTasks(creatorAddress?: string): Promise<Task[]> {

@@ -1,14 +1,22 @@
 import axios, { Axios } from "axios";
-import { AUTOMATE_USER_API } from "../../constants";
-import { Web3FunctionSchema } from "../../types";
+import { AUTOMATE_USER_API, AUTOMATE_USER_STAGING_API } from "../../constants";
+import { Config, Web3FunctionSchema } from "../../types";
 import { errorMessage } from "../../utils";
 
 export class Web3FunctionDownloader {
   private readonly _userApi: Axios;
 
-  constructor() {
+  constructor(config?: Partial<Config>) {
+    let userApiUrl: string = AUTOMATE_USER_API;
+    if (config) {
+      userApiUrl =
+        config.userApi ?? config.isDevelopment
+          ? AUTOMATE_USER_STAGING_API
+          : AUTOMATE_USER_API;
+    }
+
     this._userApi = axios.create({
-      baseURL: AUTOMATE_USER_API,
+      baseURL: userApiUrl,
     });
   }
 
