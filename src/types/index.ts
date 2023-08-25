@@ -1,4 +1,5 @@
 export * from "./ChainId.type";
+export * from "./Config.type";
 export * from "./CreateTaskOptions.interface";
 export * from "./GelatoAddressBook.interface";
 export * from "./Module.interface";

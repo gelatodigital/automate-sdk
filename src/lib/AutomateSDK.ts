@@ -12,6 +12,7 @@ import {
 } from "ethers";
 import {
   AUTOMATE_TASKS_API,
+  AUTOMATE_TASKS_STAGING_API,
   ETH,
   GELATO_ADDRESSES,
   ZERO_ADD,
@@ -26,6 +27,7 @@ import {
 } from "../contracts/types";
 import {
   CancelTaskPopulatedTransaction,
+  Config,
   CreateBatchExecTaskOptions,
   CreateTaskOptions,
   CreateTaskOptionsWithModules,
@@ -35,7 +37,11 @@ import {
   TaskTransaction,
 } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import { errorMessage, isAutomateSupported } from "../utils";
+import {
+  errorMessage,
+  isAutomateDevSupported,
+  isAutomateSupported,
+} from "../utils";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
 
@@ -48,10 +54,27 @@ export class AutomateSDK {
   private readonly _taskApi: Axios;
   private readonly _signature: Signature;
 
-  constructor(chainId: number, signer: Signer, signatureMessage?: string) {
-    if (!isAutomateSupported(chainId)) {
-      throw new Error(`Automate is not available on chainId:${chainId}`);
+  constructor(
+    chainId: number,
+    signer: Signer,
+    signatureMessage?: string,
+    config?: Partial<Config>,
+  ) {
+    let automateAddress: string;
+    if (config && config.isDevelopment) {
+      if (!isAutomateDevSupported(chainId)) {
+        throw new Error(`AutomateDev is not available on chainId:${chainId}`);
+      }
+
+      automateAddress = GELATO_ADDRESSES[chainId].automateDev!;
+    } else {
+      if (!isAutomateSupported(chainId)) {
+        throw new Error(`Automate is not available on chainId:${chainId}`);
+      }
+
+      automateAddress = GELATO_ADDRESSES[chainId].automate;
     }
+
     if (!Signer.isSigner(signer)) {
       throw new Error(`Invalid Automate signer`);
     }
@@ -60,11 +83,16 @@ export class AutomateSDK {
     this._signature = new Signature(chainId, signer, signatureMessage);
     this._chainId = chainId;
     this._signer = signer;
-    this._automate = Automate__factory.connect(
-      GELATO_ADDRESSES[this._chainId].automate,
-      this._signer,
-    );
-    this._taskApi = axios.create({ baseURL: AUTOMATE_TASKS_API });
+    this._automate = Automate__factory.connect(automateAddress, this._signer);
+
+    let taskApiUrl: string = AUTOMATE_TASKS_API;
+    if (config) {
+      taskApiUrl =
+        config.taskApi ?? config.isDevelopment
+          ? AUTOMATE_TASKS_STAGING_API
+          : AUTOMATE_TASKS_API;
+    }
+    this._taskApi = axios.create({ baseURL: taskApiUrl });
   }
 
   public async getActiveTasks(creatorAddress?: string): Promise<Task[]> {
@@ -434,11 +462,7 @@ export class AutomateSDK {
       headers["Authorization"] = `Bearer ${authToken}`;
     }
     try {
-      const response = await this._taskApi.post(
-        `${AUTOMATE_TASKS_API}${path}`,
-        data,
-        { headers },
-      );
+      const response = await this._taskApi.post(`${path}`, data, { headers });
       return response.data as Response;
     } catch (err) {
       const errMsg = errorMessage(err);

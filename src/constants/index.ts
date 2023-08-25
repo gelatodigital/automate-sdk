@@ -3,6 +3,10 @@ import { GelatoAddressBook } from "../types";
 
 export const AUTOMATE_USER_API = "https://api.gelato.digital/automate/users";
 export const AUTOMATE_TASKS_API = "https://api.gelato.digital/automate/tasks";
+export const AUTOMATE_USER_STAGING_API =
+  "https://api.staging.gelato.digital/automate/users";
+export const AUTOMATE_TASKS_STAGING_API =
+  "https://api.staging.gelato.digital/automate/tasks";
 
 export const ETH = "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE";
 export const ZERO_ADD = "0x0000000000000000000000000000000000000000";
@@ -51,6 +55,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.MUMBAI]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automateDev: "0xC97aBa1B6cf4d8aCa19dFba68e99befaDA9aeFE3",
   },
   [CHAIN_ID.FANTOM]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",

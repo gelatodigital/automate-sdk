@@ -1,9 +1,9 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { Signature } from "../Signature";
-import { AUTOMATE_USER_API } from "../../constants";
-import { Secrets } from "../../types";
+import { AUTOMATE_USER_API, AUTOMATE_USER_STAGING_API } from "../../constants";
+import { Config, Secrets } from "../../types";
 import { errorMessage } from "../../utils";
+import { Signature } from "../Signature";
 
 export class Web3FunctionSecrets {
   private readonly _signer: Signer;
@@ -11,11 +11,20 @@ export class Web3FunctionSecrets {
   private _signature: Signature;
   private _chainId?: number;
 
-  constructor(signer: Signer, signature: Signature) {
+  constructor(signer: Signer, signature: Signature, config?: Partial<Config>) {
     this._signer = signer;
+
+    let userApiUrl: string = AUTOMATE_USER_API;
+    if (config) {
+      userApiUrl =
+        config.userApi ?? config.isDevelopment
+          ? AUTOMATE_USER_STAGING_API
+          : AUTOMATE_USER_API;
+    }
     this._userApi = axios.create({
-      baseURL: AUTOMATE_USER_API,
+      baseURL: userApiUrl,
     });
+
     this._signature = signature;
   }
 
