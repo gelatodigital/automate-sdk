@@ -254,7 +254,7 @@ export class AutomateModule {
         ["uint128", "bytes"],
         [Number(TriggerType.TIME), triggerBytes],
       );
-    } else {
+    } else if (trigger.type === TriggerType.CRON) {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["string"],
         [trigger.cron],
@@ -263,6 +263,16 @@ export class AutomateModule {
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
         ["uint8", "bytes"],
         [Number(TriggerType.CRON), triggerBytes],
+      );
+    } else {
+      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes"],
+        [trigger.filter.address, trigger.filter.topic],
+      );
+
+      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+        ["uint8", "bytes"],
+        [Number(TriggerType.EVENT), triggerBytes],
       );
     }
 
@@ -306,6 +316,15 @@ export class AutomateModule {
 
           if (cron !== null) {
             trigger = { type, cron };
+          }
+        } else if (type === TriggerType.EVENT) {
+          const [address, topic] = ethers.utils.defaultAbiCoder.decode(
+            ["address", "bytes"],
+            encodedTriggerConfig,
+          );
+
+          if (address !== null && topic !== null) {
+            trigger = { type, filter: { address, topic } };
           }
         }
       }
