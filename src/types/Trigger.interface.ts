@@ -17,7 +17,9 @@ export type CronTrigger = {
 
 export type EventTrigger = {
   type: TriggerType.EVENT;
-  filter: { address: string; topic: string };
+  filter: { address: string; topics: EventTriggerTopics };
 };
+
+export type EventTriggerTopics = Array<string | Array<string> | null>;
 
 export type TriggerConfig = TimeTrigger | CronTrigger | EventTrigger;
