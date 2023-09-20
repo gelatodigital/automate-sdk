@@ -2,7 +2,6 @@
 /* eslint-disable no-empty */
 import { BigNumber, ethers } from "ethers";
 import {
-  EventTriggerTopics,
   Module,
   ModuleArgsParams,
   ModuleData,
@@ -266,13 +265,15 @@ export class AutomateModule {
         [Number(TriggerType.CRON), triggerBytes],
       );
     } else {
-      const { topics, topicPositions } = this.deconstructTopics(
-        trigger.filter.topics,
-      );
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
-        ["address", "bytes32[]", "uint256[]"],
-        [trigger.filter.address, topics, topicPositions],
+        ["address", "bytes32[][]", "uint256"],
+        [
+          trigger.filter.address,
+          trigger.filter.topicSets,
+          trigger.blockConfirmations,
+        ],
       );
+
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
         ["uint8", "bytes"],
         [Number(TriggerType.EVENT), triggerBytes],
@@ -321,23 +322,22 @@ export class AutomateModule {
             trigger = { type, cron };
           }
         } else if (type === TriggerType.EVENT) {
-          const [address, topicsFlattened, topicPositions] =
+          const [address, topicSets, blockConfirmations] =
             ethers.utils.defaultAbiCoder.decode(
-              ["address", "bytes32[]", "uint256[]"],
+              ["address", "bytes32[][]", "uint256"],
               encodedTriggerConfig,
             );
 
           if (
             address !== null &&
-            topicsFlattened !== null &&
-            topicPositions !== null
+            topicSets !== null &&
+            blockConfirmations !== null
           ) {
-            const topics = this.constructTopics(
-              topicsFlattened,
-              topicPositions,
-            );
-
-            trigger = { type, filter: { address, topics } };
+            trigger = {
+              type,
+              filter: { address, topicSets },
+              blockConfirmations: blockConfirmations.toNumber(),
+            };
           }
         }
       }
@@ -404,50 +404,6 @@ export class AutomateModule {
     } catch (err) {
       return null;
     }
-  };
-
-  public constructTopics = (topics: string[], topicPositions: number[]) => {
-    const constructedTopics: EventTriggerTopics = [];
-
-    for (const [index, position] of topicPositions.entries()) {
-      const existingTopic = constructedTopics[position];
-      const newTopic = topics[index];
-
-      if (!existingTopic) {
-        constructedTopics[position] = newTopic;
-      } else if (Array.isArray(existingTopic)) {
-        existingTopic.push(newTopic);
-      } else {
-        constructedTopics[position] = [existingTopic, newTopic];
-      }
-    }
-
-    return constructedTopics;
-  };
-
-  public deconstructTopics = (
-    constructedTopics: EventTriggerTopics,
-  ): { topics: string[]; topicPositions: number[] } => {
-    const topics: string[] = [];
-    const topicPositions: number[] = [];
-
-    for (const [index, topic] of constructedTopics.entries()) {
-      if (typeof topic === "string") {
-        topics.push(topic);
-        topicPositions.push(index);
-      } else if (Array.isArray(topic)) {
-        topics.push(...topic);
-        for (let i = 0; i < topic.length; i++) {
-          topicPositions.push(index);
-        }
-      }
-      // If the topic is null, we don't record anything in topics and topicPositions
-    }
-
-    return {
-      topics,
-      topicPositions,
-    };
   };
 
   public _hexToBuffer = (hexString: string): Uint8Array => {
