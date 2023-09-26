@@ -406,20 +406,6 @@ export class AutomateModule {
     }
   };
 
-  public _hexToBuffer = (hexString: string): Uint8Array => {
-    const noPrefix = hexString.slice(2);
-    const buffer = Uint8Array.from(Buffer.from(noPrefix, "hex"));
-    return buffer;
-  };
-
-  public _bufferToHex = (buffer: Uint8Array): string => {
-    const hex = [...new Uint8Array(buffer)]
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    const hexPrefixed = "0x" + hex;
-    return hexPrefixed;
-  };
-
   private getAbiTypesAndKeysFromSchema = async (
     web3FunctionHash?: string,
     _userArgsSchema?: Web3FunctionUserArgsSchema,

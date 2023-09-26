@@ -17,7 +17,10 @@ export type CronTrigger = {
 
 export type EventTrigger = {
   type: TriggerType.EVENT;
-  filter: { address: string; topicSets: Array<Array<string | null>> };
+  filter: {
+    address: string;
+    topicSets: Array<string | null | Array<string | null>>;
+  };
   blockConfirmations: number;
 };
 
