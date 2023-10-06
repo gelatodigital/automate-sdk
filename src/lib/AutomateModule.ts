@@ -254,7 +254,7 @@ export class AutomateModule {
         ["uint128", "bytes"],
         [Number(TriggerType.TIME), triggerBytes],
       );
-    } else {
+    } else if (trigger.type === TriggerType.CRON) {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["string"],
         [trigger.cron],
@@ -263,6 +263,20 @@ export class AutomateModule {
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
         ["uint8", "bytes"],
         [Number(TriggerType.CRON), triggerBytes],
+      );
+    } else {
+      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+        ["address", "bytes32[][]", "uint256"],
+        [
+          trigger.filter.address,
+          trigger.filter.topicSets,
+          trigger.blockConfirmations,
+        ],
+      );
+
+      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+        ["uint8", "bytes"],
+        [Number(TriggerType.EVENT), triggerBytes],
       );
     }
 
@@ -306,6 +320,24 @@ export class AutomateModule {
 
           if (cron !== null) {
             trigger = { type, cron };
+          }
+        } else if (type === TriggerType.EVENT) {
+          const [address, topicSets, blockConfirmations] =
+            ethers.utils.defaultAbiCoder.decode(
+              ["address", "bytes32[][]", "uint256"],
+              encodedTriggerConfig,
+            );
+
+          if (
+            address !== null &&
+            topicSets !== null &&
+            blockConfirmations !== null
+          ) {
+            trigger = {
+              type,
+              filter: { address, topicSets },
+              blockConfirmations: blockConfirmations.toNumber(),
+            };
           }
         }
       }
@@ -372,20 +404,6 @@ export class AutomateModule {
     } catch (err) {
       return null;
     }
-  };
-
-  public _hexToBuffer = (hexString: string): Uint8Array => {
-    const noPrefix = hexString.slice(2);
-    const buffer = Uint8Array.from(Buffer.from(noPrefix, "hex"));
-    return buffer;
-  };
-
-  public _bufferToHex = (buffer: Uint8Array): string => {
-    const hex = [...new Uint8Array(buffer)]
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    const hexPrefixed = "0x" + hex;
-    return hexPrefixed;
   };
 
   private getAbiTypesAndKeysFromSchema = async (

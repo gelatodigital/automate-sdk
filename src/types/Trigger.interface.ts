@@ -1,6 +1,7 @@
 export enum TriggerType {
   TIME,
   CRON,
+  EVENT,
 }
 
 export type TimeTrigger = {
@@ -14,4 +15,10 @@ export type CronTrigger = {
   cron: string;
 };
 
-export type TriggerConfig = TimeTrigger | CronTrigger;
+export type EventTrigger = {
+  type: TriggerType.EVENT;
+  filter: { address: string; topicSets: Array<Array<string | null>> };
+  blockConfirmations: number;
+};
+
+export type TriggerConfig = TimeTrigger | CronTrigger | EventTrigger;
