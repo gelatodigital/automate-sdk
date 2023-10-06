@@ -1,5 +1,5 @@
 import axios, { Axios } from "axios";
-import { AUTOMATE_USER_API, AUTOMATE_USER_STAGING_API } from "../../constants";
+import { AUTOMATE_USER_API, AUTOMATE_USER_DEV_API } from "../../constants";
 import { Config, Web3FunctionSchema } from "../../types";
 import { errorMessage } from "../../utils";
 
@@ -11,7 +11,7 @@ export class Web3FunctionDownloader {
     if (config) {
       userApiUrl =
         config.userApi ?? config.isDevelopment
-          ? AUTOMATE_USER_STAGING_API
+          ? AUTOMATE_USER_DEV_API
           : AUTOMATE_USER_API;
     }
 
@@ -22,9 +22,7 @@ export class Web3FunctionDownloader {
 
   public async fetchSchema(cid: string): Promise<Web3FunctionSchema> {
     try {
-      const res = await this._userApi.get(
-        `${AUTOMATE_USER_API}/users/web3-function/${cid}/schema`,
-      );
+      const res = await this._userApi.get(`/users/web3-function/${cid}/schema`);
       return res.data;
     } catch (err) {
       const errMsg = errorMessage(err);

@@ -12,7 +12,7 @@ import {
 } from "ethers";
 import {
   AUTOMATE_TASKS_API,
-  AUTOMATE_TASKS_STAGING_API,
+  AUTOMATE_TASKS_DEV_API,
   ETH,
   GELATO_ADDRESSES,
   ZERO_ADD,
@@ -89,7 +89,7 @@ export class AutomateSDK {
     if (config) {
       taskApiUrl =
         config.taskApi ?? config.isDevelopment
-          ? AUTOMATE_TASKS_STAGING_API
+          ? AUTOMATE_TASKS_DEV_API
           : AUTOMATE_TASKS_API;
     }
     this._taskApi = axios.create({ baseURL: taskApiUrl });
