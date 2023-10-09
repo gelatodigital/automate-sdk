@@ -1,6 +1,6 @@
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { AUTOMATE_USER_API, AUTOMATE_USER_STAGING_API } from "../../constants";
+import { AUTOMATE_USER_API, AUTOMATE_USER_DEV_API } from "../../constants";
 import { ChainId, Config, Storage } from "../../types";
 import { errorMessage } from "../../utils";
 import { Signature } from "../Signature";
@@ -17,7 +17,7 @@ export class Web3FunctionStorage {
     if (config) {
       userApiUrl =
         config.userApi ?? config.isDevelopment
-          ? AUTOMATE_USER_STAGING_API
+          ? AUTOMATE_USER_DEV_API
           : AUTOMATE_USER_API;
     }
     this._userApi = axios.create({

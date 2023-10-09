@@ -12,7 +12,7 @@ import {
 } from "ethers";
 import {
   AUTOMATE_TASKS_API,
-  AUTOMATE_TASKS_STAGING_API,
+  AUTOMATE_TASKS_DEV_API,
   ETH,
   GELATO_ADDRESSES,
   ZERO_ADD,
@@ -89,7 +89,7 @@ export class AutomateSDK {
     if (config) {
       taskApiUrl =
         config.taskApi ?? config.isDevelopment
-          ? AUTOMATE_TASKS_STAGING_API
+          ? AUTOMATE_TASKS_DEV_API
           : AUTOMATE_TASKS_API;
     }
     this._taskApi = axios.create({ baseURL: taskApiUrl });
@@ -127,9 +127,8 @@ export class AutomateSDK {
     isDeployed: boolean;
   }> {
     const opsProxyFactory = await this._getOpsProxyFactory();
-    const [address, isDeployed] = await opsProxyFactory.getProxyOf(
-      creatorAddress,
-    );
+    const [address, isDeployed] =
+      await opsProxyFactory.getProxyOf(creatorAddress);
 
     return { address, isDeployed };
   }
@@ -240,9 +239,8 @@ export class AutomateSDK {
     creatorAddress?: string,
   ): Promise<CreateTaskOptions> {
     creatorAddress = creatorAddress ?? (await this._signer.getAddress());
-    const { address: execAddress } = await this._getDedicatedMsgSender(
-      creatorAddress,
-    );
+    const { address: execAddress } =
+      await this._getDedicatedMsgSender(creatorAddress);
 
     const automateProxyInterface = AutomateProxy__factory.createInterface();
 
@@ -314,9 +312,8 @@ export class AutomateSDK {
       tx: unsignedTx,
     } = await this.prepareTask(_args, overrides);
 
-    const tx: ContractTransaction = await this._signer.sendTransaction(
-      unsignedTx,
-    );
+    const tx: ContractTransaction =
+      await this._signer.sendTransaction(unsignedTx);
     await this._finalizeTaskCreation(taskId, args, authToken);
     return { taskId, tx };
   }
@@ -383,9 +380,8 @@ export class AutomateSDK {
   ): Promise<TaskTransaction> {
     const { tx: unsignedTx } = await this.prepareCancelTask(taskId, overrides);
 
-    const tx: ContractTransaction = await this._signer.sendTransaction(
-      unsignedTx,
-    );
+    const tx: ContractTransaction =
+      await this._signer.sendTransaction(unsignedTx);
     return { taskId, tx };
   }
 
