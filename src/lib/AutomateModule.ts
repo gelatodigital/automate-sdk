@@ -268,7 +268,7 @@ export class AutomateModule {
         ["address", "bytes32[][]", "uint256"],
         [
           trigger.filter.address,
-          trigger.filter.topicSets,
+          trigger.filter.topics,
           trigger.blockConfirmations,
         ],
       );
@@ -321,7 +321,7 @@ export class AutomateModule {
             trigger = { type, cron };
           }
         } else if (type === TriggerType.EVENT) {
-          const [address, topicSets, blockConfirmations] =
+          const [address, topics, blockConfirmations] =
             ethers.utils.defaultAbiCoder.decode(
               ["address", "bytes32[][]", "uint256"],
               encodedTriggerConfig,
@@ -329,12 +329,12 @@ export class AutomateModule {
 
           if (
             address !== null &&
-            topicSets !== null &&
+            topics !== null &&
             blockConfirmations !== null
           ) {
             trigger = {
               type,
-              filter: { address, topicSets },
+              filter: { address, topics },
               blockConfirmations: blockConfirmations.toNumber(),
             };
           }
