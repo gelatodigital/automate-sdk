@@ -94,6 +94,10 @@ interface CreateTaskOptions {
         };
         blockConfirmations: number; // number of blocks to confirm event before triggering
       };
+    |
+      {
+        type: TriggerType.BLOCK; // block trigger
+      };
 }
 
 const params: CreateTaskOptions = {

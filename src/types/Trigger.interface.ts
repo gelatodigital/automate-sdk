@@ -2,6 +2,7 @@ export enum TriggerType {
   TIME,
   CRON,
   EVENT,
+  BLOCK,
 }
 
 export type TimeTrigger = {
@@ -21,4 +22,12 @@ export type EventTrigger = {
   blockConfirmations: number;
 };
 
-export type TriggerConfig = TimeTrigger | CronTrigger | EventTrigger;
+export type BlockTrigger = {
+  type: TriggerType.BLOCK;
+};
+
+export type TriggerConfig =
+  | TimeTrigger
+  | CronTrigger
+  | EventTrigger
+  | BlockTrigger;

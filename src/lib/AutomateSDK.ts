@@ -127,8 +127,9 @@ export class AutomateSDK {
     isDeployed: boolean;
   }> {
     const opsProxyFactory = await this._getOpsProxyFactory();
-    const [address, isDeployed] =
-      await opsProxyFactory.getProxyOf(creatorAddress);
+    const [address, isDeployed] = await opsProxyFactory.getProxyOf(
+      creatorAddress,
+    );
 
     return { address, isDeployed };
   }
@@ -239,8 +240,9 @@ export class AutomateSDK {
     creatorAddress?: string,
   ): Promise<CreateTaskOptions> {
     creatorAddress = creatorAddress ?? (await this._signer.getAddress());
-    const { address: execAddress } =
-      await this._getDedicatedMsgSender(creatorAddress);
+    const { address: execAddress } = await this._getDedicatedMsgSender(
+      creatorAddress,
+    );
 
     const automateProxyInterface = AutomateProxy__factory.createInterface();
 
@@ -312,8 +314,9 @@ export class AutomateSDK {
       tx: unsignedTx,
     } = await this.prepareTask(_args, overrides);
 
-    const tx: ContractTransaction =
-      await this._signer.sendTransaction(unsignedTx);
+    const tx: ContractTransaction = await this._signer.sendTransaction(
+      unsignedTx,
+    );
     await this._finalizeTaskCreation(taskId, args, authToken);
     return { taskId, tx };
   }
@@ -380,8 +383,9 @@ export class AutomateSDK {
   ): Promise<TaskTransaction> {
     const { tx: unsignedTx } = await this.prepareCancelTask(taskId, overrides);
 
-    const tx: ContractTransaction =
-      await this._signer.sendTransaction(unsignedTx);
+    const tx: ContractTransaction = await this._signer.sendTransaction(
+      unsignedTx,
+    );
     return { taskId, tx };
   }
 
