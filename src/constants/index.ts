@@ -32,6 +32,7 @@ export const CHAIN_ID = {
   LINEA: 59144,
   BASE: 8453,
   POLYGONZK: 1101,
+  ZKATANA: 1261120,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -94,6 +95,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xF27e0dfD58B423b1e1B90a554001d0561917602F",
   },
   [CHAIN_ID.LINEA]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.ZKATANA]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
