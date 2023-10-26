@@ -168,8 +168,9 @@ export class AutomateModule {
   ): Promise<string> => {
     try {
       if (!web3FunctionArgsHex && web3FunctionArgs) {
-        const { types, keys } =
-          await this.getAbiTypesAndKeysFromSchema(web3FunctionHash);
+        const { types, keys } = await this.getAbiTypesAndKeysFromSchema(
+          web3FunctionHash,
+        );
         // ensure all userArgs are provided & encoded in same order as they are defined in the schema
         const values: (
           | string
@@ -263,7 +264,7 @@ export class AutomateModule {
         ["uint8", "bytes"],
         [Number(TriggerType.CRON), triggerBytes],
       );
-    } else {
+    } else if (trigger.type === TriggerType.EVENT) {
       const triggerBytes = ethers.utils.defaultAbiCoder.encode(
         ["address", "bytes32[][]", "uint256"],
         [
@@ -276,6 +277,11 @@ export class AutomateModule {
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
         ["uint8", "bytes"],
         [Number(TriggerType.EVENT), triggerBytes],
+      );
+    } else {
+      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+        ["uint8"],
+        [Number(TriggerType.BLOCK)],
       );
     }
 
@@ -338,6 +344,8 @@ export class AutomateModule {
               blockConfirmations: blockConfirmations.toNumber(),
             };
           }
+        } else if (type === TriggerType.BLOCK) {
+          trigger = { type };
         }
       }
     } catch {}

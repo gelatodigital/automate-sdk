@@ -86,6 +86,18 @@ interface CreateTaskOptions {
         type: TriggerType.CRON; // cron trigger
         cron: string; // cron expression
       };
+    | {
+        type: TriggerType.EVENT; // event trigger
+        filter: {
+          address: string; // address to listen events for
+          topics: Array<Array<string | null>>; // topics to listen for check Ethers.js doc (https://docs.ethers.org/v5/concepts/events/#events--filters)
+        };
+        blockConfirmations: number; // number of blocks to confirm event before triggering
+      };
+    |
+      {
+        type: TriggerType.BLOCK; // block trigger
+      };
 }
 
 const params: CreateTaskOptions = {
