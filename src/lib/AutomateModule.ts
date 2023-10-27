@@ -279,9 +279,14 @@ export class AutomateModule {
         [Number(TriggerType.EVENT), triggerBytes],
       );
     } else {
+      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+        ["bytes"],
+        ["0x"],
+      );
+
       triggerArgs = ethers.utils.defaultAbiCoder.encode(
-        ["uint8"],
-        [Number(TriggerType.BLOCK)],
+        ["uint8", "bytes"],
+        [Number(TriggerType.BLOCK), triggerBytes],
       );
     }
 
