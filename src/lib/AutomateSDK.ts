@@ -80,7 +80,12 @@ export class AutomateSDK {
     }
 
     this._automateModule = new AutomateModule();
-    this._signature = new Signature(chainId, signer, signatureMessage);
+    this._signature = new Signature(
+      chainId,
+      signer,
+      signatureMessage,
+      config?.signatureDomain,
+    );
     this._chainId = chainId;
     this._signer = signer;
     this._automate = Automate__factory.connect(automateAddress, this._signer);

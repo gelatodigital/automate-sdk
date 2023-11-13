@@ -15,7 +15,12 @@ export class Web3Function {
     signatureMessage?: string,
     config?: Partial<Config>,
   ) {
-    this._signature = new Signature(chainId, signer, signatureMessage);
+    this._signature = new Signature(
+      chainId,
+      signer,
+      signatureMessage,
+      config?.signatureDomain,
+    );
     this.secrets = new Web3FunctionSecrets(signer, this._signature, config);
     this.storage = new Web3FunctionStorage(signer, this._signature, config);
   }

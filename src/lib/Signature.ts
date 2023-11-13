@@ -9,14 +9,21 @@ export class Signature {
   private readonly _signer: Signer;
   private readonly _chainId: ChainId;
   private readonly _signatureMessage: string;
+  private readonly _signatureDomain: string;
 
   private _lastExpirationTime!: number;
   private _token!: string;
 
-  constructor(chainId: ChainId, signer: Signer, signatureMessage?: string) {
+  constructor(
+    chainId: ChainId,
+    signer: Signer,
+    signatureMessage?: string,
+    signatureDomain?: string,
+  ) {
     this._chainId = chainId;
     this._signer = signer;
     this._signatureMessage = signatureMessage ?? "Gelato Web3Functions";
+    this._signatureDomain = signatureDomain ?? "beta.app.gelato.network";
   }
 
   public async getAuthToken(): Promise<string> {
@@ -33,8 +40,8 @@ export class Signature {
 
   private async _requestAndStoreSignature(): Promise<void> {
     try {
-      const domain = "beta.app.gelato.network";
-      const uri = "https://beta.app.gelato.network/";
+      const domain = this._signatureDomain;
+      const uri = `https://${domain}/`;
       const address = await this._signer.getAddress();
       const version = "1";
       const chainId = this._chainId;
