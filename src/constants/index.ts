@@ -43,6 +43,7 @@ export const CHAIN_ID = {
   METIS: 1088,
   LISKSEPOLIA: 4202,
   BLASTSEPOLIA: 168587773,
+  REYACRONOS: 1729,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -138,6 +139,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.BLASTSEPOLIA]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.REYACRONOS]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
