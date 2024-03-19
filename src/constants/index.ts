@@ -50,6 +50,7 @@ export const CHAIN_ID = {
   PLAYBLOCK: 1829,
   BLACKBERRY: 94_204_209,
   AMOY: 80002,
+  REAL: 111188,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -166,6 +167,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.AMOY]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.REAL]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
