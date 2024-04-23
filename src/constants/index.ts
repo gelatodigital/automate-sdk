@@ -153,6 +153,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.GELATOORBITTESTNET]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automateDev: "0xd84ED255d7ee2B032f66AeCfB41b51044d409aDC",
   },
   [CHAIN_ID.REYACRONOS]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
@@ -168,6 +169,7 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.AMOY]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+    automateDev: "0xd84ED255d7ee2B032f66AeCfB41b51044d409aDC",
   },
   [CHAIN_ID.REAL]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
