@@ -51,6 +51,7 @@ export const CHAIN_ID = {
   BLACKBERRY: 94_204_209,
   AMOY: 80002,
   REAL: 111188,
+  CONNEXTSEPOLIA: 6398,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -172,6 +173,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automateDev: "0xd84ED255d7ee2B032f66AeCfB41b51044d409aDC",
   },
   [CHAIN_ID.REAL]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.CONNEXTSEPOLIA]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
