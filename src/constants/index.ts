@@ -52,6 +52,7 @@ export const CHAIN_ID = {
   AMOY: 80002,
   REAL: 111188,
   CONNEXTSEPOLIA: 6398,
+  ANOMALY_ANDROMEDA: 241120,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -176,6 +177,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.CONNEXTSEPOLIA]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.ANOMALY_ANDROMEDA]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
