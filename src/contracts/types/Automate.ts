@@ -3,55 +3,36 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "./common";
 
 export declare namespace LibDataTypes {
   export type ModuleDataStruct = { modules: BigNumberish[]; args: BytesLike[] };
 
-  export type ModuleDataStructOutput = [number[], string[]] & {
-    modules: number[];
+  export type ModuleDataStructOutput = [modules: bigint[], args: string[]] & {
+    modules: bigint[];
     args: string[];
   };
 }
 
-export interface AutomateInterface extends utils.Interface {
-  functions: {
-    "cancelTask(bytes32)": FunctionFragment;
-    "createTask(address,bytes,(uint8[],bytes[]),address)": FunctionFragment;
-    "exec(address,address,bytes,(uint8[],bytes[]),uint256,address,bool,bool)": FunctionFragment;
-    "execAddresses(bytes32)": FunctionFragment;
-    "fee()": FunctionFragment;
-    "feeToken()": FunctionFragment;
-    "gelato()": FunctionFragment;
-    "getFeeDetails()": FunctionFragment;
-    "getTaskIdsByUser(address)": FunctionFragment;
-    "setModule(uint8[],address[])": FunctionFragment;
-    "taskCreator(bytes32)": FunctionFragment;
-    "taskModuleAddresses(uint8)": FunctionFragment;
-    "taskTreasury()": FunctionFragment;
-    "timedTask(bytes32)": FunctionFragment;
-    "version()": FunctionFragment;
-  };
-
+export interface AutomateInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "cancelTask"
       | "createTask"
       | "exec"
@@ -66,64 +47,64 @@ export interface AutomateInterface extends utils.Interface {
       | "taskModuleAddresses"
       | "taskTreasury"
       | "timedTask"
-      | "version",
+      | "version"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "cancelTask",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "createTask",
-    values: [string, BytesLike, LibDataTypes.ModuleDataStruct, string],
+    values: [AddressLike, BytesLike, LibDataTypes.ModuleDataStruct, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "exec",
     values: [
-      string,
-      string,
+      AddressLike,
+      AddressLike,
       BytesLike,
       LibDataTypes.ModuleDataStruct,
       BigNumberish,
-      string,
+      AddressLike,
       boolean,
-      boolean,
-    ],
+      boolean
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "execAddresses",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(functionFragment: "gelato", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getFeeDetails",
-    values?: undefined,
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getTaskIdsByUser",
-    values: [string],
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setModule",
-    values: [BigNumberish[], string[]],
+    values: [BigNumberish[], AddressLike[]]
   ): string;
   encodeFunctionData(
     functionFragment: "taskCreator",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "taskModuleAddresses",
-    values: [BigNumberish],
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "taskTreasury",
-    values?: undefined,
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "timedTask",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
@@ -132,393 +113,226 @@ export interface AutomateInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "exec", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "execAddresses",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gelato", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getFeeDetails",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTaskIdsByUser",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "setModule", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskModuleAddresses",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskTreasury",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
-
-  events: {};
 }
 
 export interface Automate extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): Automate;
+  waitForDeployment(): Promise<this>;
 
   interface: AutomateInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>,
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    cancelTask(
-      _taskId: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    createTask(
-      _execAddress: string,
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  cancelTask: TypedContractMethod<[_taskId: BytesLike], [void], "nonpayable">;
+
+  createTask: TypedContractMethod<
+    [
+      _execAddress: AddressLike,
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
-      _feeToken: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    exec(
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      _moduleData: LibDataTypes.ModuleDataStruct,
-      _txFee: BigNumberish,
-      _feeToken: string,
-      _useTaskTreasuryFunds: boolean,
-      _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    execAddresses(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    fee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    feeToken(overrides?: CallOverrides): Promise<[string]>;
-
-    gelato(overrides?: CallOverrides): Promise<[string]>;
-
-    getFeeDetails(overrides?: CallOverrides): Promise<[BigNumber, string]>;
-
-    getTaskIdsByUser(
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<[string[]]>;
-
-    setModule(
-      _modules: BigNumberish[],
-      _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    taskTreasury(overrides?: CallOverrides): Promise<[string]>;
-
-    timedTask(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<
-      [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
-    >;
-
-    version(overrides?: CallOverrides): Promise<[string]>;
-  };
-
-  cancelTask(
-    _taskId: BytesLike,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  createTask(
-    _execAddress: string,
-    _execDataOrSelector: BytesLike,
-    _moduleData: LibDataTypes.ModuleDataStruct,
-    _feeToken: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  exec(
-    _taskCreator: string,
-    _execAddress: string,
-    _execData: BytesLike,
-    _moduleData: LibDataTypes.ModuleDataStruct,
-    _txFee: BigNumberish,
-    _feeToken: string,
-    _useTaskTreasuryFunds: boolean,
-    _revertOnFailure: boolean,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-  fee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  feeToken(overrides?: CallOverrides): Promise<string>;
-
-  gelato(overrides?: CallOverrides): Promise<string>;
-
-  getFeeDetails(overrides?: CallOverrides): Promise<[BigNumber, string]>;
-
-  getTaskIdsByUser(
-    _taskCreator: string,
-    overrides?: CallOverrides,
-  ): Promise<string[]>;
-
-  setModule(
-    _modules: BigNumberish[],
-    _moduleAddresses: string[],
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-  taskModuleAddresses(
-    arg0: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  taskTreasury(overrides?: CallOverrides): Promise<string>;
-
-  timedTask(
-    arg0: BytesLike,
-    overrides?: CallOverrides,
-  ): Promise<
-    [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
+      _feeToken: AddressLike
+    ],
+    [string],
+    "nonpayable"
   >;
 
-  version(overrides?: CallOverrides): Promise<string>;
-
-  callStatic: {
-    cancelTask(_taskId: BytesLike, overrides?: CallOverrides): Promise<void>;
-
-    createTask(
-      _execAddress: string,
-      _execDataOrSelector: BytesLike,
-      _moduleData: LibDataTypes.ModuleDataStruct,
-      _feeToken: string,
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    exec(
-      _taskCreator: string,
-      _execAddress: string,
+  exec: TypedContractMethod<
+    [
+      _taskCreator: AddressLike,
+      _execAddress: AddressLike,
       _execData: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
       _txFee: BigNumberish,
-      _feeToken: string,
+      _feeToken: AddressLike,
       _useTaskTreasuryFunds: boolean,
-      _revertOnFailure: boolean,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+      _revertOnFailure: boolean
+    ],
+    [void],
+    "nonpayable"
+  >;
 
-    execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+  execAddresses: TypedContractMethod<[arg0: BytesLike], [string], "view">;
 
-    fee(overrides?: CallOverrides): Promise<BigNumber>;
+  fee: TypedContractMethod<[], [bigint], "view">;
 
-    feeToken(overrides?: CallOverrides): Promise<string>;
+  feeToken: TypedContractMethod<[], [string], "view">;
 
-    gelato(overrides?: CallOverrides): Promise<string>;
+  gelato: TypedContractMethod<[], [string], "view">;
 
-    getFeeDetails(overrides?: CallOverrides): Promise<[BigNumber, string]>;
+  getFeeDetails: TypedContractMethod<[], [[bigint, string]], "view">;
 
-    getTaskIdsByUser(
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<string[]>;
+  getTaskIdsByUser: TypedContractMethod<
+    [_taskCreator: AddressLike],
+    [string[]],
+    "view"
+  >;
 
-    setModule(
-      _modules: BigNumberish[],
-      _moduleAddresses: string[],
-      overrides?: CallOverrides,
-    ): Promise<void>;
+  setModule: TypedContractMethod<
+    [_modules: BigNumberish[], _moduleAddresses: AddressLike[]],
+    [void],
+    "nonpayable"
+  >;
 
-    taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+  taskCreator: TypedContractMethod<[arg0: BytesLike], [string], "view">;
 
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string>;
+  taskModuleAddresses: TypedContractMethod<
+    [arg0: BigNumberish],
+    [string],
+    "view"
+  >;
 
-    taskTreasury(overrides?: CallOverrides): Promise<string>;
+  taskTreasury: TypedContractMethod<[], [string], "view">;
 
-    timedTask(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<
-      [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
-    >;
+  timedTask: TypedContractMethod<
+    [arg0: BytesLike],
+    [[bigint, bigint] & { nextExec: bigint; interval: bigint }],
+    "view"
+  >;
 
-    version(overrides?: CallOverrides): Promise<string>;
-  };
+  version: TypedContractMethod<[], [string], "view">;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "cancelTask"
+  ): TypedContractMethod<[_taskId: BytesLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "createTask"
+  ): TypedContractMethod<
+    [
+      _execAddress: AddressLike,
+      _execDataOrSelector: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
+      _feeToken: AddressLike
+    ],
+    [string],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "exec"
+  ): TypedContractMethod<
+    [
+      _taskCreator: AddressLike,
+      _execAddress: AddressLike,
+      _execData: BytesLike,
+      _moduleData: LibDataTypes.ModuleDataStruct,
+      _txFee: BigNumberish,
+      _feeToken: AddressLike,
+      _useTaskTreasuryFunds: boolean,
+      _revertOnFailure: boolean
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "execAddresses"
+  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "fee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "feeToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "gelato"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "getFeeDetails"
+  ): TypedContractMethod<[], [[bigint, string]], "view">;
+  getFunction(
+    nameOrSignature: "getTaskIdsByUser"
+  ): TypedContractMethod<[_taskCreator: AddressLike], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "setModule"
+  ): TypedContractMethod<
+    [_modules: BigNumberish[], _moduleAddresses: AddressLike[]],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "taskCreator"
+  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "taskModuleAddresses"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "taskTreasury"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "timedTask"
+  ): TypedContractMethod<
+    [arg0: BytesLike],
+    [[bigint, bigint] & { nextExec: bigint; interval: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "version"
+  ): TypedContractMethod<[], [string], "view">;
 
   filters: {};
-
-  estimateGas: {
-    cancelTask(
-      _taskId: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    createTask(
-      _execAddress: string,
-      _execDataOrSelector: BytesLike,
-      _moduleData: LibDataTypes.ModuleDataStruct,
-      _feeToken: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    exec(
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      _moduleData: LibDataTypes.ModuleDataStruct,
-      _txFee: BigNumberish,
-      _feeToken: string,
-      _useTaskTreasuryFunds: boolean,
-      _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    execAddresses(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    fee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    feeToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    gelato(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getFeeDetails(overrides?: CallOverrides): Promise<BigNumber>;
-
-    getTaskIdsByUser(
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    setModule(
-      _modules: BigNumberish[],
-      _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    taskTreasury(overrides?: CallOverrides): Promise<BigNumber>;
-
-    timedTask(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    version(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    cancelTask(
-      _taskId: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    createTask(
-      _execAddress: string,
-      _execDataOrSelector: BytesLike,
-      _moduleData: LibDataTypes.ModuleDataStruct,
-      _feeToken: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    exec(
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      _moduleData: LibDataTypes.ModuleDataStruct,
-      _txFee: BigNumberish,
-      _feeToken: string,
-      _useTaskTreasuryFunds: boolean,
-      _revertOnFailure: boolean,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    execAddresses(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    fee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    feeToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    gelato(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getFeeDetails(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    getTaskIdsByUser(
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    setModule(
-      _modules: BigNumberish[],
-      _moduleAddresses: string[],
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    taskCreator(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    taskTreasury(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    timedTask(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-  };
 }

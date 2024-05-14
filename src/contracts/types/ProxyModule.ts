@@ -3,43 +3,27 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
+  FunctionFragment,
+  Result,
+  Interface,
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
 } from "ethers";
-import type { FunctionFragment, Result } from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "./common";
 
-export interface ProxyModuleInterface extends utils.Interface {
-  functions: {
-    "execAddresses(bytes32)": FunctionFragment;
-    "fee()": FunctionFragment;
-    "feeToken()": FunctionFragment;
-    "onCreateTask(bytes32,address,address,bytes,bytes)": FunctionFragment;
-    "opsProxyFactory()": FunctionFragment;
-    "postExecCall(bytes32,address,address,bytes)": FunctionFragment;
-    "preCancelTask(bytes32,address)": FunctionFragment;
-    "preCreateTask(address,address)": FunctionFragment;
-    "preExecCall(bytes32,address,address,bytes)": FunctionFragment;
-    "taskCreator(bytes32)": FunctionFragment;
-    "taskModuleAddresses(uint8)": FunctionFragment;
-    "timedTask(bytes32)": FunctionFragment;
-  };
-
+export interface ProxyModuleInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "execAddresses"
       | "fee"
       | "feeToken"
@@ -51,428 +35,284 @@ export interface ProxyModuleInterface extends utils.Interface {
       | "preExecCall"
       | "taskCreator"
       | "taskModuleAddresses"
-      | "timedTask",
+      | "timedTask"
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "execAddresses",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onCreateTask",
-    values: [BytesLike, string, string, BytesLike, BytesLike],
+    values: [BytesLike, AddressLike, AddressLike, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "opsProxyFactory",
-    values?: undefined,
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "postExecCall",
-    values: [BytesLike, string, string, BytesLike],
+    values: [BytesLike, AddressLike, AddressLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "preCancelTask",
-    values: [BytesLike, string],
+    values: [BytesLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "preCreateTask",
-    values: [string, string],
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "preExecCall",
-    values: [BytesLike, string, string, BytesLike],
+    values: [BytesLike, AddressLike, AddressLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "taskCreator",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "taskModuleAddresses",
-    values: [BigNumberish],
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "timedTask",
-    values: [BytesLike],
+    values: [BytesLike]
   ): string;
 
   decodeFunctionResult(
     functionFragment: "execAddresses",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onCreateTask",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "opsProxyFactory",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "postExecCall",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "preCancelTask",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "preCreateTask",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "preExecCall",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskModuleAddresses",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
-
-  events: {};
 }
 
 export interface ProxyModule extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): ProxyModule;
+  waitForDeployment(): Promise<this>;
 
   interface: ProxyModuleInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>,
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    execAddresses(
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
+
+  execAddresses: TypedContractMethod<[arg0: BytesLike], [string], "view">;
+
+  fee: TypedContractMethod<[], [bigint], "view">;
+
+  feeToken: TypedContractMethod<[], [string], "view">;
+
+  onCreateTask: TypedContractMethod<
+    [
       arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    fee(overrides?: CallOverrides): Promise<[BigNumber]>;
-
-    feeToken(overrides?: CallOverrides): Promise<[string]>;
-
-    onCreateTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      arg2: string,
+      _taskCreator: AddressLike,
+      arg2: AddressLike,
       arg3: BytesLike,
-      arg4: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    opsProxyFactory(overrides?: CallOverrides): Promise<[string]>;
-
-    postExecCall(
-      taskId: BytesLike,
-      taskCreator: string,
-      execAddress: string,
-      execData: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
-
-    preCancelTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    preCreateTask(
-      _taskCreator: string,
-      _execAddress: string,
-      overrides?: CallOverrides,
-    ): Promise<[string, string]>;
-
-    preExecCall(
-      arg0: BytesLike,
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<[string, string] & { execData: string }>;
-
-    taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<[string]>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
-
-    timedTask(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<
-      [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
-    >;
-  };
-
-  execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-  fee(overrides?: CallOverrides): Promise<BigNumber>;
-
-  feeToken(overrides?: CallOverrides): Promise<string>;
-
-  onCreateTask(
-    arg0: BytesLike,
-    _taskCreator: string,
-    arg2: string,
-    arg3: BytesLike,
-    arg4: BytesLike,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  opsProxyFactory(overrides?: CallOverrides): Promise<string>;
-
-  postExecCall(
-    taskId: BytesLike,
-    taskCreator: string,
-    execAddress: string,
-    execData: BytesLike,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
-
-  preCancelTask(
-    arg0: BytesLike,
-    _taskCreator: string,
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  preCreateTask(
-    _taskCreator: string,
-    _execAddress: string,
-    overrides?: CallOverrides,
-  ): Promise<[string, string]>;
-
-  preExecCall(
-    arg0: BytesLike,
-    _taskCreator: string,
-    _execAddress: string,
-    _execData: BytesLike,
-    overrides?: CallOverrides,
-  ): Promise<[string, string] & { execData: string }>;
-
-  taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-  taskModuleAddresses(
-    arg0: BigNumberish,
-    overrides?: CallOverrides,
-  ): Promise<string>;
-
-  timedTask(
-    arg0: BytesLike,
-    overrides?: CallOverrides,
-  ): Promise<
-    [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
+      arg4: BytesLike
+    ],
+    [void],
+    "nonpayable"
   >;
 
-  callStatic: {
-    execAddresses(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
+  opsProxyFactory: TypedContractMethod<[], [string], "view">;
 
-    fee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    feeToken(overrides?: CallOverrides): Promise<string>;
-
-    onCreateTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      arg2: string,
-      arg3: BytesLike,
-      arg4: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    opsProxyFactory(overrides?: CallOverrides): Promise<string>;
-
-    postExecCall(
+  postExecCall: TypedContractMethod<
+    [
       taskId: BytesLike,
-      taskCreator: string,
-      execAddress: string,
-      execData: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<void>;
+      taskCreator: AddressLike,
+      execAddress: AddressLike,
+      execData: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
 
-    preCancelTask(
+  preCancelTask: TypedContractMethod<
+    [arg0: BytesLike, _taskCreator: AddressLike],
+    [string],
+    "view"
+  >;
+
+  preCreateTask: TypedContractMethod<
+    [_taskCreator: AddressLike, _execAddress: AddressLike],
+    [[string, string]],
+    "view"
+  >;
+
+  preExecCall: TypedContractMethod<
+    [
       arg0: BytesLike,
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<string>;
+      _taskCreator: AddressLike,
+      _execAddress: AddressLike,
+      _execData: BytesLike
+    ],
+    [[string, string] & { execData: string }],
+    "view"
+  >;
 
-    preCreateTask(
-      _taskCreator: string,
-      _execAddress: string,
-      overrides?: CallOverrides,
-    ): Promise<[string, string]>;
+  taskCreator: TypedContractMethod<[arg0: BytesLike], [string], "view">;
 
-    preExecCall(
+  taskModuleAddresses: TypedContractMethod<
+    [arg0: BigNumberish],
+    [string],
+    "view"
+  >;
+
+  timedTask: TypedContractMethod<
+    [arg0: BytesLike],
+    [[bigint, bigint] & { nextExec: bigint; interval: bigint }],
+    "view"
+  >;
+
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
+
+  getFunction(
+    nameOrSignature: "execAddresses"
+  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "fee"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "feeToken"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "onCreateTask"
+  ): TypedContractMethod<
+    [
       arg0: BytesLike,
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<[string, string] & { execData: string }>;
-
-    taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<string>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    timedTask(
+      _taskCreator: AddressLike,
+      arg2: AddressLike,
+      arg3: BytesLike,
+      arg4: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "opsProxyFactory"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "postExecCall"
+  ): TypedContractMethod<
+    [
+      taskId: BytesLike,
+      taskCreator: AddressLike,
+      execAddress: AddressLike,
+      execData: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "preCancelTask"
+  ): TypedContractMethod<
+    [arg0: BytesLike, _taskCreator: AddressLike],
+    [string],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "preCreateTask"
+  ): TypedContractMethod<
+    [_taskCreator: AddressLike, _execAddress: AddressLike],
+    [[string, string]],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "preExecCall"
+  ): TypedContractMethod<
+    [
       arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<
-      [BigNumber, BigNumber] & { nextExec: BigNumber; interval: BigNumber }
-    >;
-  };
+      _taskCreator: AddressLike,
+      _execAddress: AddressLike,
+      _execData: BytesLike
+    ],
+    [[string, string] & { execData: string }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "taskCreator"
+  ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "taskModuleAddresses"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "timedTask"
+  ): TypedContractMethod<
+    [arg0: BytesLike],
+    [[bigint, bigint] & { nextExec: bigint; interval: bigint }],
+    "view"
+  >;
 
   filters: {};
-
-  estimateGas: {
-    execAddresses(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    fee(overrides?: CallOverrides): Promise<BigNumber>;
-
-    feeToken(overrides?: CallOverrides): Promise<BigNumber>;
-
-    onCreateTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      arg2: string,
-      arg3: BytesLike,
-      arg4: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    opsProxyFactory(overrides?: CallOverrides): Promise<BigNumber>;
-
-    postExecCall(
-      taskId: BytesLike,
-      taskCreator: string,
-      execAddress: string,
-      execData: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    preCancelTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    preCreateTask(
-      _taskCreator: string,
-      _execAddress: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    preExecCall(
-      arg0: BytesLike,
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    taskCreator(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    timedTask(arg0: BytesLike, overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    execAddresses(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    fee(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    feeToken(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    onCreateTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      arg2: string,
-      arg3: BytesLike,
-      arg4: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    opsProxyFactory(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    postExecCall(
-      taskId: BytesLike,
-      taskCreator: string,
-      execAddress: string,
-      execData: BytesLike,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    preCancelTask(
-      arg0: BytesLike,
-      _taskCreator: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    preCreateTask(
-      _taskCreator: string,
-      _execAddress: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    preExecCall(
-      arg0: BytesLike,
-      _taskCreator: string,
-      _execAddress: string,
-      _execData: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    taskCreator(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    taskModuleAddresses(
-      arg0: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    timedTask(
-      arg0: BytesLike,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-  };
 }

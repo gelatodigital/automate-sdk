@@ -3,54 +3,45 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BigNumberish,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  PayableOverrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "./common";
 
-export interface AutomateProxyInterface extends utils.Interface {
-  functions: {
-    "batchExecuteCall(address[],bytes[],uint256[])": FunctionFragment;
-    "executeCall(address,bytes,uint256)": FunctionFragment;
-    "ops()": FunctionFragment;
-    "owner()": FunctionFragment;
-    "version()": FunctionFragment;
-  };
-
+export interface AutomateProxyInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "batchExecuteCall"
       | "executeCall"
       | "ops"
       | "owner"
-      | "version",
+      | "version"
   ): FunctionFragment;
+
+  getEvent(nameOrSignatureOrTopic: "ExecuteCall"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "batchExecuteCall",
-    values: [string[], BytesLike[], BigNumberish[]],
+    values: [AddressLike[], BytesLike[], BigNumberish[]]
   ): string;
   encodeFunctionData(
     functionFragment: "executeCall",
-    values: [string, BytesLike, BigNumberish],
+    values: [AddressLike, BytesLike, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "ops", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -58,182 +49,149 @@ export interface AutomateProxyInterface extends utils.Interface {
 
   decodeFunctionResult(
     functionFragment: "batchExecuteCall",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "executeCall",
-    data: BytesLike,
+    data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "ops", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
-
-  events: {
-    "ExecuteCall(address,bytes,uint256,bytes)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "ExecuteCall"): EventFragment;
 }
 
-export interface ExecuteCallEventObject {
-  target: string;
-  data: string;
-  value: BigNumber;
-  returnData: string;
+export namespace ExecuteCallEvent {
+  export type InputTuple = [
+    target: AddressLike,
+    data: BytesLike,
+    value: BigNumberish,
+    returnData: BytesLike
+  ];
+  export type OutputTuple = [
+    target: string,
+    data: string,
+    value: bigint,
+    returnData: string
+  ];
+  export interface OutputObject {
+    target: string;
+    data: string;
+    value: bigint;
+    returnData: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type ExecuteCallEvent = TypedEvent<
-  [string, string, BigNumber, string],
-  ExecuteCallEventObject
->;
-
-export type ExecuteCallEventFilter = TypedEventFilter<ExecuteCallEvent>;
 
 export interface AutomateProxy extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): AutomateProxy;
+  waitForDeployment(): Promise<this>;
 
   interface: AutomateProxyInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>;
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>,
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-  functions: {
-    batchExecuteCall(
-      _targets: string[],
-      _datas: BytesLike[],
-      _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>
+  ): Promise<this>;
 
-    executeCall(
-      _target: string,
-      _data: BytesLike,
-      _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent
+  ): Promise<this>;
 
-    ops(overrides?: CallOverrides): Promise<[string]>;
+  batchExecuteCall: TypedContractMethod<
+    [_targets: AddressLike[], _datas: BytesLike[], _values: BigNumberish[]],
+    [void],
+    "payable"
+  >;
 
-    owner(overrides?: CallOverrides): Promise<[string]>;
+  executeCall: TypedContractMethod<
+    [_target: AddressLike, _data: BytesLike, _value: BigNumberish],
+    [void],
+    "payable"
+  >;
 
-    version(overrides?: CallOverrides): Promise<[BigNumber]>;
-  };
+  ops: TypedContractMethod<[], [string], "view">;
 
-  batchExecuteCall(
-    _targets: string[],
-    _datas: BytesLike[],
-    _values: BigNumberish[],
-    overrides?: PayableOverrides & { from?: string },
-  ): Promise<ContractTransaction>;
+  owner: TypedContractMethod<[], [string], "view">;
 
-  executeCall(
-    _target: string,
-    _data: BytesLike,
-    _value: BigNumberish,
-    overrides?: PayableOverrides & { from?: string },
-  ): Promise<ContractTransaction>;
+  version: TypedContractMethod<[], [bigint], "view">;
 
-  ops(overrides?: CallOverrides): Promise<string>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment
+  ): T;
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  getFunction(
+    nameOrSignature: "batchExecuteCall"
+  ): TypedContractMethod<
+    [_targets: AddressLike[], _datas: BytesLike[], _values: BigNumberish[]],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "executeCall"
+  ): TypedContractMethod<
+    [_target: AddressLike, _data: BytesLike, _value: BigNumberish],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "ops"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "version"
+  ): TypedContractMethod<[], [bigint], "view">;
 
-  version(overrides?: CallOverrides): Promise<BigNumber>;
-
-  callStatic: {
-    batchExecuteCall(
-      _targets: string[],
-      _datas: BytesLike[],
-      _values: BigNumberish[],
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    executeCall(
-      _target: string,
-      _data: BytesLike,
-      _value: BigNumberish,
-      overrides?: CallOverrides,
-    ): Promise<void>;
-
-    ops(overrides?: CallOverrides): Promise<string>;
-
-    owner(overrides?: CallOverrides): Promise<string>;
-
-    version(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+  getEvent(
+    key: "ExecuteCall"
+  ): TypedContractEvent<
+    ExecuteCallEvent.InputTuple,
+    ExecuteCallEvent.OutputTuple,
+    ExecuteCallEvent.OutputObject
+  >;
 
   filters: {
-    "ExecuteCall(address,bytes,uint256,bytes)"(
-      target?: string | null,
-      data?: null,
-      value?: null,
-      returnData?: null,
-    ): ExecuteCallEventFilter;
-    ExecuteCall(
-      target?: string | null,
-      data?: null,
-      value?: null,
-      returnData?: null,
-    ): ExecuteCallEventFilter;
-  };
-
-  estimateGas: {
-    batchExecuteCall(
-      _targets: string[],
-      _datas: BytesLike[],
-      _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    executeCall(
-      _target: string,
-      _data: BytesLike,
-      _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    ops(overrides?: CallOverrides): Promise<BigNumber>;
-
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
-
-    version(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    batchExecuteCall(
-      _targets: string[],
-      _datas: BytesLike[],
-      _values: BigNumberish[],
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    executeCall(
-      _target: string,
-      _data: BytesLike,
-      _value: BigNumberish,
-      overrides?: PayableOverrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    ops(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "ExecuteCall(address,bytes,uint256,bytes)": TypedContractEvent<
+      ExecuteCallEvent.InputTuple,
+      ExecuteCallEvent.OutputTuple,
+      ExecuteCallEvent.OutputObject
+    >;
+    ExecuteCall: TypedContractEvent<
+      ExecuteCallEvent.InputTuple,
+      ExecuteCallEvent.OutputTuple,
+      ExecuteCallEvent.OutputObject
+    >;
   };
 }

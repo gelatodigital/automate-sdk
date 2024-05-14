@@ -3,13 +3,7 @@ import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import {
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  ethers,
-  providers,
-} from "ethers";
+import { ContractTransaction, Overrides, ethers, Provider } from "ethers";
 import {
   AUTOMATE_TASKS_API,
   AUTOMATE_TASKS_DEV_API,
@@ -375,7 +369,7 @@ export class AutomateSDK {
     taskId: string,
     overrides: Overrides = {},
   ): Promise<CancelTaskPopulatedTransaction> {
-    const tx = await this._automate.populateTransaction.cancelTask(
+    const tx = await this._automate.cancelTask.populateTransaction(
       taskId,
       overrides,
     );
