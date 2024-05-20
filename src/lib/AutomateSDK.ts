@@ -3,7 +3,13 @@ import "ethers";
 
 import { Signer } from "@ethersproject/abstract-signer";
 import axios, { Axios } from "axios";
-import { ContractTransaction, Overrides, ethers, Provider } from "ethers";
+import {
+  ContractTransaction,
+  Overrides,
+  ethers,
+  Provider,
+  TransactionResponse,
+} from "ethers";
 import {
   AUTOMATE_TASKS_API,
   AUTOMATE_TASKS_DEV_API,
@@ -42,7 +48,7 @@ import { Signature } from "./Signature";
 export class AutomateSDK {
   private _automateModule: AutomateModule;
   private readonly _chainId: number;
-  private readonly _signer: Signer;
+  private readonly _signer: ethers.Wallet;
   private _automate: Automate;
   private _opsProxyFactory: AutomateProxyFactory | undefined;
   private readonly _taskApi: Axios;
@@ -50,7 +56,7 @@ export class AutomateSDK {
 
   constructor(
     chainId: number,
-    signer: Signer,
+    signer: ethers.Wallet, //Take a look at this first
     signatureMessage?: string,
     config?: Partial<Config>,
   ) {
@@ -82,6 +88,7 @@ export class AutomateSDK {
     );
     this._chainId = chainId;
     this._signer = signer;
+
     this._automate = Automate__factory.connect(automateAddress, this._signer);
 
     let taskApiUrl: string = AUTOMATE_TASKS_API;
@@ -186,8 +193,8 @@ export class AutomateSDK {
     )
       return this._getLegacyTaskId(args, address);
 
-    const taskId = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    const taskId = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(
         [
           "address",
           "address",
@@ -200,7 +207,7 @@ export class AutomateSDK {
           args.execAddress,
           args.execSelector,
           args.moduleData,
-          args.useTreasury ? ethers.constants.AddressZero : ETH,
+          args.useTreasury ? ethers.ZeroAddress : ETH,
         ],
       ),
     );
@@ -211,22 +218,22 @@ export class AutomateSDK {
     args: CreateTaskOptionsWithModules,
     creatorAddress: string,
   ): Promise<string> {
-    const resolverHash = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    const resolverHash = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(
         ["address", "bytes"],
         [args.resolverAddress, args.resolverData],
       ),
     );
 
-    const taskId = ethers.utils.keccak256(
-      ethers.utils.defaultAbiCoder.encode(
+    const taskId = ethers.keccak256(
+      ethers.AbiCoder.defaultAbiCoder().encode(
         ["address", "address", "bytes4", "bool", "address", "bytes32"],
         [
           creatorAddress,
           args.execAddress,
           args.execSelector,
           args.useTreasury,
-          args.useTreasury ? ethers.constants.AddressZero : ETH,
+          args.useTreasury ? ethers.ZeroAddress : ETH,
           resolverHash,
         ],
       ),
@@ -245,9 +252,11 @@ export class AutomateSDK {
 
     const automateProxyInterface = AutomateProxy__factory.createInterface();
 
-    const execSelector = automateProxyInterface.getSighash("batchExecuteCall");
+    const execSelector =
+      automateProxyInterface.getFunction("batchExecuteCall").selector;
 
-    const execAbi = automateProxyInterface.format("json") as string;
+    const execAbi = automateProxyInterface.formatJson();
+    // const execAbi = automateProxyInterface.format("json") as string;
 
     const createTaskOptions: CreateTaskOptions = {
       ..._args,
@@ -286,8 +295,8 @@ export class AutomateSDK {
     creatorAddress?: string,
   ): Promise<CreateTaskPopulatedTransaction> {
     const args = await this._processModules(_args);
-    const tx: PopulatedTransaction =
-      await this._automate.populateTransaction.createTask(
+    const tx: ContractTransaction =
+      await this._automate.createTask.populateTransaction(
         args.execAddress,
         args.execData ?? args.execSelector,
         args.moduleData,
@@ -313,7 +322,7 @@ export class AutomateSDK {
       tx: unsignedTx,
     } = await this.prepareTask(_args, overrides);
 
-    const tx: ContractTransaction = await this._signer.sendTransaction(
+    const tx: TransactionResponse = await this._signer.sendTransaction(
       unsignedTx,
     );
     await this._finalizeTaskCreation(taskId, args, authToken);
@@ -382,7 +391,7 @@ export class AutomateSDK {
   ): Promise<TaskTransaction> {
     const { tx: unsignedTx } = await this.prepareCancelTask(taskId, overrides);
 
-    const tx: ContractTransaction = await this._signer.sendTransaction(
+    const tx: TransactionResponse = await this._signer.sendTransaction(
       unsignedTx,
     );
     return { taskId, tx };
@@ -392,14 +401,13 @@ export class AutomateSDK {
    * @deprecated this function will be removed in next major upgrade
    */
   public isGnosisSafeApp = (): boolean => {
-    let provider: providers.Provider | undefined;
+    let provider: Provider | undefined;
     if (this._signer.provider?.hasOwnProperty("provider")) {
       // Use internal provider
-      provider = (
-        this._signer.provider as unknown as { provider: providers.Provider }
-      ).provider;
+      provider = (this._signer.provider as unknown as { provider: Provider })
+        .provider;
     } else {
-      provider = this._signer.provider;
+      provider = this._signer.provider || undefined;
     }
     return Boolean(provider?.hasOwnProperty("safe"));
   };

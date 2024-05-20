@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import { ethers } from "ethers";
 import { AutomateSDK } from "./lib";
 import { TriggerType } from "./types";
+import { time } from "@nomicfoundation/hardhat-network-helpers";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");
@@ -12,24 +13,29 @@ const chainId = 80001; // mumbai
 
 const iceCreamAddress = "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41"; // mumbai IceCreamNFT
 const iceCreamAbi = ["function lick(uint256) external"];
-const iceCreamInterface = new ethers.utils.Interface(iceCreamAbi);
+const iceCreamInterface = new ethers.Interface(iceCreamAbi);
 
 const main = async () => {
-  const provider = new ethers.providers.JsonRpcProvider(providerUrl);
+  const provider = new ethers.JsonRpcProvider(providerUrl);
 
   const wallet = new ethers.Wallet(pk as string, provider);
   const sdk = new AutomateSDK(chainId, wallet);
 
+  const getTimeStampNow = async (): Promise<number> => {
+    // return (await ethers.provider.getBlock("latest")).timestamp;
+    return await time.latest();
+  };
+
   const { taskId, tx } = await sdk.createTask({
     name: "AutomateSdkTest",
     execAddress: iceCreamAddress,
-    execSelector: iceCreamInterface.getSighash("lick"),
+    execSelector: iceCreamInterface.getFunction("lick").selector,
     execData: iceCreamInterface.encodeFunctionData("lick", [2]),
     dedicatedMsgSender: true,
     singleExec: true,
     trigger: {
       type: TriggerType.TIME,
-      start: (await provider.getBlock("latest")).timestamp + 300,
+      start: (await getTimeStampNow()) + 300,
       interval: 60 * 1000,
     },
   });
