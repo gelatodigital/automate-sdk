@@ -2,14 +2,16 @@ import dotenv from "dotenv";
 import { ethers } from "ethers";
 import { AutomateSDK } from "./lib";
 import { TriggerType } from "./types";
-import { time } from "@nomicfoundation/hardhat-network-helpers";
+// import { time } from "@nomicfoundation/hardhat-network-helpers";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");
 const pk = process.env.PK;
 if (!process.env.PROVIDER_URL) throw new Error("Missing env PROVIDER_URL");
-const providerUrl = process.env.PROVIDER_URL;
-const chainId = 80001; // mumbai
+const providerUrl =
+  "https://polygon-amoy.g.alchemy.com/v2/vZz5_SsX5KlM3h5PffzhM5jQLMuGCBbl";
+// const providerUrl = process.env.PROVIDER_URL;
+const chainId = 80002; // amoy
 
 const iceCreamAddress = "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41"; // mumbai IceCreamNFT
 const iceCreamAbi = ["function lick(uint256) external"];
@@ -20,16 +22,19 @@ const main = async () => {
 
   const wallet = new ethers.Wallet(pk as string, provider);
   const sdk = new AutomateSDK(chainId, wallet);
+  console.log("SDK initialized", sdk);
 
   const getTimeStampNow = async (): Promise<number> => {
-    // return (await ethers.provider.getBlock("latest")).timestamp;
-    return await time.latest();
+    const blockNumber = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNumber);
+    if (!block) throw new Error("Block not found");
+    return block.timestamp;
   };
 
   const { taskId, tx } = await sdk.createTask({
     name: "AutomateSdkTest",
     execAddress: iceCreamAddress,
-    execSelector: iceCreamInterface.getFunction("lick").selector,
+    execSelector: iceCreamInterface.getFunction("lick")?.selector ?? "",
     execData: iceCreamInterface.encodeFunctionData("lick", [2]),
     dedicatedMsgSender: true,
     singleExec: true,

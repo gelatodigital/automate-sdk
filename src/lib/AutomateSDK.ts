@@ -48,7 +48,7 @@ import { Signature } from "./Signature";
 export class AutomateSDK {
   private _automateModule: AutomateModule;
   private readonly _chainId: number;
-  private readonly _signer: ethers.Wallet;
+  private readonly _signer: ethers.Signer;
   private _automate: Automate;
   private _opsProxyFactory: AutomateProxyFactory | undefined;
   private readonly _taskApi: Axios;
@@ -56,7 +56,7 @@ export class AutomateSDK {
 
   constructor(
     chainId: number,
-    signer: ethers.Wallet, //Take a look at this first
+    signer: ethers.Signer, //Take a look at this first
     signatureMessage?: string,
     config?: Partial<Config>,
   ) {
@@ -75,8 +75,12 @@ export class AutomateSDK {
       automateAddress = GELATO_ADDRESSES[chainId].automate;
     }
 
-    if (!Signer.isSigner(signer)) {
-      throw new Error(`Invalid Automate signer`);
+    // if (!Signer.isSigner(signer)) {
+    //   throw new Error(`Invalid Automate signer`);
+    // }
+
+    if (!signer.provider) {
+      throw new Error(`Invalid Automate signer provider`);
     }
 
     this._automateModule = new AutomateModule();
