@@ -2,20 +2,69 @@ import dotenv from "dotenv";
 import { ethers } from "ethers";
 import { AutomateSDK } from "./lib";
 import { TriggerType } from "./types";
-// import { time } from "@nomicfoundation/hardhat-network-helpers";
 dotenv.config();
 
 if (!process.env.PK) throw new Error("Missing env PK");
 const pk = process.env.PK;
 if (!process.env.PROVIDER_URL) throw new Error("Missing env PROVIDER_URL");
-const providerUrl =
-  "https://polygon-amoy.g.alchemy.com/v2/vZz5_SsX5KlM3h5PffzhM5jQLMuGCBbl";
-// const providerUrl = process.env.PROVIDER_URL;
-const chainId = 80002; // amoy
+const providerUrl = process.env.PROVIDER_URL;
+const chainId = 421614; // amoy
 
-const iceCreamAddress = "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41"; // mumbai IceCreamNFT
-const iceCreamAbi = ["function lick(uint256) external"];
-const iceCreamInterface = new ethers.Interface(iceCreamAbi);
+const counterAutomateAddress = "0xdDF2D006e3010e62c354508D42a2eA5910A88bD2";
+const counterAutomateABI = [
+  {
+    inputs: [],
+    stateMutability: "nonpayable",
+    type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "newCount",
+        type: "uint256",
+      },
+    ],
+    name: "CounterIncremented",
+    type: "event",
+  },
+  {
+    inputs: [],
+    name: "count",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "getCount",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "increment",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+];
+const counterAutomateInterface = new ethers.Interface(counterAutomateABI);
 
 const main = async () => {
   const provider = new ethers.JsonRpcProvider(providerUrl);
@@ -32,12 +81,12 @@ const main = async () => {
   };
 
   const { taskId, tx } = await sdk.createTask({
-    name: "AutomateSdkTest",
-    execAddress: iceCreamAddress,
-    execSelector: iceCreamInterface.getFunction("lick")?.selector ?? "",
-    execData: iceCreamInterface.encodeFunctionData("lick", [2]),
+    name: "Test Counter Automate Arbitrum",
+    execAddress: counterAutomateAddress,
+    execSelector:
+      counterAutomateInterface.getFunction("increment")?.selector ?? "",
     dedicatedMsgSender: true,
-    singleExec: true,
+    singleExec: false,
     trigger: {
       type: TriggerType.TIME,
       start: (await getTimeStampNow()) + 300,

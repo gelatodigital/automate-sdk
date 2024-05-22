@@ -34,7 +34,7 @@ export interface AutomateProxyFactoryInterface extends Interface {
       | "implementation"
       | "isProxy"
       | "ops"
-      | "version"
+      | "version",
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "DeployProxy"): EventFragment;
@@ -42,31 +42,31 @@ export interface AutomateProxyFactoryInterface extends Interface {
   encodeFunctionData(functionFragment: "deploy", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deployFor",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "determineProxyAddress",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "getNextSeed",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "getOwnerOf",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "getProxyOf",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "implementation",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "isProxy",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(functionFragment: "ops", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
@@ -75,17 +75,17 @@ export interface AutomateProxyFactoryInterface extends Interface {
   decodeFunctionResult(functionFragment: "deployFor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "determineProxyAddress",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "getNextSeed",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "getOwnerOf", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "getProxyOf", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "implementation",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "isProxy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ops", data: BytesLike): Result;
@@ -98,14 +98,14 @@ export namespace DeployProxyEvent {
     owner: AddressLike,
     seed: BytesLike,
     salt: BytesLike,
-    proxy: AddressLike
+    proxy: AddressLike,
   ];
   export type OutputTuple = [
     deployer: string,
     owner: string,
     seed: string,
     salt: string,
-    proxy: string
+    proxy: string,
   ];
   export interface OutputObject {
     deployer: string;
@@ -129,38 +129,38 @@ export interface AutomateProxyFactory extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
   removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
+    event?: TCEvent,
   ): Promise<this>;
 
   deploy: TypedContractMethod<[], [string], "nonpayable">;
@@ -192,42 +192,42 @@ export interface AutomateProxyFactory extends BaseContract {
   version: TypedContractMethod<[], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
+    key: string | FunctionFragment,
   ): T;
 
   getFunction(
-    nameOrSignature: "deploy"
+    nameOrSignature: "deploy",
   ): TypedContractMethod<[], [string], "nonpayable">;
   getFunction(
-    nameOrSignature: "deployFor"
+    nameOrSignature: "deployFor",
   ): TypedContractMethod<[owner: AddressLike], [string], "nonpayable">;
   getFunction(
-    nameOrSignature: "determineProxyAddress"
+    nameOrSignature: "determineProxyAddress",
   ): TypedContractMethod<[_account: AddressLike], [string], "view">;
   getFunction(
-    nameOrSignature: "getNextSeed"
+    nameOrSignature: "getNextSeed",
   ): TypedContractMethod<[_account: AddressLike], [string], "view">;
   getFunction(
-    nameOrSignature: "getOwnerOf"
+    nameOrSignature: "getOwnerOf",
   ): TypedContractMethod<[_proxy: AddressLike], [string], "view">;
   getFunction(
-    nameOrSignature: "getProxyOf"
+    nameOrSignature: "getProxyOf",
   ): TypedContractMethod<[_account: AddressLike], [[string, boolean]], "view">;
   getFunction(
-    nameOrSignature: "implementation"
+    nameOrSignature: "implementation",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "isProxy"
+    nameOrSignature: "isProxy",
   ): TypedContractMethod<[proxy: AddressLike], [boolean], "view">;
   getFunction(
-    nameOrSignature: "ops"
+    nameOrSignature: "ops",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "version"
+    nameOrSignature: "version",
   ): TypedContractMethod<[], [bigint], "view">;
 
   getEvent(
-    key: "DeployProxy"
+    key: "DeployProxy",
   ): TypedContractEvent<
     DeployProxyEvent.InputTuple,
     DeployProxyEvent.OutputTuple,

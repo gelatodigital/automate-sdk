@@ -47,16 +47,21 @@ export interface AutomateInterface extends Interface {
       | "taskModuleAddresses"
       | "taskTreasury"
       | "timedTask"
-      | "version"
+      | "version",
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "cancelTask",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "createTask",
-    values: [AddressLike, BytesLike, LibDataTypes.ModuleDataStruct, AddressLike]
+    values: [
+      AddressLike,
+      BytesLike,
+      LibDataTypes.ModuleDataStruct,
+      AddressLike,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: "exec",
@@ -68,43 +73,43 @@ export interface AutomateInterface extends Interface {
       BigNumberish,
       AddressLike,
       boolean,
-      boolean
-    ]
+      boolean,
+    ],
   ): string;
   encodeFunctionData(
     functionFragment: "execAddresses",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(functionFragment: "gelato", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "getFeeDetails",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "getTaskIdsByUser",
-    values: [AddressLike]
+    values: [AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "setModule",
-    values: [BigNumberish[], AddressLike[]]
+    values: [BigNumberish[], AddressLike[]],
   ): string;
   encodeFunctionData(
     functionFragment: "taskCreator",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "taskModuleAddresses",
-    values: [BigNumberish]
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: "taskTreasury",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "timedTask",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
@@ -113,31 +118,31 @@ export interface AutomateInterface extends Interface {
   decodeFunctionResult(functionFragment: "exec", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "execAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "gelato", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getFeeDetails",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTaskIdsByUser",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "setModule", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskModuleAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskTreasury",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
@@ -152,38 +157,38 @@ export interface Automate extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
   removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
+    event?: TCEvent,
   ): Promise<this>;
 
   cancelTask: TypedContractMethod<[_taskId: BytesLike], [void], "nonpayable">;
@@ -193,7 +198,7 @@ export interface Automate extends BaseContract {
       _execAddress: AddressLike,
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
-      _feeToken: AddressLike
+      _feeToken: AddressLike,
     ],
     [string],
     "nonpayable"
@@ -208,7 +213,7 @@ export interface Automate extends BaseContract {
       _txFee: BigNumberish,
       _feeToken: AddressLike,
       _useTaskTreasuryFunds: boolean,
-      _revertOnFailure: boolean
+      _revertOnFailure: boolean,
     ],
     [void],
     "nonpayable"
@@ -255,26 +260,26 @@ export interface Automate extends BaseContract {
   version: TypedContractMethod<[], [string], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
+    key: string | FunctionFragment,
   ): T;
 
   getFunction(
-    nameOrSignature: "cancelTask"
+    nameOrSignature: "cancelTask",
   ): TypedContractMethod<[_taskId: BytesLike], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "createTask"
+    nameOrSignature: "createTask",
   ): TypedContractMethod<
     [
       _execAddress: AddressLike,
       _execDataOrSelector: BytesLike,
       _moduleData: LibDataTypes.ModuleDataStruct,
-      _feeToken: AddressLike
+      _feeToken: AddressLike,
     ],
     [string],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "exec"
+    nameOrSignature: "exec",
   ): TypedContractMethod<
     [
       _taskCreator: AddressLike,
@@ -284,54 +289,54 @@ export interface Automate extends BaseContract {
       _txFee: BigNumberish,
       _feeToken: AddressLike,
       _useTaskTreasuryFunds: boolean,
-      _revertOnFailure: boolean
+      _revertOnFailure: boolean,
     ],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "execAddresses"
+    nameOrSignature: "execAddresses",
   ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
   getFunction(
-    nameOrSignature: "fee"
+    nameOrSignature: "fee",
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "feeToken"
+    nameOrSignature: "feeToken",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "gelato"
+    nameOrSignature: "gelato",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "getFeeDetails"
+    nameOrSignature: "getFeeDetails",
   ): TypedContractMethod<[], [[bigint, string]], "view">;
   getFunction(
-    nameOrSignature: "getTaskIdsByUser"
+    nameOrSignature: "getTaskIdsByUser",
   ): TypedContractMethod<[_taskCreator: AddressLike], [string[]], "view">;
   getFunction(
-    nameOrSignature: "setModule"
+    nameOrSignature: "setModule",
   ): TypedContractMethod<
     [_modules: BigNumberish[], _moduleAddresses: AddressLike[]],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "taskCreator"
+    nameOrSignature: "taskCreator",
   ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
   getFunction(
-    nameOrSignature: "taskModuleAddresses"
+    nameOrSignature: "taskModuleAddresses",
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
-    nameOrSignature: "taskTreasury"
+    nameOrSignature: "taskTreasury",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "timedTask"
+    nameOrSignature: "timedTask",
   ): TypedContractMethod<
     [arg0: BytesLike],
     [[bigint, bigint] & { nextExec: bigint; interval: bigint }],
     "view"
   >;
   getFunction(
-    nameOrSignature: "version"
+    nameOrSignature: "version",
   ): TypedContractMethod<[], [string], "view">;
 
   filters: {};

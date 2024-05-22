@@ -35,89 +35,89 @@ export interface ProxyModuleInterface extends Interface {
       | "preExecCall"
       | "taskCreator"
       | "taskModuleAddresses"
-      | "timedTask"
+      | "timedTask",
   ): FunctionFragment;
 
   encodeFunctionData(
     functionFragment: "execAddresses",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(functionFragment: "fee", values?: undefined): string;
   encodeFunctionData(functionFragment: "feeToken", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onCreateTask",
-    values: [BytesLike, AddressLike, AddressLike, BytesLike, BytesLike]
+    values: [BytesLike, AddressLike, AddressLike, BytesLike, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "opsProxyFactory",
-    values?: undefined
+    values?: undefined,
   ): string;
   encodeFunctionData(
     functionFragment: "postExecCall",
-    values: [BytesLike, AddressLike, AddressLike, BytesLike]
+    values: [BytesLike, AddressLike, AddressLike, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "preCancelTask",
-    values: [BytesLike, AddressLike]
+    values: [BytesLike, AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "preCreateTask",
-    values: [AddressLike, AddressLike]
+    values: [AddressLike, AddressLike],
   ): string;
   encodeFunctionData(
     functionFragment: "preExecCall",
-    values: [BytesLike, AddressLike, AddressLike, BytesLike]
+    values: [BytesLike, AddressLike, AddressLike, BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "taskCreator",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
   encodeFunctionData(
     functionFragment: "taskModuleAddresses",
-    values: [BigNumberish]
+    values: [BigNumberish],
   ): string;
   encodeFunctionData(
     functionFragment: "timedTask",
-    values: [BytesLike]
+    values: [BytesLike],
   ): string;
 
   decodeFunctionResult(
     functionFragment: "execAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "fee", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "feeToken", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onCreateTask",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "opsProxyFactory",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "postExecCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "preCancelTask",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "preCreateTask",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "preExecCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskCreator",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "taskModuleAddresses",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "timedTask", data: BytesLike): Result;
 }
@@ -131,38 +131,38 @@ export interface ProxyModule extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
   removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
+    event?: TCEvent,
   ): Promise<this>;
 
   execAddresses: TypedContractMethod<[arg0: BytesLike], [string], "view">;
@@ -177,7 +177,7 @@ export interface ProxyModule extends BaseContract {
       _taskCreator: AddressLike,
       arg2: AddressLike,
       arg3: BytesLike,
-      arg4: BytesLike
+      arg4: BytesLike,
     ],
     [void],
     "nonpayable"
@@ -190,7 +190,7 @@ export interface ProxyModule extends BaseContract {
       taskId: BytesLike,
       taskCreator: AddressLike,
       execAddress: AddressLike,
-      execData: BytesLike
+      execData: BytesLike,
     ],
     [void],
     "nonpayable"
@@ -213,7 +213,7 @@ export interface ProxyModule extends BaseContract {
       arg0: BytesLike,
       _taskCreator: AddressLike,
       _execAddress: AddressLike,
-      _execData: BytesLike
+      _execData: BytesLike,
     ],
     [[string, string] & { execData: string }],
     "view"
@@ -234,80 +234,80 @@ export interface ProxyModule extends BaseContract {
   >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
+    key: string | FunctionFragment,
   ): T;
 
   getFunction(
-    nameOrSignature: "execAddresses"
+    nameOrSignature: "execAddresses",
   ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
   getFunction(
-    nameOrSignature: "fee"
+    nameOrSignature: "fee",
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "feeToken"
+    nameOrSignature: "feeToken",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "onCreateTask"
+    nameOrSignature: "onCreateTask",
   ): TypedContractMethod<
     [
       arg0: BytesLike,
       _taskCreator: AddressLike,
       arg2: AddressLike,
       arg3: BytesLike,
-      arg4: BytesLike
+      arg4: BytesLike,
     ],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "opsProxyFactory"
+    nameOrSignature: "opsProxyFactory",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "postExecCall"
+    nameOrSignature: "postExecCall",
   ): TypedContractMethod<
     [
       taskId: BytesLike,
       taskCreator: AddressLike,
       execAddress: AddressLike,
-      execData: BytesLike
+      execData: BytesLike,
     ],
     [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "preCancelTask"
+    nameOrSignature: "preCancelTask",
   ): TypedContractMethod<
     [arg0: BytesLike, _taskCreator: AddressLike],
     [string],
     "view"
   >;
   getFunction(
-    nameOrSignature: "preCreateTask"
+    nameOrSignature: "preCreateTask",
   ): TypedContractMethod<
     [_taskCreator: AddressLike, _execAddress: AddressLike],
     [[string, string]],
     "view"
   >;
   getFunction(
-    nameOrSignature: "preExecCall"
+    nameOrSignature: "preExecCall",
   ): TypedContractMethod<
     [
       arg0: BytesLike,
       _taskCreator: AddressLike,
       _execAddress: AddressLike,
-      _execData: BytesLike
+      _execData: BytesLike,
     ],
     [[string, string] & { execData: string }],
     "view"
   >;
   getFunction(
-    nameOrSignature: "taskCreator"
+    nameOrSignature: "taskCreator",
   ): TypedContractMethod<[arg0: BytesLike], [string], "view">;
   getFunction(
-    nameOrSignature: "taskModuleAddresses"
+    nameOrSignature: "taskModuleAddresses",
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
-    nameOrSignature: "timedTask"
+    nameOrSignature: "timedTask",
   ): TypedContractMethod<
     [arg0: BytesLike],
     [[bigint, bigint] & { nextExec: bigint; interval: bigint }],

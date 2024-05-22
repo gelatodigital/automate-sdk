@@ -30,18 +30,18 @@ export interface AutomateProxyInterface extends Interface {
       | "executeCall"
       | "ops"
       | "owner"
-      | "version"
+      | "version",
   ): FunctionFragment;
 
   getEvent(nameOrSignatureOrTopic: "ExecuteCall"): EventFragment;
 
   encodeFunctionData(
     functionFragment: "batchExecuteCall",
-    values: [AddressLike[], BytesLike[], BigNumberish[]]
+    values: [AddressLike[], BytesLike[], BigNumberish[]],
   ): string;
   encodeFunctionData(
     functionFragment: "executeCall",
-    values: [AddressLike, BytesLike, BigNumberish]
+    values: [AddressLike, BytesLike, BigNumberish],
   ): string;
   encodeFunctionData(functionFragment: "ops", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -49,11 +49,11 @@ export interface AutomateProxyInterface extends Interface {
 
   decodeFunctionResult(
     functionFragment: "batchExecuteCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(
     functionFragment: "executeCall",
-    data: BytesLike
+    data: BytesLike,
   ): Result;
   decodeFunctionResult(functionFragment: "ops", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -65,13 +65,13 @@ export namespace ExecuteCallEvent {
     target: AddressLike,
     data: BytesLike,
     value: BigNumberish,
-    returnData: BytesLike
+    returnData: BytesLike,
   ];
   export type OutputTuple = [
     target: string,
     data: string,
     value: bigint,
-    returnData: string
+    returnData: string,
   ];
   export interface OutputObject {
     target: string;
@@ -94,38 +94,38 @@ export interface AutomateProxy extends BaseContract {
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
   queryFilter<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
     fromBlockOrBlockhash?: string | number | undefined,
-    toBlock?: string | number | undefined
+    toBlock?: string | number | undefined,
   ): Promise<Array<TypedEventLog<TCEvent>>>;
 
   on<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   on<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   once<TCEvent extends TypedContractEvent>(
     event: TCEvent,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
   once<TCEvent extends TypedContractEvent>(
     filter: TypedDeferredTopicFilter<TCEvent>,
-    listener: TypedListener<TCEvent>
+    listener: TypedListener<TCEvent>,
   ): Promise<this>;
 
   listeners<TCEvent extends TypedContractEvent>(
-    event: TCEvent
+    event: TCEvent,
   ): Promise<Array<TypedListener<TCEvent>>>;
   listeners(eventName?: string): Promise<Array<Listener>>;
   removeAllListeners<TCEvent extends TypedContractEvent>(
-    event?: TCEvent
+    event?: TCEvent,
   ): Promise<this>;
 
   batchExecuteCall: TypedContractMethod<
@@ -147,35 +147,35 @@ export interface AutomateProxy extends BaseContract {
   version: TypedContractMethod<[], [bigint], "view">;
 
   getFunction<T extends ContractMethod = ContractMethod>(
-    key: string | FunctionFragment
+    key: string | FunctionFragment,
   ): T;
 
   getFunction(
-    nameOrSignature: "batchExecuteCall"
+    nameOrSignature: "batchExecuteCall",
   ): TypedContractMethod<
     [_targets: AddressLike[], _datas: BytesLike[], _values: BigNumberish[]],
     [void],
     "payable"
   >;
   getFunction(
-    nameOrSignature: "executeCall"
+    nameOrSignature: "executeCall",
   ): TypedContractMethod<
     [_target: AddressLike, _data: BytesLike, _value: BigNumberish],
     [void],
     "payable"
   >;
   getFunction(
-    nameOrSignature: "ops"
+    nameOrSignature: "ops",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "owner"
+    nameOrSignature: "owner",
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "version"
+    nameOrSignature: "version",
   ): TypedContractMethod<[], [bigint], "view">;
 
   getEvent(
-    key: "ExecuteCall"
+    key: "ExecuteCall",
   ): TypedContractEvent<
     ExecuteCallEvent.InputTuple,
     ExecuteCallEvent.OutputTuple,
