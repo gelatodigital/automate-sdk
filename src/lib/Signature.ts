@@ -1,4 +1,5 @@
-import { Signer } from "@ethersproject/abstract-signer";
+// import { Signer } from "@ethersproject/abstract-signer";
+import { Signer } from "ethers";
 import { Buffer } from "buffer";
 import { SiweMessage } from "siwe";
 import { ChainId } from "../types";

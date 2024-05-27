@@ -1,4 +1,4 @@
-import { Signer } from "@ethersproject/abstract-signer";
+import { Signer } from "ethers";
 import { ChainId, Config } from "../../types";
 import { Signature } from "../Signature";
 import { Web3FunctionSecrets } from "./Web3FunctionSecrets";
