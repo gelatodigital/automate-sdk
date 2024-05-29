@@ -57,6 +57,7 @@ export const CHAIN_ID = {
   LISK: 1135,
   COREDAO: 1116,
   ROOTSTOCK: 30,
+  NOVASTROTESTNET: 560098,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -196,6 +197,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.ROOTSTOCK]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.NOVASTROTESTNET]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
