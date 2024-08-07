@@ -3,44 +3,28 @@
 /* eslint-disable */
 import type {
   BaseContract,
-  BigNumber,
   BytesLike,
-  CallOverrides,
-  ContractTransaction,
-  Overrides,
-  PopulatedTransaction,
-  Signer,
-  utils,
-} from "ethers";
-import type {
   FunctionFragment,
   Result,
+  Interface,
   EventFragment,
-} from "@ethersproject/abi";
-import type { Listener, Provider } from "@ethersproject/providers";
+  AddressLike,
+  ContractRunner,
+  ContractMethod,
+  Listener,
+} from "ethers";
 import type {
-  TypedEventFilter,
-  TypedEvent,
+  TypedContractEvent,
+  TypedDeferredTopicFilter,
+  TypedEventLog,
+  TypedLogDescription,
   TypedListener,
-  OnEvent,
+  TypedContractMethod,
 } from "./common";
 
-export interface AutomateProxyFactoryInterface extends utils.Interface {
-  functions: {
-    "deploy()": FunctionFragment;
-    "deployFor(address)": FunctionFragment;
-    "determineProxyAddress(address)": FunctionFragment;
-    "getNextSeed(address)": FunctionFragment;
-    "getOwnerOf(address)": FunctionFragment;
-    "getProxyOf(address)": FunctionFragment;
-    "implementation()": FunctionFragment;
-    "isProxy(address)": FunctionFragment;
-    "ops()": FunctionFragment;
-    "version()": FunctionFragment;
-  };
-
+export interface AutomateProxyFactoryInterface extends Interface {
   getFunction(
-    nameOrSignatureOrTopic:
+    nameOrSignature:
       | "deploy"
       | "deployFor"
       | "determineProxyAddress"
@@ -53,20 +37,37 @@ export interface AutomateProxyFactoryInterface extends utils.Interface {
       | "version",
   ): FunctionFragment;
 
+  getEvent(nameOrSignatureOrTopic: "DeployProxy"): EventFragment;
+
   encodeFunctionData(functionFragment: "deploy", values?: undefined): string;
-  encodeFunctionData(functionFragment: "deployFor", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "deployFor",
+    values: [AddressLike],
+  ): string;
   encodeFunctionData(
     functionFragment: "determineProxyAddress",
-    values: [string],
+    values: [AddressLike],
   ): string;
-  encodeFunctionData(functionFragment: "getNextSeed", values: [string]): string;
-  encodeFunctionData(functionFragment: "getOwnerOf", values: [string]): string;
-  encodeFunctionData(functionFragment: "getProxyOf", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "getNextSeed",
+    values: [AddressLike],
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getOwnerOf",
+    values: [AddressLike],
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getProxyOf",
+    values: [AddressLike],
+  ): string;
   encodeFunctionData(
     functionFragment: "implementation",
     values?: undefined,
   ): string;
-  encodeFunctionData(functionFragment: "isProxy", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "isProxy",
+    values: [AddressLike],
+  ): string;
   encodeFunctionData(functionFragment: "ops", values?: undefined): string;
   encodeFunctionData(functionFragment: "version", values?: undefined): string;
 
@@ -89,233 +90,160 @@ export interface AutomateProxyFactoryInterface extends utils.Interface {
   decodeFunctionResult(functionFragment: "isProxy", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "ops", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "version", data: BytesLike): Result;
-
-  events: {
-    "DeployProxy(address,address,bytes32,bytes32,address)": EventFragment;
-  };
-
-  getEvent(nameOrSignatureOrTopic: "DeployProxy"): EventFragment;
 }
 
-export interface DeployProxyEventObject {
-  deployer: string;
-  owner: string;
-  seed: string;
-  salt: string;
-  proxy: string;
+export namespace DeployProxyEvent {
+  export type InputTuple = [
+    deployer: AddressLike,
+    owner: AddressLike,
+    seed: BytesLike,
+    salt: BytesLike,
+    proxy: AddressLike,
+  ];
+  export type OutputTuple = [
+    deployer: string,
+    owner: string,
+    seed: string,
+    salt: string,
+    proxy: string,
+  ];
+  export interface OutputObject {
+    deployer: string;
+    owner: string;
+    seed: string;
+    salt: string;
+    proxy: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
-export type DeployProxyEvent = TypedEvent<
-  [string, string, string, string, string],
-  DeployProxyEventObject
->;
-
-export type DeployProxyEventFilter = TypedEventFilter<DeployProxyEvent>;
 
 export interface AutomateProxyFactory extends BaseContract {
-  connect(signerOrProvider: Signer | Provider | string): this;
-  attach(addressOrName: string): this;
-  deployed(): Promise<this>;
+  connect(runner?: ContractRunner | null): AutomateProxyFactory;
+  waitForDeployment(): Promise<this>;
 
   interface: AutomateProxyFactoryInterface;
 
-  queryFilter<TEvent extends TypedEvent>(
-    event: TypedEventFilter<TEvent>,
+  queryFilter<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
     fromBlockOrBlockhash?: string | number | undefined,
     toBlock?: string | number | undefined,
-  ): Promise<Array<TEvent>>;
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
+  queryFilter<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    fromBlockOrBlockhash?: string | number | undefined,
+    toBlock?: string | number | undefined,
+  ): Promise<Array<TypedEventLog<TCEvent>>>;
 
-  listeners<TEvent extends TypedEvent>(
-    eventFilter?: TypedEventFilter<TEvent>,
-  ): Array<TypedListener<TEvent>>;
-  listeners(eventName?: string): Array<Listener>;
-  removeAllListeners<TEvent extends TypedEvent>(
-    eventFilter: TypedEventFilter<TEvent>,
-  ): this;
-  removeAllListeners(eventName?: string): this;
-  off: OnEvent<this>;
-  on: OnEvent<this>;
-  once: OnEvent<this>;
-  removeListener: OnEvent<this>;
+  on<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>;
+  on<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>;
 
-  functions: {
-    deploy(
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
+  once<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>;
+  once<TCEvent extends TypedContractEvent>(
+    filter: TypedDeferredTopicFilter<TCEvent>,
+    listener: TypedListener<TCEvent>,
+  ): Promise<this>;
 
-    deployFor(
-      owner: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<ContractTransaction>;
+  listeners<TCEvent extends TypedContractEvent>(
+    event: TCEvent,
+  ): Promise<Array<TypedListener<TCEvent>>>;
+  listeners(eventName?: string): Promise<Array<Listener>>;
+  removeAllListeners<TCEvent extends TypedContractEvent>(
+    event?: TCEvent,
+  ): Promise<this>;
 
-    determineProxyAddress(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<[string]>;
+  deploy: TypedContractMethod<[], [string], "nonpayable">;
 
-    getNextSeed(_account: string, overrides?: CallOverrides): Promise<[string]>;
+  deployFor: TypedContractMethod<[owner: AddressLike], [string], "nonpayable">;
 
-    getOwnerOf(_proxy: string, overrides?: CallOverrides): Promise<[string]>;
+  determineProxyAddress: TypedContractMethod<
+    [_account: AddressLike],
+    [string],
+    "view"
+  >;
 
-    getProxyOf(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<[string, boolean]>;
+  getNextSeed: TypedContractMethod<[_account: AddressLike], [string], "view">;
 
-    implementation(overrides?: CallOverrides): Promise<[string]>;
+  getOwnerOf: TypedContractMethod<[_proxy: AddressLike], [string], "view">;
 
-    isProxy(proxy: string, overrides?: CallOverrides): Promise<[boolean]>;
+  getProxyOf: TypedContractMethod<
+    [_account: AddressLike],
+    [[string, boolean]],
+    "view"
+  >;
 
-    ops(overrides?: CallOverrides): Promise<[string]>;
+  implementation: TypedContractMethod<[], [string], "view">;
 
-    version(overrides?: CallOverrides): Promise<[BigNumber]>;
-  };
+  isProxy: TypedContractMethod<[proxy: AddressLike], [boolean], "view">;
 
-  deploy(
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
+  ops: TypedContractMethod<[], [string], "view">;
 
-  deployFor(
-    owner: string,
-    overrides?: Overrides & { from?: string },
-  ): Promise<ContractTransaction>;
+  version: TypedContractMethod<[], [bigint], "view">;
 
-  determineProxyAddress(
-    _account: string,
-    overrides?: CallOverrides,
-  ): Promise<string>;
+  getFunction<T extends ContractMethod = ContractMethod>(
+    key: string | FunctionFragment,
+  ): T;
 
-  getNextSeed(_account: string, overrides?: CallOverrides): Promise<string>;
+  getFunction(
+    nameOrSignature: "deploy",
+  ): TypedContractMethod<[], [string], "nonpayable">;
+  getFunction(
+    nameOrSignature: "deployFor",
+  ): TypedContractMethod<[owner: AddressLike], [string], "nonpayable">;
+  getFunction(
+    nameOrSignature: "determineProxyAddress",
+  ): TypedContractMethod<[_account: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getNextSeed",
+  ): TypedContractMethod<[_account: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getOwnerOf",
+  ): TypedContractMethod<[_proxy: AddressLike], [string], "view">;
+  getFunction(
+    nameOrSignature: "getProxyOf",
+  ): TypedContractMethod<[_account: AddressLike], [[string, boolean]], "view">;
+  getFunction(
+    nameOrSignature: "implementation",
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "isProxy",
+  ): TypedContractMethod<[proxy: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "ops",
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "version",
+  ): TypedContractMethod<[], [bigint], "view">;
 
-  getOwnerOf(_proxy: string, overrides?: CallOverrides): Promise<string>;
-
-  getProxyOf(
-    _account: string,
-    overrides?: CallOverrides,
-  ): Promise<[string, boolean]>;
-
-  implementation(overrides?: CallOverrides): Promise<string>;
-
-  isProxy(proxy: string, overrides?: CallOverrides): Promise<boolean>;
-
-  ops(overrides?: CallOverrides): Promise<string>;
-
-  version(overrides?: CallOverrides): Promise<BigNumber>;
-
-  callStatic: {
-    deploy(overrides?: CallOverrides): Promise<string>;
-
-    deployFor(owner: string, overrides?: CallOverrides): Promise<string>;
-
-    determineProxyAddress(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<string>;
-
-    getNextSeed(_account: string, overrides?: CallOverrides): Promise<string>;
-
-    getOwnerOf(_proxy: string, overrides?: CallOverrides): Promise<string>;
-
-    getProxyOf(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<[string, boolean]>;
-
-    implementation(overrides?: CallOverrides): Promise<string>;
-
-    isProxy(proxy: string, overrides?: CallOverrides): Promise<boolean>;
-
-    ops(overrides?: CallOverrides): Promise<string>;
-
-    version(overrides?: CallOverrides): Promise<BigNumber>;
-  };
+  getEvent(
+    key: "DeployProxy",
+  ): TypedContractEvent<
+    DeployProxyEvent.InputTuple,
+    DeployProxyEvent.OutputTuple,
+    DeployProxyEvent.OutputObject
+  >;
 
   filters: {
-    "DeployProxy(address,address,bytes32,bytes32,address)"(
-      deployer?: string | null,
-      owner?: string | null,
-      seed?: null,
-      salt?: null,
-      proxy?: null,
-    ): DeployProxyEventFilter;
-    DeployProxy(
-      deployer?: string | null,
-      owner?: string | null,
-      seed?: null,
-      salt?: null,
-      proxy?: null,
-    ): DeployProxyEventFilter;
-  };
-
-  estimateGas: {
-    deploy(overrides?: Overrides & { from?: string }): Promise<BigNumber>;
-
-    deployFor(
-      owner: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<BigNumber>;
-
-    determineProxyAddress(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getNextSeed(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<BigNumber>;
-
-    getOwnerOf(_proxy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    getProxyOf(_account: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    implementation(overrides?: CallOverrides): Promise<BigNumber>;
-
-    isProxy(proxy: string, overrides?: CallOverrides): Promise<BigNumber>;
-
-    ops(overrides?: CallOverrides): Promise<BigNumber>;
-
-    version(overrides?: CallOverrides): Promise<BigNumber>;
-  };
-
-  populateTransaction: {
-    deploy(
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    deployFor(
-      owner: string,
-      overrides?: Overrides & { from?: string },
-    ): Promise<PopulatedTransaction>;
-
-    determineProxyAddress(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getNextSeed(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getOwnerOf(
-      _proxy: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    getProxyOf(
-      _account: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    implementation(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    isProxy(
-      proxy: string,
-      overrides?: CallOverrides,
-    ): Promise<PopulatedTransaction>;
-
-    ops(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    version(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    "DeployProxy(address,address,bytes32,bytes32,address)": TypedContractEvent<
+      DeployProxyEvent.InputTuple,
+      DeployProxyEvent.OutputTuple,
+      DeployProxyEvent.OutputObject
+    >;
+    DeployProxy: TypedContractEvent<
+      DeployProxyEvent.InputTuple,
+      DeployProxyEvent.OutputTuple,
+      DeployProxyEvent.OutputObject
+    >;
   };
 }

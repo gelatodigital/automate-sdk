@@ -1,4 +1,4 @@
-import { Signer } from "@ethersproject/abstract-signer";
+import { Signer } from "ethers";
 import axios, { Axios } from "axios";
 import { AUTOMATE_USER_API, AUTOMATE_USER_DEV_API } from "../../constants";
 import { ChainId, Config, Storage } from "../../types";
