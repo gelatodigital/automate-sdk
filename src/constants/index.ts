@@ -63,6 +63,7 @@ export const CHAIN_ID = {
   RIDOTTOTETROMINO: 4444,
   ALEPHZERO: 41455,
   BERACHAINBARTIO: 80084,
+  PRISM: 994873017,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -220,6 +221,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.BERACHAINBARTIO]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.PRISM]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
