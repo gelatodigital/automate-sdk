@@ -18,7 +18,7 @@ const main = async () => {
   const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 
   const wallet = new ethers.Wallet(pk as string, provider);
-  const sdk = new AutomateSDK(chainId, wallet);
+  const sdk = await AutomateSDK.create(chainId, wallet);
 
   const { taskId, tx } = await sdk.createTask({
     name: "AutomateSdkTest",
