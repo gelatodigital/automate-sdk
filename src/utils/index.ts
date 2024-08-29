@@ -4,11 +4,11 @@ import { W3fNetwork } from "../types/W3FNetworks.interface";
 
 export async function getNetwork(chainId: number): Promise<W3fNetwork | null> {
   try {
-    const response = await axios.get<{ network: W3fNetwork }>(
-      `${W3F_API_ENDPOINT}/networks/${chainId}`,
+    const response = await axios.get<{ networks: W3fNetwork }>(
+      `${W3F_API_ENDPOINT}/${chainId}`,
     );
 
-    return response.data.network;
+    return response.data.networks;
   } catch (error) {
     if (axios.isAxiosError(error)) {
       if (error.response?.status !== 404) {
