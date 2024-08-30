@@ -37,7 +37,7 @@ import {
   TaskTransaction,
 } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import { errorMessage, getNetwork, isAutomateDevSupported } from "../utils";
+import { errorMessage, isAutomateDevSupported, w3fApi } from "../utils";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
 
@@ -79,7 +79,7 @@ export class AutomateSDK {
 
       automateAddress = GELATO_ADDRESSES[chainId].automateDev!;
     } else {
-      const network = await getNetwork(chainId);
+      const network = await w3fApi.getNetwork(chainId, config?.isDevelopment);
       if (!network) {
         throw new Error(`Automate is not available on chainId:${chainId}`);
       }

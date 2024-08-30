@@ -2,6 +2,8 @@
 import { GelatoAddressBook } from "../types";
 
 export const W3F_API_ENDPOINT = "https://api.gelato.digital/w3f/networks";
+export const W3F_API_ENDPOINT_DEV =
+  "https://api.dev.gelato.digital/w3f/networks";
 export const AUTOMATE_USER_API = "https://api.gelato.digital/automate/users";
 export const AUTOMATE_TASKS_API = "https://api.gelato.digital/automate/tasks";
 export const AUTOMATE_USER_DEV_API =
