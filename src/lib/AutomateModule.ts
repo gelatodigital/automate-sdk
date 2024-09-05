@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 /* eslint-disable no-empty */
-import { BigNumber, ethers } from "ethers";
+import { ethers } from "ethers";
 import {
   Module,
   ModuleArgsParams,
@@ -139,7 +139,7 @@ export class AutomateModule {
     resolverAddress: string,
     resolverData: string,
   ): string => {
-    const encoded = ethers.utils.defaultAbiCoder.encode(
+    const encoded = ethers.AbiCoder.defaultAbiCoder().encode(
       ["address", "bytes"],
       [resolverAddress, resolverData],
     );
@@ -152,10 +152,11 @@ export class AutomateModule {
     let resolverData: string | null = null;
 
     try {
-      [resolverAddress, resolverData] = ethers.utils.defaultAbiCoder.decode(
-        ["address", "bytes"],
-        encodedModuleArgs,
-      );
+      [resolverAddress, resolverData] =
+        ethers.AbiCoder.defaultAbiCoder().decode(
+          ["address", "bytes"],
+          encodedModuleArgs,
+        );
     } catch {}
 
     return { resolverAddress, resolverData };
@@ -189,13 +190,13 @@ export class AutomateModule {
           values.push(web3FunctionArgs[key]);
         }
 
-        web3FunctionArgsHex = ethers.utils.defaultAbiCoder.encode(
+        web3FunctionArgsHex = ethers.AbiCoder.defaultAbiCoder().encode(
           types,
           values,
         );
       }
 
-      const encoded = ethers.utils.defaultAbiCoder.encode(
+      const encoded = ethers.AbiCoder.defaultAbiCoder().encode(
         ["string", "bytes"],
         [web3FunctionHash, web3FunctionArgsHex],
       );
@@ -215,7 +216,7 @@ export class AutomateModule {
     let web3FunctionSchema: Web3FunctionSchema | undefined;
 
     [web3FunctionHash, web3FunctionArgsHex] =
-      ethers.utils.defaultAbiCoder.decode(
+      ethers.AbiCoder.defaultAbiCoder().decode(
         ["string", "bytes"],
         encodedModuleArgs,
       );
@@ -245,27 +246,27 @@ export class AutomateModule {
     let triggerArgs: string;
 
     if (trigger.type === TriggerType.TIME) {
-      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+      const triggerBytes = ethers.AbiCoder.defaultAbiCoder().encode(
         ["uint128", "uint128"],
         [trigger.start ?? 0, trigger.interval],
       );
 
-      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+      triggerArgs = ethers.AbiCoder.defaultAbiCoder().encode(
         ["uint128", "bytes"],
         [Number(TriggerType.TIME), triggerBytes],
       );
     } else if (trigger.type === TriggerType.CRON) {
-      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+      const triggerBytes = ethers.AbiCoder.defaultAbiCoder().encode(
         ["string"],
         [trigger.cron],
       );
 
-      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+      triggerArgs = ethers.AbiCoder.defaultAbiCoder().encode(
         ["uint8", "bytes"],
         [Number(TriggerType.CRON), triggerBytes],
       );
     } else if (trigger.type === TriggerType.EVENT) {
-      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+      const triggerBytes = ethers.AbiCoder.defaultAbiCoder().encode(
         ["address", "bytes32[][]", "uint256"],
         [
           trigger.filter.address,
@@ -274,17 +275,17 @@ export class AutomateModule {
         ],
       );
 
-      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+      triggerArgs = ethers.AbiCoder.defaultAbiCoder().encode(
         ["uint8", "bytes"],
         [Number(TriggerType.EVENT), triggerBytes],
       );
     } else {
-      const triggerBytes = ethers.utils.defaultAbiCoder.encode(
+      const triggerBytes = ethers.AbiCoder.defaultAbiCoder().encode(
         ["bytes"],
         ["0x"],
       );
 
-      triggerArgs = ethers.utils.defaultAbiCoder.encode(
+      triggerArgs = ethers.AbiCoder.defaultAbiCoder().encode(
         ["uint8", "bytes"],
         [Number(TriggerType.BLOCK), triggerBytes],
       );
@@ -301,29 +302,29 @@ export class AutomateModule {
     let trigger: TriggerConfig | null = null;
 
     try {
-      [type, encodedTriggerConfig] = ethers.utils.defaultAbiCoder.decode(
+      [type, encodedTriggerConfig] = ethers.AbiCoder.defaultAbiCoder().decode(
         ["uint8", "bytes"],
         encodedModuleArgs,
       );
 
       if (type !== null && encodedTriggerConfig !== null) {
         if (type === TriggerType.TIME) {
-          let [start, interval] = ethers.utils.defaultAbiCoder.decode(
+          let [start, interval] = ethers.AbiCoder.defaultAbiCoder().decode(
             ["uint128", "uint128"],
             encodedTriggerConfig,
           );
 
           if (start !== null && interval !== null) {
-            if (typeof start === "object" && start instanceof BigNumber) {
-              start = start.toNumber();
+            if (typeof start === "object" && start instanceof BigInt) {
+              start = Number(start);
             }
-            if (typeof interval === "object" && interval instanceof BigNumber) {
-              interval = interval.toNumber();
+            if (typeof interval === "object" && interval instanceof BigInt) {
+              interval = Number(interval);
             }
             trigger = { type, start, interval };
           }
         } else if (type === TriggerType.CRON) {
-          const [cron] = ethers.utils.defaultAbiCoder.decode(
+          const [cron] = ethers.AbiCoder.defaultAbiCoder().decode(
             ["string"],
             encodedTriggerConfig,
           );
@@ -333,7 +334,7 @@ export class AutomateModule {
           }
         } else if (type === TriggerType.EVENT) {
           const [address, topics, blockConfirmations] =
-            ethers.utils.defaultAbiCoder.decode(
+            ethers.AbiCoder.defaultAbiCoder().decode(
               ["address", "bytes32[][]", "uint256"],
               encodedTriggerConfig,
             );
@@ -386,7 +387,7 @@ export class AutomateModule {
         );
 
       const { types, keys, schema } = schemaAbi;
-      const web3FunctionArgsValues = ethers.utils.defaultAbiCoder.decode(
+      const web3FunctionArgsValues = ethers.AbiCoder.defaultAbiCoder().decode(
         types,
         web3FunctionArgsHex,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -399,14 +400,14 @@ export class AutomateModule {
         // Transform BigNumber[] in number[]
         if (Array.isArray(val)) {
           val = val.map((v) => {
-            if (typeof v === "object" && v instanceof BigNumber) {
-              return v.toNumber();
+            if (typeof v === "object" && v instanceof BigInt) {
+              return Number(v);
             }
             return v;
           });
           // Transform BigNumber in number
-        } else if (typeof val === "object" && val instanceof BigNumber) {
-          val = val.toNumber();
+        } else if (typeof val === "object" && val instanceof BigInt) {
+          val = Number(val);
         }
 
         web3FunctionArgs[key] = val;
