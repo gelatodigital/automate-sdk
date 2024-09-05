@@ -14,7 +14,6 @@ import {
   AUTOMATE_TASKS_API,
   AUTOMATE_TASKS_DEV_API,
   ETH,
-  GELATO_ADDRESSES,
   ZERO_ADD,
 } from "../constants";
 import {
@@ -37,7 +36,7 @@ import {
   TaskTransaction,
 } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import { errorMessage, isAutomateDevSupported, w3fApi } from "../utils";
+import { errorMessage, w3fApi } from "../utils";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
 
@@ -71,21 +70,16 @@ export class AutomateSDK {
     signatureMessage?: string,
     config?: Partial<Config>,
   ): Promise<AutomateSDK> {
-    let automateAddress: string;
-    if (config && config.isDevelopment) {
-      if (!(await isAutomateDevSupported(chainId))) {
+    const network = await w3fApi.getNetwork(chainId, config?.isDevelopment);
+    if (!network) {
+      if (config?.isDevelopment) {
         throw new Error(`AutomateDev is not available on chainId:${chainId}`);
-      }
-
-      automateAddress = GELATO_ADDRESSES[chainId].automateDev!;
-    } else {
-      const network = await w3fApi.getNetwork(chainId, config?.isDevelopment);
-      if (!network) {
+      } else {
         throw new Error(`Automate is not available on chainId:${chainId}`);
       }
-
-      automateAddress = network.automate;
     }
+
+    const automateAddress = network.automate;
 
     if (!Signer.isSigner(signer)) {
       throw new Error(`Invalid Automate signer`);

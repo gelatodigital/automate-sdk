@@ -3,14 +3,15 @@ import { W3F_API_ENDPOINT, W3F_API_ENDPOINT_DEV } from "../constants";
 import { W3fNetwork } from "../types/W3fNetworks.interface";
 
 class W3FApi {
-  private _network: Map<number, string> = new Map();
+  private _network: Map<string, string> = new Map();
 
   public async getNetwork(
     chainId: number,
     isDevelopment?: boolean,
   ): Promise<W3fNetwork | null> {
     try {
-      const cacheNetwork = this._network.get(chainId);
+      const key = `${chainId}_${isDevelopment ? "dev" : "prod"}`;
+      const cacheNetwork = this._network.get(key);
       if (cacheNetwork !== undefined) {
         return JSON.parse(cacheNetwork) as W3fNetwork;
       }
@@ -21,7 +22,7 @@ class W3FApi {
         `${endpoint}/${chainId}`,
       );
 
-      this._network.set(chainId, JSON.stringify(response.data.network));
+      this._network.set(key, JSON.stringify(response.data.network));
 
       return response.data.network;
     } catch (error) {
