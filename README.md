@@ -31,7 +31,7 @@ import { AutomateSDK } from "@gelatonetwork/automate-sdk";
 ```typescript
 import { isAutomateSupported } from "@gelatonetwork/automate-sdk";
 
-if (!isAutomateSupported(chainId)) {
+if (!(await isAutomateSupported(chainId))) {
   console.log(`Automate network not supported (${chainId})`);
   return;
 }
@@ -40,7 +40,7 @@ if (!isAutomateSupported(chainId)) {
 3. Instantiate Automate using your signer:
 
 ```typescript
-const automate = new AutomateSDK(chainId, signer);
+const automate = await AutomateSDK.create(chainId, signer);
 ```
 
 4. Create an automation task:

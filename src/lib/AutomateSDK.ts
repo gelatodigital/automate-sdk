@@ -14,7 +14,6 @@ import {
   AUTOMATE_TASKS_API,
   AUTOMATE_TASKS_DEV_API,
   ETH,
-  GELATO_ADDRESSES,
   ZERO_ADD,
 } from "../constants";
 import {
@@ -37,11 +36,7 @@ import {
   TaskTransaction,
 } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import {
-  errorMessage,
-  isAutomateDevSupported,
-  isAutomateSupported,
-} from "../utils";
+import { errorMessage, w3fApi } from "../utils";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
 
@@ -54,50 +49,60 @@ export class AutomateSDK {
   private readonly _taskApi: Axios;
   private readonly _signature: Signature;
 
-  constructor(
+  private constructor(
+    chainId: number,
+    signer: Signer,
+    automate: Automate,
+    taskApi: Axios,
+    signature: Signature,
+  ) {
+    this._automateModule = new AutomateModule();
+    this._chainId = chainId;
+    this._signer = signer;
+    this._automate = automate;
+    this._taskApi = taskApi;
+    this._signature = signature;
+  }
+
+  public static async create(
     chainId: number,
     signer: Signer,
     signatureMessage?: string,
     config?: Partial<Config>,
-  ) {
-    let automateAddress: string;
-    if (config && config.isDevelopment) {
-      if (!isAutomateDevSupported(chainId)) {
+  ): Promise<AutomateSDK> {
+    const network = await w3fApi.getNetwork(chainId, config?.isDevelopment);
+    if (!network) {
+      if (config?.isDevelopment) {
         throw new Error(`AutomateDev is not available on chainId:${chainId}`);
-      }
-
-      automateAddress = GELATO_ADDRESSES[chainId].automateDev!;
-    } else {
-      if (!isAutomateSupported(chainId)) {
+      } else {
         throw new Error(`Automate is not available on chainId:${chainId}`);
       }
-
-      automateAddress = GELATO_ADDRESSES[chainId].automate;
     }
+
+    const automateAddress = network.automate;
 
     if (!Signer.isSigner(signer)) {
       throw new Error(`Invalid Automate signer`);
     }
 
-    this._automateModule = new AutomateModule();
-    this._signature = new Signature(
+    const automate = Automate__factory.connect(automateAddress, signer);
+
+    let taskApiUrl: string = AUTOMATE_TASKS_API;
+    if (config) {
+      taskApiUrl =
+        config.taskApi ??
+        (config.isDevelopment ? AUTOMATE_TASKS_DEV_API : AUTOMATE_TASKS_API);
+    }
+    const taskApi = axios.create({ baseURL: taskApiUrl });
+
+    const signature = new Signature(
       chainId,
       signer,
       signatureMessage,
       config?.signatureDomain,
     );
-    this._chainId = chainId;
-    this._signer = signer;
-    this._automate = Automate__factory.connect(automateAddress, this._signer);
 
-    let taskApiUrl: string = AUTOMATE_TASKS_API;
-    if (config) {
-      taskApiUrl =
-        config.taskApi ?? config.isDevelopment
-          ? AUTOMATE_TASKS_DEV_API
-          : AUTOMATE_TASKS_API;
-    }
-    this._taskApi = axios.create({ baseURL: taskApiUrl });
+    return new AutomateSDK(chainId, signer, automate, taskApi, signature);
   }
 
   public async getActiveTasks(creatorAddress?: string): Promise<Task[]> {

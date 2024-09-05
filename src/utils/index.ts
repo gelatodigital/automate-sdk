@@ -1,15 +1,54 @@
 import axios, { AxiosError } from "axios";
-import { GELATO_ADDRESSES } from "../constants";
+import { W3F_API_ENDPOINT, W3F_API_ENDPOINT_DEV } from "../constants";
+import { W3fNetwork } from "../types/W3fNetworks.interface";
 
-export function isAutomateSupported(chainId: number): boolean {
-  return Boolean(GELATO_ADDRESSES[chainId]);
+class W3FApi {
+  private _network: Map<string, string> = new Map();
+
+  public async getNetwork(
+    chainId: number,
+    isDevelopment?: boolean,
+  ): Promise<W3fNetwork | null> {
+    try {
+      const key = `${chainId}_${isDevelopment ? "dev" : "prod"}`;
+      const cacheNetwork = this._network.get(key);
+      if (cacheNetwork !== undefined) {
+        return JSON.parse(cacheNetwork) as W3fNetwork;
+      }
+
+      const endpoint = isDevelopment ? W3F_API_ENDPOINT_DEV : W3F_API_ENDPOINT;
+
+      const response = await axios.get<{ network: W3fNetwork }>(
+        `${endpoint}/${chainId}`,
+      );
+
+      this._network.set(key, JSON.stringify(response.data.network));
+
+      return response.data.network;
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status !== 404) {
+          console.error("Error getting network:", error.message);
+        }
+      } else {
+        console.error("Unexpected error getting network:", error);
+      }
+
+      return null;
+    }
+  }
 }
 
-export function isAutomateDevSupported(chainId: number): boolean {
-  return (
-    isAutomateSupported(chainId) &&
-    Boolean(GELATO_ADDRESSES[chainId].automateDev)
-  );
+export const w3fApi = new W3FApi();
+
+export async function isAutomateSupported(chainId: number): Promise<boolean> {
+  return (await w3fApi.getNetwork(chainId)) !== null;
+}
+
+export async function isAutomateDevSupported(
+  chainId: number,
+): Promise<boolean> {
+  return (await w3fApi.getNetwork(chainId, true)) !== null;
 }
 
 export function errorMessage(err: Error | AxiosError) {
