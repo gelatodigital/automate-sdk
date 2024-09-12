@@ -32,11 +32,12 @@ export class Web3FunctionSecrets {
     key: string,
     taskId?: string,
     authToken?: string,
+    address?: string,
   ): Promise<string> {
     try {
       await this._initialize();
 
-      const address = await this._signer.getAddress();
+      if (!address) address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
@@ -56,11 +57,15 @@ export class Web3FunctionSecrets {
     }
   }
 
-  public async list(taskId?: string, authToken?: string): Promise<Secrets> {
+  public async list(
+    taskId?: string,
+    authToken?: string,
+    address?: string,
+  ): Promise<Secrets> {
     try {
       await this._initialize();
 
-      const address = await this._signer.getAddress();
+      if (!address) address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
@@ -82,11 +87,12 @@ export class Web3FunctionSecrets {
     secrets: Secrets,
     taskId?: string,
     authToken?: string,
+    address?: string,
   ): Promise<void> {
     try {
       await this._initialize();
 
-      const address = await this._signer.getAddress();
+      if (!address) address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
@@ -110,11 +116,12 @@ export class Web3FunctionSecrets {
     key: string,
     taskId?: string,
     authToken?: string,
+    address?: string,
   ): Promise<void> {
     try {
       await this._initialize();
 
-      const address = await this._signer.getAddress();
+      if (!address) address = await this._signer.getAddress();
       if (!authToken) authToken = await this._signature.getAuthToken();
 
       const route = taskId
