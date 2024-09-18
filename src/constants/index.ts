@@ -67,6 +67,7 @@ export const CHAIN_ID = {
   BONITO: 69658185,
   EVERCLEAR: 25327,
   SHAPE: 360,
+  FILECOIN: 314,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -236,6 +237,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
   [CHAIN_ID.SHAPE]: {
+    automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.FILECOIN]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
   },
 };
