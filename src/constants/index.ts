@@ -68,6 +68,7 @@ export const CHAIN_ID = {
   EVERCLEAR: 25327,
   SHAPE: 360,
   FILECOIN: 314,
+  STORYTESTNET: 1513,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -241,5 +242,8 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.FILECOIN]: {
     automate: "0x2A6C106ae13B558BB9E2Ec64Bd2f1f7BEFF3A5E0",
+  },
+  [CHAIN_ID.STORYTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
