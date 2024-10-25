@@ -70,6 +70,7 @@ export const CHAIN_ID = {
   FILECOIN: 314,
   STORYTESTNET: 1513,
   POPBERRY: 1233,
+  CARVTESTNET: 123420000567,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -248,6 +249,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.POPBERRY]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.CARVTESTNET]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
