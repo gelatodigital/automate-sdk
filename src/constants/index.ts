@@ -71,6 +71,8 @@ export const CHAIN_ID = {
   STORYTESTNET: 1513,
   POPBERRY: 1233,
   CARVTESTNET: 123420000567,
+  INKSEPOLIA: 763373,
+  VOLMEX: 123420000588,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -252,6 +254,12 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.CARVTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.INKSEPOLIA]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.VOLMEX]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
