@@ -73,6 +73,7 @@ export const CHAIN_ID = {
   CARVTESTNET: 123420000567,
   INKSEPOLIA: 763373,
   VOLMEX: 123420000588,
+  STORY_ODYSSEY_TESTNET: 1516,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -260,6 +261,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.VOLMEX]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.STORY_ODYSSEY_TESTNET]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
