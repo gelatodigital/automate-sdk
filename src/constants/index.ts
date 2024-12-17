@@ -70,6 +70,12 @@ export const CHAIN_ID = {
   FILECOIN: 314,
   STORYTESTNET: 1513,
   POPBERRY: 1233,
+  CARVTESTNET: 123420000567,
+  INKSEPOLIA: 763373,
+  VOLMEX: 123420000588,
+  STORY_ODYSSEY_TESTNET: 1516,
+  SONIC: 146,
+  INK: 57073,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -248,6 +254,24 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.POPBERRY]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.CARVTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.INKSEPOLIA]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.VOLMEX]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.STORY_ODYSSEY_TESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.SONIC]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.INK]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
