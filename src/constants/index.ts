@@ -78,6 +78,8 @@ export const CHAIN_ID = {
   INK: 57073,
   SINGULARITY_TESTNET: 751,
   CORN: 21000000,
+  ABC_TESTNET: 112,
+  ROOTSTOCK_TESTNET: 31,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -280,6 +282,12 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.CORN]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.ABC_TESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.ROOTSTOCK_TESTNET]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
