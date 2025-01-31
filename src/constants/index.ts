@@ -77,6 +77,7 @@ export const CHAIN_ID = {
   SONIC: 146,
   INK: 57073,
   ABSTRACT: 2741,
+  ABCTESTNET: 121,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -277,5 +278,8 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.ABSTRACT]: {
     automate: "0xDc04c452547a4B3b81102333f40FD4bF45D355Ce",
+  },
+  [CHAIN_ID.ABCTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
