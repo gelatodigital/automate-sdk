@@ -79,6 +79,7 @@ export const CHAIN_ID = {
   ABSTRACT: 2741,
   ABCTESTNET: 121,
   BERACHAIN: 80094,
+  STORY: 1514,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -284,6 +285,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.BERACHAIN]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.STORY]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
