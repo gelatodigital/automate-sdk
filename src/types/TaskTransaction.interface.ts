@@ -1,6 +1,6 @@
-import { ContractTransaction } from "ethers";
+import { TransactionResponse } from "ethers";
 
 export interface TaskTransaction {
   taskId?: string;
-  tx: ContractTransaction;
+  tx: TransactionResponse;
 }
