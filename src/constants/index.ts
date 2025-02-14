@@ -80,7 +80,7 @@ export const CHAIN_ID = {
   ABCTESTNET: 121,
   BERACHAIN: 80094,
   STORY: 1514,
-  MONADTESTNET: 1338,
+  MONADTESTNET: 10143,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
