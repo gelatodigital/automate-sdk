@@ -81,6 +81,7 @@ export const CHAIN_ID = {
   BERACHAIN: 80094,
   STORY: 1514,
   MONADTESTNET: 10143,
+  ROOSTOCKTESTNET: 31,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -292,6 +293,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.MONADTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.ROOSTOCKTESTNET]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
