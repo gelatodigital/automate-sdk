@@ -86,6 +86,8 @@ export const CHAIN_ID = {
   ROOSTOCKTESTNET: 31,
   NIBIRU: 6900,
   NIBIRUTESTNET2: 6911,
+  CLINKMAINNET: 8818,
+  CLINKTESTNET: 123420000987,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -313,5 +315,11 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
   },
   [CHAIN_ID.NIBIRUTESTNET2]: {
     automate: "0xE5AC6cf74EC875ad9a48432716eE626Bbb2b12c3",
+  },
+  [CHAIN_ID.CLINKMAINNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.CLINKTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
