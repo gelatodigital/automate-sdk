@@ -88,6 +88,7 @@ export const CHAIN_ID = {
   NIBIRUTESTNET2: 6911,
   CLINKMAINNET: 8818,
   CLINKTESTNET: 123420000987,
+  EDUCHAINTESTNET: 656476,
 };
 
 export const GELATO_ADDRESSES: GelatoAddressBook = {
@@ -320,6 +321,9 @@ export const GELATO_ADDRESSES: GelatoAddressBook = {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
   [CHAIN_ID.CLINKTESTNET]: {
+    automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
+  },
+  [CHAIN_ID.EDUCHAINTESTNET]: {
     automate: "0xafd37d0558255aA687167560cd3AaeEa75c2841E",
   },
 };
