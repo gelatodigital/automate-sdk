@@ -1,4 +1,4 @@
-import { Signer } from "@ethersproject/abstract-signer";
+import { Signer } from "ethers";
 import axios, { Axios } from "axios";
 import { AUTOMATE_USER_API, AUTOMATE_USER_DEV_API } from "../../constants";
 import { Config, Secrets } from "../../types";
@@ -139,7 +139,12 @@ export class Web3FunctionSecrets {
 
   private async _initialize(): Promise<void> {
     if (!this._chainId) {
-      this._chainId = await this._signer.getChainId();
+      const provider = this._signer.provider;
+      if (!provider) {
+        throw new Error("Provider is not available.");
+      }
+      const network = await provider.getNetwork();
+      this._chainId = Number(network.chainId);
     }
   }
 }
