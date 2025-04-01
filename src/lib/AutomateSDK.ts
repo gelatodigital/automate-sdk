@@ -487,14 +487,14 @@ export class AutomateSDK {
     try {
       const apiUrl = isDevelopment ? AUTOMATE_W3F_DEV_API : AUTOMATE_W3F_API;
       const response = await axios.get<AutomateApiResponse>(
-        `${apiUrl}/networks${chainId}`,
+        `${apiUrl}/networks/${chainId}`,
       );
       const automateAddress = response.data.network.automate;
       return automateAddress;
     } catch (err) {
       const errMsg = errorMessage(err);
       console.error(
-        `Error fetching automate address for chainId:${chainId}. \n${errMsg}`,
+        `Error fetching automate address for chainId: ${chainId}. \n${errMsg}`,
       );
       throw new Error(
         `Error fetching automate address for chainId: ${chainId}. \n${errMsg}`,

@@ -8,31 +8,36 @@ if (!process.env.PK) throw new Error("Missing env PK");
 const pk = process.env.PK;
 if (!process.env.PROVIDER_URL) throw new Error("Missing env PROVIDER_URL");
 const providerUrl = process.env.PROVIDER_URL;
-const chainId = 80001; // mumbai
+const chainId = 80002; // amoy
 
-const iceCreamAddress = "0xa5f9b728ecEB9A1F6FCC89dcc2eFd810bA4Dec41"; // mumbai IceCreamNFT
-const iceCreamAbi = ["function lick(uint256) external"];
-const iceCreamInterface = new ethers.utils.Interface(iceCreamAbi);
+const counterAddress = "0xEEeBe2F778AA186e88dCf2FEb8f8231565769C27"; // amoy Counter Contract
+const counterAbi = ["function increment() external"];
+const counterInterface = new ethers.utils.Interface(counterAbi);
 
 const main = async () => {
   const provider = new ethers.providers.JsonRpcProvider(providerUrl);
 
   const wallet = new ethers.Wallet(pk as string, provider);
-  const sdk = new AutomateSDK(chainId, wallet);
+  const sdk = await AutomateSDK.create(chainId, wallet);
 
-  const { taskId, tx } = await sdk.createTask({
-    name: "AutomateSdkTest",
-    execAddress: iceCreamAddress,
-    execSelector: iceCreamInterface.getSighash("lick"),
-    execData: iceCreamInterface.encodeFunctionData("lick", [2]),
-    dedicatedMsgSender: true,
-    singleExec: true,
-    trigger: {
-      type: TriggerType.TIME,
-      start: (await provider.getBlock("latest")).timestamp + 300,
-      interval: 60 * 1000,
+  const { taskId, tx } = await sdk.createTask(
+    {
+      name: "AutomateSdkTest",
+      execAddress: counterAddress,
+      execSelector: counterInterface.getSighash("increment"),
+      execData: counterInterface.encodeFunctionData("increment"),
+      dedicatedMsgSender: true,
+      singleExec: true,
+      trigger: {
+        type: TriggerType.TIME,
+        start: (await provider.getBlock("latest")).timestamp + 300,
+        interval: 60 * 1000,
+      },
     },
-  });
+    {
+      gasPrice: ethers.utils.parseUnits("60", "gwei"),
+    },
+  );
 
   console.log("TaskId:", taskId);
   await tx.wait();
