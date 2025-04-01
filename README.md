@@ -26,24 +26,13 @@ npm install @gelatonetwork/automate-sdk
 import { AutomateSDK } from "@gelatonetwork/automate-sdk";
 ```
 
-2. Check if Automate is deployed on your network:
+2. Instantiate Automate using the static `create` method with your chain ID and signer:
 
 ```typescript
-import { isAutomateSupported } from "@gelatonetwork/automate-sdk";
-
-if (!isAutomateSupported(chainId)) {
-  console.log(`Automate network not supported (${chainId})`);
-  return;
-}
+const automate = await AutomateSDK.create(chainId, signer);
 ```
 
-3. Instantiate Automate using your signer:
-
-```typescript
-const automate = new AutomateSDK(chainId, signer);
-```
-
-4. Create an automation task:
+3. Create an automation task:
 
 ```typescript
 interface CreateTaskOptions {
@@ -112,7 +101,7 @@ await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task created, taskId: ${taskId} (tx hash: ${tx.hash})`);
 ```
 
-5. Retrieve all your tasks:
+4. Retrieve all your tasks:
 
 ```typescript
 const activeTasks = await automate.getActiveTasks();
@@ -121,13 +110,13 @@ activeTasks.forEach((task: Task) => {
 });
 ```
 
-6. Rename a task:
+5. Rename a task:
 
 ```typescript
 await automate.renameTask(taskId, "Another Gelato name");
 ```
 
-7. Cancel a task:
+6. Cancel a task:
 
 ```typescript
 const { taskId, tx }: TaskTransaction = await automate.cancelTask(taskId);
@@ -135,7 +124,7 @@ await tx.wait(); // Optionally wait for tx confirmation
 console.log(`Task canceled, taskId: ${taskId} (tx hash: ${tx.hash})`);
 ```
 
-8. Overriding gas settings:
+7. Overriding gas settings:
 
 If you need to override gas settings, you can pass an additional `Overrides` object to `createTask` & `cancelTask` methods:
 
@@ -151,7 +140,7 @@ const overrides: Overrides = { gasLimit: 2000000 };
 const tx: TaskTransaction = await automate.createTask(params, overrides);
 ```
 
-9. Whitelisting msg.sender of function:
+8. Whitelisting msg.sender of function:
 
 If you enabled `dedicatedMsgSender`, your task will be called via a dedicated `msg.sender` which you can whitelist on your smart contract for extra security.
 
