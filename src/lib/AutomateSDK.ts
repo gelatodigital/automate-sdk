@@ -13,8 +13,9 @@ import {
 import {
   AUTOMATE_TASKS_API,
   AUTOMATE_TASKS_DEV_API,
+  AUTOMATE_W3F_API,
+  AUTOMATE_W3F_DEV_API,
   ETH,
-  GELATO_ADDRESSES,
   ZERO_ADD,
 } from "../constants";
 import {
@@ -37,13 +38,10 @@ import {
   TaskTransaction,
 } from "../types";
 import { Module, ModuleData } from "../types/Module.interface";
-import {
-  errorMessage,
-  isAutomateDevSupported,
-  isAutomateSupported,
-} from "../utils";
+import { errorMessage } from "../utils";
 import { AutomateModule } from "./AutomateModule";
 import { Signature } from "./Signature";
+import { AutomateApiResponse } from "../types/Automate.interface";
 
 export class AutomateSDK {
   private _automateModule: AutomateModule;
@@ -54,27 +52,13 @@ export class AutomateSDK {
   private readonly _taskApi: Axios;
   private readonly _signature: Signature;
 
-  constructor(
+  private constructor(
     chainId: number,
     signer: Signer,
+    automateAddress: string,
     signatureMessage?: string,
     config?: Partial<Config>,
   ) {
-    let automateAddress: string;
-    if (config && config.isDevelopment) {
-      if (!isAutomateDevSupported(chainId)) {
-        throw new Error(`AutomateDev is not available on chainId:${chainId}`);
-      }
-
-      automateAddress = GELATO_ADDRESSES[chainId].automateDev!;
-    } else {
-      if (!isAutomateSupported(chainId)) {
-        throw new Error(`Automate is not available on chainId:${chainId}`);
-      }
-
-      automateAddress = GELATO_ADDRESSES[chainId].automate;
-    }
-
     if (!Signer.isSigner(signer)) {
       throw new Error(`Invalid Automate signer`);
     }
@@ -98,6 +82,25 @@ export class AutomateSDK {
           : AUTOMATE_TASKS_API;
     }
     this._taskApi = axios.create({ baseURL: taskApiUrl });
+  }
+
+  public static async create(
+    chainId: number,
+    signer: Signer,
+    signatureMessage?: string,
+    config?: Partial<Config>,
+  ) {
+    const automateAddress = await this._fetchAutomateAddress(
+      chainId,
+      config?.isDevelopment ?? false,
+    );
+    return new AutomateSDK(
+      chainId,
+      signer,
+      automateAddress,
+      signatureMessage,
+      config,
+    );
   }
 
   public async getActiveTasks(creatorAddress?: string): Promise<Task[]> {
@@ -474,6 +477,28 @@ export class AutomateSDK {
       console.error(`Error naming task for task ${data.taskId}. \n${errMsg}`);
 
       return undefined;
+    }
+  }
+
+  private static async _fetchAutomateAddress(
+    chainId: number,
+    isDevelopment: boolean,
+  ) {
+    try {
+      const apiUrl = isDevelopment ? AUTOMATE_W3F_DEV_API : AUTOMATE_W3F_API;
+      const response = await axios.get<AutomateApiResponse>(
+        `${apiUrl}/networks${chainId}`,
+      );
+      const automateAddress = response.data.network.automate;
+      return automateAddress;
+    } catch (err) {
+      const errMsg = errorMessage(err);
+      console.error(
+        `Error fetching automate address for chainId:${chainId}. \n${errMsg}`,
+      );
+      throw new Error(
+        `Error fetching automate address for chainId: ${chainId}. \n${errMsg}`,
+      );
     }
   }
 }
